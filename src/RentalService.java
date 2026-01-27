@@ -1,4 +1,3 @@
-//manage the whole system
-public class RentalSystem {
+public class RentalService {
 
 }
