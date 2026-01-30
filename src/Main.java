@@ -1,5 +1,11 @@
+import java.util.Scanner;
+
 public class Main {
   public static void main(String[] args) {
+    boolean quit = false;
+    int choice;
+    Scanner scanner = new Scanner(System.in);
+    
     System.out.println("Hello Admin!");
     ManagementSystem M = new ManagementSystem(10);
     Vehicle v1 = new Vehicle( "gasoline", "SUV", "Ford", "Escape", 300);
@@ -14,11 +20,50 @@ public class Main {
 //    rent.payment = payment; // Link payment to rent
 
 //    M.addVehicle(v1);
-    M.addVehicle(v2);
+//    M.addVehicle(v2);
 
-    M.showVehicle();
-    M.removeVehicle(1);
-    M.showVehicle();
+//    M.showVehicle();
+//    M.removeVehicle(1);
+//    M.showVehicle();
+
+    do {
+      System.out.println("""
+                    Management System:
+                    0. Quit
+                    1. Add vehicle
+                    2. Remove vehicle
+                    3. Update vehicle
+                    4. Show all vehicles
+                    """);
+      System.out.print("Enter choice: ");
+      choice = scanner.nextInt();
+      scanner.nextLine(); // <-- consume the leftover newline
+
+      switch (choice) {
+        case 0:
+          quit = true;
+          System.out.println("Exiting...");
+          break;
+        case 1:
+          M.addVehicle(scanner);
+          break;
+        case 2:
+          M.removeVehicle(scanner);
+          break;
+        case 3:
+          M.updateVehicle(scanner);
+          break;
+        case 4:
+          System.out.println();
+          M.showVehicle();
+          break;
+        default:
+          System.out.println("Invalid choice!");
+      }
+      System.out.println();
+    } while (!quit);
+
+    scanner.close();
 
 
   }

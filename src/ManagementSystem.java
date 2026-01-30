@@ -11,16 +11,30 @@ public class ManagementSystem {
         this.count = 0;
     }
 
-    public void addVehicle(Vehicle v1) {
-        if(v1 == null){
-            System.out.println("Cannot add: vehicle is null");
-            return;
-        }
+    public void addVehicle(Scanner scanner) {
+        // Take inputs
+        System.out.print("Enter powerSource ( Electric, Gasoline): ");
+        String powerSource = scanner.nextLine();
+
+        System.out.print("Enter vehicle class ( SUV, Sedan, Van): ");
+        String vehicleClass = scanner.nextLine();
+
+        System.out.print("Enter brand: ");
+        String brand = scanner.nextLine();
+
+        System.out.print("Enter model: ");
+        String model = scanner.nextLine();
+
+        System.out.print("Enter price: ");
+        double price = scanner.nextDouble();
+
+        Vehicle newVehicle = new Vehicle(powerSource, vehicleClass, brand, model, price);
+
         if(count >= garage.length){
             System.out.println("Garage is full! Cannot add new car.");
             return;
         }
-        garage[count++] = v1;
+        garage[count++] = newVehicle;
         System.out.println("Add vehicle successfully.");
         System.out.println("count: " + count);
     }
@@ -36,11 +50,14 @@ public class ManagementSystem {
         System.out.println();
     }
 
-    public void removeVehicle(int id) {
+    public void removeVehicle(Scanner scanner) {
         if (count == 0) {
             System.out.println("No vehicle to remove!");
             return;
         }
+
+        System.out.print("Enter vehicle ID(int): ");
+        int id = scanner.nextInt();
 
         int index = -1;
         for (int i = 0; i < count; i++) {
@@ -66,7 +83,13 @@ public class ManagementSystem {
         System.out.println("count: " + count);
     }
 
-    public void updateVehicle(int id, Scanner scanner) {
+    public void updateVehicle(Scanner scanner) {
+        if (count == 0) {
+            System.out.println("Garage is Empty!");
+            return;
+        }
+        System.out.print("Enter vehicle ID(int): ");
+        int id = scanner.nextInt();
         for (int i = 0; i < count; i++) {
             Vehicle item = garage[i];
             if (item.vehicleId == id) {

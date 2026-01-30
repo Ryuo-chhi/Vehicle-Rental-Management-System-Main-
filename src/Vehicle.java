@@ -27,7 +27,7 @@ public class Vehicle {
                 ", vehicleClass='" + vehicleClass + '\'' +
                 ", vehicleBrand='" + vehicleBrand + '\'' +
                 ", vehicleModel='" + vehicleModel + '\'' +
-                ", rentalRatePerDay=" + rentalRatePerDay +
+                ", rentalRatePerDay=" + rentalRatePerDay + "$" +
                 ", isAvailable=" + isAvailable +
                 '}';
     }
