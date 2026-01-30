@@ -1,17 +1,43 @@
 import java.util.Scanner;
 
+
 public class ManagementSystem {
     Vehicle[] garage;
     int garageSize; // capacity
     int count;      // current number of vehicles
+    String[][] cars = {
+            {"gasoline", "SUV", "Ford", "Escape", "300"},
+            {"electric", "Sedan", "Tesla", "Model 3", "500"},
+            {"diesel", "Truck", "Toyota", "Hilux", "400"},
+            {"hybrid", "Hatchback", "Honda", "Insight", "350"},
+            {"gasoline", "Coupe", "BMW", "M4", "600"}
+    };
+
+
+
 
     public ManagementSystem(int maxSize){
         this.garage = new Vehicle[maxSize];
         this.garageSize = maxSize;
         this.count = 0;
+        generateVehicleToGarage();
     }
+    public void generateVehicleToGarage(){
+        if(count >= garage.length){
+            System.out.println("Garage is full! Cannot add new car.");
+            return;
+        }
+        for (String[] car : cars) {
+            Vehicle newVehicle = new Vehicle(car[0], car[1], car[2], car[3], Double.parseDouble(car[4]));
+            garage[count++] = newVehicle;
+        }
 
+    }
     public void addVehicle(Scanner scanner) {
+        if(count >= garage.length){
+            System.out.println("Garage is full! Cannot add new car.");
+            return;
+        }
         // Take inputs
         System.out.print("Enter powerSource ( Electric, Gasoline): ");
         String powerSource = scanner.nextLine();
@@ -30,10 +56,6 @@ public class ManagementSystem {
 
         Vehicle newVehicle = new Vehicle(powerSource, vehicleClass, brand, model, price);
 
-        if(count >= garage.length){
-            System.out.println("Garage is full! Cannot add new car.");
-            return;
-        }
         garage[count++] = newVehicle;
         System.out.println("Add vehicle successfully.");
         System.out.println("count: " + count);

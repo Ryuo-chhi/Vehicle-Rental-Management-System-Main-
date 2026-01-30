@@ -8,8 +8,8 @@ public class Main {
     
     System.out.println("Hello Admin!");
     ManagementSystem M = new ManagementSystem(10);
-    Vehicle v1 = new Vehicle( "gasoline", "SUV", "Ford", "Escape", 300);
-    Vehicle v2 = new Vehicle( "gasoline", "SUV", "Ford", "Territory", 3000);
+//    Vehicle v1 = new Vehicle( "gasoline", "SUV", "Ford", "Escape", 300);
+//    Vehicle v2 = new Vehicle( "gasoline", "SUV", "Ford", "Territory", 3000);
 //    Customer customer = new Customer("John Doe", "D1234567", "john.d");
 
     // Step 1: Create rent (no payment yet)
