@@ -1,6 +1,6 @@
 public class Vehicle {
     int vehicleId;
-    String powerSource; // "gasoline", "electric", "hybrid"
+    String powerSource; // "gasoline", "diesel", "electric", "hybrid"
     String vehicleClass; // "sedan", "SUV", "truck", etc.
     String vehicleBrand;
     String vehicleModel; // "Toyota Camry", "Ford F-150", etc.

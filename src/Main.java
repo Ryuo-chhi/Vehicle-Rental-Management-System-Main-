@@ -8,32 +8,26 @@ public class Main {
     
     System.out.println("Hello Admin!");
     ManagementSystem M = new ManagementSystem(10);
-//    Vehicle v1 = new Vehicle( "gasoline", "SUV", "Ford", "Escape", 300);
-//    Vehicle v2 = new Vehicle( "gasoline", "SUV", "Ford", "Territory", 3000);
-//    Customer customer = new Customer("John Doe", "D1234567", "john.d");
 
-    // Step 1: Create rent (no payment yet)
-//    Rent rent = new Rent(vehicle, customer, 5);
+  //  Customer customer = new Customer("John Doe", "D1234567", "0612345678");
 
-    // Step 2: Customer pays later
-//    Payment payment = new Payment(250.0, "credit card");
-//    rent.payment = payment; // Link payment to rent
+  //   // Step 1: Create rent (no payment yet)
+  //  Rent rent = new Rent(M.findVehicleByID(scanner), customer, 5);
 
-//    M.addVehicle(v1);
-//    M.addVehicle(v2);
-
-//    M.showVehicle();
-//    M.removeVehicle(1);
-//    M.showVehicle();
+  //   // Step 2: Customer pays later
+  //  Payment payment = new Payment(250.0, "credit card");
+  //  rent.payment = payment; // Link payment to rent
 
     do {
       System.out.println("""
                     Management System:
                     0. Quit
-                    1. Add vehicle
-                    2. Remove vehicle
-                    3. Update vehicle
-                    4. Show all vehicles
+                    1. Vehicle Management
+                    2. Customer Management
+                    3. Rent Management -- soon
+                    4. Payment Management -- soon
+                    5. Report Management -- soon
+                    6. Other Management -- soon
                     """);
       System.out.print("Enter choice: ");
       choice = scanner.nextInt();
@@ -42,20 +36,28 @@ public class Main {
       switch (choice) {
         case 0:
           quit = true;
-          System.out.println("Exiting...");
+          System.out.println("Exiting the System...");
           break;
         case 1:
-          M.addVehicle(scanner);
+          M.vehicleManagement(scanner);
           break;
         case 2:
-          M.removeVehicle(scanner);
+          M.customerManagement(scanner);
           break;
         case 3:
-          M.updateVehicle(scanner);
+          System.out.println("soon...");
+          // M.rentManagement(scanner);
           break;
         case 4:
-          System.out.println();
-          M.showVehicle();
+          System.out.println("soon...");
+          // M.paymentManagement(scanner);
+          break;
+        case 5:
+          System.out.println("soon...");
+          break;
+        case 6:
+          System.out.println("soon...");
+          // M.otherManagement(scanner);
           break;
         default:
           System.out.println("Invalid choice!");
@@ -65,6 +67,6 @@ public class Main {
 
     scanner.close();
 
-
+    
   }
 }
