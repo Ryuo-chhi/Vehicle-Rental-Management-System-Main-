@@ -1,31 +1,33 @@
 import java.util.Scanner;
 
-
 public class ManagementSystem {
     Vehicle[] garage;
     int garageSize; // capacity
-    int count;      // current number of vehicles
+    int count; // current number of vehicles
     String[][] cars = {
-            {"gasoline", "SUV", "Ford", "Escape", "300"},
-            {"electric", "Sedan", "Tesla", "Model 3", "500"},
-            {"diesel", "Truck", "Toyota", "Hilux", "400"},
-            {"hybrid", "Hatchback", "Honda", "Insight", "350"},
-            {"gasoline", "Coupe", "BMW", "M4", "600"}
+            { "gasoline", "SUV", "Ford", "Escape", "300" },
+            { "electric", "Sedan", "Tesla", "Model 3", "500" },
+            { "diesel", "Truck", "Toyota", "Hilux", "400" },
+            { "hybrid", "Hatchback", "Honda", "Insight", "350" },
+            { "gasoline", "Coupe", "BMW", "M4", "600" }
     };
 
     Customer[] customers;
     int customerSize;
     int customerCount;
     String[][] custs = {
-            {"Aruna Smith", "D7654321", "0662345679"},
-            {"Bona Johnson", "D2345678", "0122345680"},
-            {"Champa Brown", "D3456789", "0172345681"},
-            {"Diana Prince", "D4567890", "0882345682"},
-            {"Eno Gonzalez", "D5678901", "0972345683"}
+            { "Aruna Smith", "D7654321", "0662345679" },
+            { "Bona Johnson", "D2345678", "0122345680" },
+            { "Champa Brown", "D3456789", "0172345681" },
+            { "Diana Prince", "D4567890", "0882345682" },
+            { "Eno Gonzalez", "D5678901", "0972345683" }
     };
 
+    Rent[] rents;
+    int rentSize;
+    int rentCount;
 
-    public ManagementSystem(int maxSize){
+    public ManagementSystem(int maxSize) {
         // Initialize garage
         this.garage = new Vehicle[maxSize];
         this.garageSize = maxSize;
@@ -36,26 +38,34 @@ public class ManagementSystem {
         this.customerSize = maxSize;
         this.customerCount = 0;
         generateCustomerToSystem();
+        // Initialize rent list
+        this.rents = new Rent[maxSize];
+        this.rentSize = maxSize;
+        this.rentCount = 0;
     }
 
     // Vehicle Management
 
-    public void generateVehicleToGarage(){
-        if(count >= garage.length){
+    public void generateVehicleToGarage() {
+        if (count >= garage.length) {
             System.out.println("Garage is full! Cannot add new car.");
             return;
         }
         for (String[] car : cars) {
+            if (count >= garage.length) {
+                System.out.println("Not enough space to add all predefined cars.");
+                break;
+            }
             Vehicle newVehicle = new Vehicle(car[0], car[1], car[2], car[3], Double.parseDouble(car[4]));
             garage[count++] = newVehicle;
         }
     }
 
-    public void vehicleManagement(Scanner scanner){
+    public void vehicleManagement(Scanner scanner) {
         System.out.println("Vehicle Management:");
         boolean quit = false;
         int choice;
-        do{
+        do {
             System.out.println("""
                     0.Quit
                     1. Add Vehicle
@@ -89,11 +99,11 @@ public class ManagementSystem {
             }
             System.out.println();
 
-        } while(!quit);
+        } while (!quit);
     }
-    
+
     public void addVehicle(Scanner scanner) {
-        if(count >= garage.length){
+        if (count >= garage.length) {
             System.out.println("Garage is full! Cannot add new car.");
             return;
         }
@@ -139,6 +149,14 @@ public class ManagementSystem {
 
         System.out.print("Enter vehicle ID(int): ");
         int id = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        for (int i = 0; i < rentCount; i++) {
+            if (rents[i] != null && rents[i].vehicle != null && rents[i].vehicle.vehicleId == id) {
+                System.out.println("Vehicle is currently rented and cannot be removed.");
+                return;
+            }
+        }
 
         int index = -1;
         for (int i = 0; i < count; i++) {
@@ -176,7 +194,7 @@ public class ManagementSystem {
             if (item.vehicleId == id) {
                 boolean quit = false;
                 int choice;
-                do{
+                do {
                     System.out.println("""
                             Update vehicle:
                             0.Quit
@@ -218,35 +236,50 @@ public class ManagementSystem {
                             scanner.nextLine();
                             break;
                         case 6:
-                            System.out.print("Update status(true/false): ");
-                            item.isAvailable = scanner.nextBoolean();
-                            scanner.nextLine();
+                            // Check if vehicle is currently rented
+                            boolean isRented = false;
+                            for (int j = 0; j < rentCount; j++) {
+                                if (rents[j] != null && rents[j].vehicle.vehicleId == id) {
+                                    isRented = true;
+                                    break;
+                                }
+                            }
+                            if (isRented) {
+                                System.out.println("Cannot change status - vehicle is currently rented!");
+                            } else {
+                                System.out.print("Update status(true/false): ");
+                                item.isAvailable = scanner.nextBoolean();
+                                scanner.nextLine();
+                            }
                             break;
                         default:
                             System.out.println("Invalid choice!");
                     }
                     System.out.println();
 
-                } while(!quit);
+                } while (!quit);
                 return;
             }
         }
         System.out.println("Vehicle not found!");
     }
 
-    public Vehicle findVehicleByID(Scanner scanner){
+    public Vehicle findVehicleByID(Scanner scanner) {
         System.out.print("Enter vehicle ID(int): ");
         int id = scanner.nextInt();
-        for(Vehicle vehicle: garage){
-            if(vehicle.vehicleId == id) return vehicle;
+        scanner.nextLine(); // consume newline
+
+        for (int i = 0; i < count; i++) {
+            if (garage[i].vehicleId == id)
+                return garage[i];
         }
         return null;
     }
 
     // Customer Management
 
-    public void generateCustomerToSystem(){
-        if(customerCount >= customers.length){
+    public void generateCustomerToSystem() {
+        if (customerCount >= customers.length) {
             System.out.println("Customer list is full! Cannot add new customer.");
             return;
         }
@@ -256,11 +289,11 @@ public class ManagementSystem {
         }
     }
 
-    public void customerManagement(Scanner scanner){
+    public void customerManagement(Scanner scanner) {
         System.out.println("Customer Management:");
         boolean quit = false;
         int choice;
-        do{
+        do {
             System.out.println("""
                     0.Quit
                     1. Add Customer
@@ -294,11 +327,11 @@ public class ManagementSystem {
             }
             System.out.println();
 
-        } while(!quit);
+        } while (!quit);
     }
 
     public void addCustomer(Scanner scanner) {
-        if(customerCount >= customers.length){
+        if (customerCount >= customers.length) {
             System.out.println("Customer list is full! Cannot add new customer.");
             return;
         }
@@ -312,7 +345,7 @@ public class ManagementSystem {
         System.out.print("Enter customer Phone: ");
         String customerPhone = scanner.nextLine();
 
-        Customer newCustomer = new Customer(customerIdCard,customerName,customerPhone);
+        Customer newCustomer = new Customer(customerIdCard, customerName, customerPhone);
 
         customers[customerCount++] = newCustomer;
         System.out.println("Add customer successfully.");
@@ -343,7 +376,7 @@ public class ManagementSystem {
             if (item.customerId == id) {
                 boolean quit = false;
                 int choice;
-                do{
+                do {
                     System.out.println("""
                             Update customer:
                             0.Quit
@@ -377,7 +410,7 @@ public class ManagementSystem {
                     }
                     System.out.println();
 
-                } while(!quit);
+                } while (!quit);
                 return;
             }
         }
@@ -392,6 +425,16 @@ public class ManagementSystem {
 
         System.out.print("Enter customer ID(int): ");
         int id = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        if (rentCount > 0) {
+            for (int i = 0; i < rentCount; i++) {
+                if (rents[i] != null && rents[i].customer != null && rents[i].customer.customerId == id) {
+                    System.out.println("Customer is associated with an active rent and cannot be removed.");
+                    return;
+                }
+            }
+        }
 
         int index = -1;
         for (int i = 0; i < customerCount; i++) {
@@ -417,13 +460,218 @@ public class ManagementSystem {
         System.out.println("customerCount: " + customerCount);
     }
 
-    public Customer findCustomerByID(Scanner scanner){
+    public Customer findCustomerByID(Scanner scanner) {
         System.out.print("Enter customer ID(int): ");
         int id = scanner.nextInt();
-        for(Customer customer: customers){
-            if(customer.customerId == id) return customer;
+        scanner.nextLine(); // consume newline
+
+        for (int i = 0; i < customerCount; i++) {
+            if (customers[i].customerId == id)
+                return customers[i];
         }
         return null;
+    }
+
+    // Rent Management
+
+    public void rentManagement(Scanner scanner) {
+        System.out.println("Rent Management:");
+        boolean quit = false;
+        int choice;
+        do {
+            System.out.println("""
+                    0.Quit
+                    1. Add Rent
+                    2. Show Rents
+                    3. Update Rent
+                    4. Remove Rent""");
+
+            System.out.print("Enter choice: ");
+            choice = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+
+            switch (choice) {
+                case 0:
+                    quit = true;
+                    break;
+                case 1:
+                    addRent(scanner);
+                    break;
+
+                case 2:
+                    showRents();
+                    break;
+                case 3:
+                    updateRent(scanner);
+                    break;
+                case 4:
+                    removeRent(scanner);
+                    break;
+                default:
+                    System.out.println("Invalid choice!");
+            }
+            System.out.println();
+
+        } while (!quit);
+    }
+
+    public void addRent(Scanner scanner) {
+
+        if (rentCount >= rents.length) {
+            System.out.println("Rent list is full! Cannot add new rent.");
+            return;
+        }
+        // Take inputs
+        System.out.print("Enter number of days: ");
+        int rentDays = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        Vehicle selectedVehicle = findVehicleByID(scanner);
+        Customer selectedCustomer = findCustomerByID(scanner);
+
+        if (selectedVehicle == null) {
+            System.out.println("Vehicle not found!");
+            return;
+        }
+        if (selectedCustomer == null) {
+            System.out.println("Customer not found!");
+            return;
+        }
+        if (!selectedVehicle.isAvailable) {
+            System.out.println("Vehicle is not available for rent!");
+            return;
+        }
+
+        Rent newRent = new Rent(selectedVehicle, selectedCustomer, rentDays);
+        // Mark vehicle as unavailable
+        selectedVehicle.isAvailable = false;
+
+        rents[rentCount++] = newRent;
+        System.out.println("Add rent successfully.");
+        System.out.println("rentCount: " + rentCount);
+    }
+
+    public void showRents() {
+        if (rentCount == 0) {
+            System.out.println("No rents!");
+            return;
+        }
+        for (int i = 0; i < rentCount; i++) {
+            System.out.println(rents[i].toString());
+        }
+        System.out.println();
+    }
+
+    public void updateRent(Scanner scanner) {
+        if (rentCount == 0) {
+            System.out.println("No rents!");
+            return;
+        }
+        System.out.print("Enter rent ID(int): ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        for (int i = 0; i < rentCount; i++) {
+            Rent item = rents[i];
+            if (item.rentId == id) {
+                boolean quit = false;
+                int choice;
+                do {
+                    System.out.println("""
+                            Update rent:
+                            0.Quit
+                            1. Rent Days
+                            2. Vehicle
+                            3. Customer
+                            4. Payment""");
+
+                    System.out.print("Enter choice: ");
+                    choice = scanner.nextInt();
+                    scanner.nextLine(); // consume newline
+
+                    switch (choice) {
+                        case 0:
+                            quit = true;
+                            break;
+                        case 1:
+                            System.out.print("New Rent Days: ");
+                            item.rentDays = scanner.nextInt();
+                            scanner.nextLine();
+                            break;
+
+                        case 2:
+                            Vehicle newVehicle = findVehicleByID(scanner);
+                            if (newVehicle == null) {
+                                System.out.println("Vehicle not found!");
+                            } else if (!newVehicle.isAvailable) {
+                                System.out.println("Selected vehicle is not available!");
+                            } else {
+                                // Mark old vehicle as available
+                                if (item.vehicle != null) {
+                                    item.vehicle.isAvailable = true;
+                                }
+                                // Mark new vehicle as unavailable
+                                newVehicle.isAvailable = false;
+                                // Update the vehicle
+                                item.vehicle = newVehicle;
+                                System.out.println("Vehicle updated successfully.");
+                            }
+                            break;
+                        case 3:
+                            Customer newCustomer = findCustomerByID(scanner);
+                            if (newCustomer == null) {
+                                System.out.println("Customer not found!");
+                            } else {
+                                item.customer = newCustomer;
+                                System.out.println("Customer updated successfully.");
+                            }
+                            break;
+                        case 4:
+                            // update payment
+                            break;
+                        default:
+                            System.out.println("Invalid choice!");
+                    }
+                    System.out.println();
+
+                } while (!quit);
+                return;
+            }
+        }
+    }
+
+    public void removeRent(Scanner scanner) {
+        if (rentCount == 0) {
+            System.out.println("No rent to remove!");
+            return;
+        }
+        System.out.print("Enter rent ID(int): ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        int index = -1;
+        for (int i = 0; i < rentCount; i++) {
+            if (rents[i].rentId == id) {
+                index = i;
+                break;
+            }
+        }
+        if (index == -1) {
+            System.out.println("Rent ID not found!");
+            return;
+        }
+        // Mark vehicle as available when rent is removed
+        if (rents[index].vehicle != null) {
+            rents[index].vehicle.isAvailable = true;
+        } else {
+            System.out.println("Warning: Rent has no associated vehicle!");
+        }
+
+        for (int i = index; i < rentCount - 1; i++) {
+            rents[i] = rents[i + 1];
+        }
+        rents[--rentCount] = null; // clear last element & decrement count
+        System.out.println("Remove rent successfully.");
     }
 
 }

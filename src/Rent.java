@@ -17,8 +17,8 @@ public class Rent {
 
     @Override
     public String toString() {
-        return "Rent [rentId=" + rentId + ", rentDays=" + rentDays + ", vehicle=" + vehicle + ", customer=" + customer
-                + ", payment=" + payment + "]";
+        return "Rent [rentId=" + rentId + ", rentDays=" + rentDays + ", " + vehicle + ", " + customer + ", payment=" + payment + "]";
     }
 
+    
 }

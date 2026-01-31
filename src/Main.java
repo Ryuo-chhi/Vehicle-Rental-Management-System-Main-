@@ -9,12 +9,8 @@ public class Main {
     System.out.println("Hello Admin!");
     ManagementSystem M = new ManagementSystem(10);
 
-  //  Customer customer = new Customer("John Doe", "D1234567", "0612345678");
-
-  //   // Step 1: Create rent (no payment yet)
-  //  Rent rent = new Rent(M.findVehicleByID(scanner), customer, 5);
-
-  //   // Step 2: Customer pays later
+    // Step 1: Create rent (no payment yet)
+    // Step 2: Customer pays later
   //  Payment payment = new Payment(250.0, "credit card");
   //  rent.payment = payment; // Link payment to rent
 
@@ -24,7 +20,7 @@ public class Main {
                     0. Quit
                     1. Vehicle Management
                     2. Customer Management
-                    3. Rent Management -- soon
+                    3. Rent Management
                     4. Payment Management -- soon
                     5. Report Management -- soon
                     6. Other Management -- soon
@@ -45,8 +41,7 @@ public class Main {
           M.customerManagement(scanner);
           break;
         case 3:
-          System.out.println("soon...");
-          // M.rentManagement(scanner);
+          M.rentManagement(scanner);
           break;
         case 4:
           System.out.println("soon...");
