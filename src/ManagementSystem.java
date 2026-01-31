@@ -480,11 +480,13 @@ public class ManagementSystem {
         int choice;
         do {
             System.out.println("""
-                    0.Quit
-                    1. Add Rent
-                    2. Show Rents
-                    3. Update Rent
-                    4. Remove Rent""");
+                        0.Quit
+                        1. Add Rent
+                        2. Show Rents
+                        3. Update Rent
+                        4. Remove Rent
+                        5. Return Vehicle
+                    """);
 
             System.out.print("Enter choice: ");
             choice = scanner.nextInt();
@@ -506,6 +508,9 @@ public class ManagementSystem {
                     break;
                 case 4:
                     removeRent(scanner);
+                    break;
+                case 5:
+                    returnVehicle(scanner);
                     break;
                 default:
                     System.out.println("Invalid choice!");
@@ -672,6 +677,57 @@ public class ManagementSystem {
         }
         rents[--rentCount] = null; // clear last element & decrement count
         System.out.println("Remove rent successfully.");
+    }
+
+    public void returnVehicle(Scanner scanner) {
+        if (rentCount == 0) {
+            System.out.println("No rents! Nothing to return.");
+            return;
+        }
+        System.out.print("Enter rent ID(int): ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        for (int i = 0; i < rentCount; i++) {
+            Rent item = rents[i];
+            if (item.rentId == id) {
+                if (item.vehicle == null) {
+                    System.out.println("Warning: Rent has no associated vehicle!"); // most likely not happen, an error
+                                                                                    // (corrupted data or manual
+                                                                                    // editing).
+                    return;
+                }
+                if (item.payment != null) {
+                    System.out.println("Payment already recorded for this rent.");
+                    return;
+                }
+
+                System.out.print("Enter extra days (0 if none): ");
+                item.extraDays = scanner.nextInt();
+                scanner.nextLine(); // consume newline
+
+                System.out.print("Enter damage fee (0 if none): ");
+                item.damageFee = scanner.nextDouble();
+                scanner.nextLine(); // consume newline
+
+                System.out.print("Enter discount (0 if none): ");
+                item.discount = scanner.nextDouble();
+                scanner.nextLine(); // consume newline
+
+                System.out.print("Enter payment method: ");
+                String paymentMethod = scanner.nextLine();
+
+                double total = item.calculateTotal();
+                item.payment = new Payment(total, paymentMethod);
+
+                item.vehicle.isAvailable = true;
+                System.out.println("Payment created. Total amount: $" + total);
+                System.out.println(
+                        "Vehicle with ID " + item.vehicle.vehicleId + " has been returned and is now available.");
+                return;
+            }
+        }
+        System.out.println("Rent ID not found!");
     }
 
 }
