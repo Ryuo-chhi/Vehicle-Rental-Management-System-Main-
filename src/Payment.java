@@ -2,8 +2,8 @@ public class Payment {
     int paymentId;
     double amount;
     String paymentMethod; // e.g., credit card, cash, online transfer, etc.
-    int extraDays;
-    double damageFee;
+//    String status; // "pending", "confirmed", "refunded"
+    Rent rent; // reference type
 
     static int countPaymentId = 1; // to ensure unique payment IDs
 
@@ -11,8 +11,9 @@ public class Payment {
         this.paymentId = countPaymentId++;
         this.amount = rent.calculateTotal();
         this.paymentMethod = paymentMethod;
-        this.extraDays = rent.extraDays; // Get from Rent
-        this.damageFee = rent.damageFee; // Get from Rent
+        this.rent = rent;
+//        this.status = "pending";
+
     }
     
 
@@ -22,8 +23,8 @@ public class Payment {
 
     @Override
     public String toString() {
-        return "Payment [id=" + paymentId + ", amount=" + amount + "$ , method=" + paymentMethod + ", extraDays="
-                + extraDays + ", damageFee=" + damageFee + "]";
+        return "Payment [id=" + paymentId + ", amount=" + amount + "$ , method=" + paymentMethod + ", rentId="
+                + rent.rentId + "]";
     }
 
 }

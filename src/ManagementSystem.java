@@ -27,6 +27,10 @@ public class ManagementSystem {
     int rentSize;
     int rentCount;
 
+    Payment[] payments;
+    int paymentSize;
+    int paymentCount;
+
     public ManagementSystem(int maxSize) {
         // Initialize garage
         this.garage = new Vehicle[maxSize];
@@ -42,6 +46,10 @@ public class ManagementSystem {
         this.rents = new Rent[maxSize];
         this.rentSize = maxSize;
         this.rentCount = 0;
+        // Initialize payment list
+        this.payments = new Payment[maxSize];
+        this.paymentSize = maxSize;
+        this.paymentCount = 0;
     }
 
     // Vehicle Management
@@ -743,6 +751,110 @@ public class ManagementSystem {
     }
 
     // Payment Management
+    public void paymentManagement(Scanner scanner) {
+        System.out.println("Payment Management: ");
+        if (paymentCount == 0) {
+            System.out.println("No payments yet!");
+            return;
+        }
+
+        boolean quit = false;
+        int choice;
+        do {
+            System.out.println("""
+                    0.Quit
+                    1. View All Payments
+                    2. Search Payment by ID
+                    3. Confirm Payment
+                    4. Refund Payment""");
+            System.out.print("Enter choice: ");
+            choice = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+
+            switch (choice) {
+                case 0:
+                    quit = true;
+                    break;
+                case 1:
+                    viewAllPayments();
+                    break;
+
+                case 2:
+                    System.out.print("Enter payment ID: ");
+                    int findId = scanner.nextInt();
+                    scanner.nextLine();
+                    Payment p = findPaymentById(findId);
+                    if (p != null) {
+                        System.out.println("Payment found: " + p);
+                    }else{
+                        System.out.println("Payment not found.");
+                    }
+                    break;
+                case 3:
+                    System.out.println("Enter payment ID to confirm: ");
+                    int confirmId = scanner.nextInt();
+                    if (confirmPayment(confirmId)) {
+                        System.out.println("Payment confirmed successfully!");
+                    } else {
+                        System.out.println("Payment not found.");
+                    }
+                    break;
+                case 4:
+                    System.out.print("Enter payment ID to refund: ");
+                    int refundId = scanner.nextInt();
+                    scanner.nextLine();
+                    if (refundPayment(refundId)) {
+                        System.out.println("Payment refunded successfully!");
+                    } else {
+                        System.out.println("Payment not found.");
+                    }
+                    break;
+
+                default:
+                    System.out.println("Invalid choice!");
+            }
+            System.out.println();
+
+        } while (!quit);
+    }
+
+    public void viewAllPayments() {
+        if (paymentCount == 0) {
+            System.out.println("No payments found!");
+            return;
+        }
+        for (int i = 0; i < paymentCount; i++){
+            System.out.println(payments[i]); // payments[] stores Payment objects
+        }
+    }
+    public Payment findPaymentById(int id) {
+        for (int i = 0; i < paymentCount; i++) {
+            if (payments[i].paymentId == id) {
+                return payments[i];
+            }
+        }
+        return null;
+    }
+    public boolean confirmPayment(int id) {
+        Payment p = findPaymentById(id);
+        if (p !=null) {
+            System.out.println("Payment confirmed successfully.");
+            return true;
+        }
+        System.out.println("Payment not found.");
+        return false;
+    }
+    public boolean refundPayment(int id) {
+        Payment p = findPaymentById(id);
+        if (p != null) {
+            System.out.println("Payment refunded successfully.");
+            return true;
+        }
+        System.out.println("Payment not found.");
+        return false;
+    }
+
+
 
     // History Management
 
