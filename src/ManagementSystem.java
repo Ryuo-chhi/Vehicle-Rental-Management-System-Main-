@@ -702,26 +702,26 @@ public class ManagementSystem {
                     return;
                 }
 
+                System.out.print("Enter discount (0 if none): ");
+                item.discount = scanner.nextDouble();
+                scanner.nextLine(); // consume newline
+
                 System.out.print("Enter extra days (0 if none): ");
                 item.extraDays = scanner.nextInt();
                 scanner.nextLine(); // consume newline
 
                 System.out.print("Enter damage fee (0 if none): ");
                 item.damageFee = scanner.nextDouble();
-                scanner.nextLine(); // consume newline
-
-                System.out.print("Enter discount (0 if none): ");
-                item.discount = scanner.nextDouble();
-                scanner.nextLine(); // consume newline
+                scanner.nextLine(); // consume newline    
 
                 System.out.print("Enter payment method: ");
                 String paymentMethod = scanner.nextLine();
 
-                double total = item.calculateTotal();
-                item.payment = new Payment(total, paymentMethod);
+                item.payment = new Payment(item, paymentMethod);
+                double total = item.payment.finalTotalPayment();
 
                 item.vehicle.isAvailable = true;
-                System.out.println("Payment created. Total amount: $" + total);
+                System.out.println("Payment created. Final total amount: $" + total);
                 System.out.println(
                         "Vehicle with ID " + item.vehicle.vehicleId + " has been returned and is now available.");
                 return;
@@ -730,4 +730,21 @@ public class ManagementSystem {
         System.out.println("Rent ID not found!");
     }
 
+    public Rent findRentByID(Scanner scanner) {
+        System.out.print("Enter rent ID(int): ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        for (int i = 0; i < rentCount; i++) {
+            if (rents[i].rentId == id)
+                return rents[i];
+        }
+        return null;
+    }
+
+    // Payment Management
+
+    // History Management
+
+    // Other Management
 }

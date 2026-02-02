@@ -7,10 +7,10 @@ public class Vehicle {
     double rentalRatePerDay;
     boolean isAvailable; 
 
-    static int nextVehicleId = 1; // this var keeps track of the next vehicle ID to assign. why static? because it's shared among all instances in order to ensure unique IDs.
+    static int countVehicleId = 1; // this var keeps track of the next vehicle ID to assign. why static? because it's shared among all instances in order to ensure unique IDs.
 
     public Vehicle(String powerSource, String vehicleClass, String vehicleBrand, String vehicleModel, double rentalRatePerDay) {
-        this.vehicleId = nextVehicleId++;
+        this.vehicleId = countVehicleId++;  
         this.powerSource = powerSource;
         this.vehicleClass = vehicleClass;
         this.vehicleBrand = vehicleBrand;

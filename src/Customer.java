@@ -4,10 +4,10 @@ public class Customer {
     String customerIdCard; // national id card number, passport number, driver's license number, etc.
     String customerPhone;
 
-    static int nextCustomerId = 1; // this var keeps track of the next customer ID to assign. why static? because it's shared among all instances in order to ensure unique IDs.
+    static int countCustomerId = 1; // this var keeps track of the next customer ID to assign. why static? because it's shared among all instances in order to ensure unique IDs.
 
     public Customer( String customerName, String customerIdCard, String customerPhone) {
-        this.customerId = nextCustomerId++;
+        this.customerId = countCustomerId++;
         this.customerIdCard = customerIdCard;
         this.customerName = customerName;
         this.customerPhone = customerPhone;
