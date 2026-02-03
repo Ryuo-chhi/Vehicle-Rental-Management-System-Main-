@@ -15,7 +15,7 @@ class Vehicle {
         this.vehicleClass = vehicleClass;
         this.vehicleBrand = vehicleBrand;
         this.vehicleModel = vehicleModel;
-        this.rentalRatePerDay = rentalRatePerDay;
+        this.rentalRatePerDay = rentalRatePerDay>0 ? rentalRatePerDay : 0;
         this.isAvailable = true;
     }
 
@@ -23,4 +23,6 @@ class Vehicle {
     public String toString() {
         return "Vehicle{vehicleId=" + vehicleId + ", powerSource='" + powerSource + "', vehicleClass='" + vehicleClass + "', vehicleBrand='" + vehicleBrand + "', vehicleModel='" + vehicleModel + "', rentalRatePerDay=" + rentalRatePerDay + "$, isAvailable=" + isAvailable + "}";
     }
+
+
 }

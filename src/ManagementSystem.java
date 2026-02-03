@@ -246,6 +246,7 @@ class ManagementSystem {
                 case 5 -> {
                     System.out.print("New Price: ");
                     item.rentalRatePerDay = scanner.nextDouble();
+                    item.rentalRatePerDay = item.rentalRatePerDay>0 ? item.rentalRatePerDay : 0;
                     scanner.nextLine();
                 }
                 case 6 -> {
