@@ -1,4 +1,4 @@
-public class Rent {
+class Rent {
     int rentId;
     int rentDays;
     Vehicle vehicle;
@@ -7,10 +7,11 @@ public class Rent {
     double discount;
     int extraDays;
     double damageFee;
+    double snapshotRate;
 
-    static int countRentId = 1; // to ensure unique rent IDs
+    static int countRentId = 1;
 
-    public Rent(Vehicle vehicle, Customer customer, int rentDays) {
+    Rent(Vehicle vehicle, Customer customer, int rentDays) {
         this.rentId = countRentId++;
         this.vehicle = vehicle;
         this.customer = customer;
@@ -19,23 +20,17 @@ public class Rent {
         this.discount = 0.0;
         this.extraDays = 0;
         this.damageFee = 0.0;
+        this.snapshotRate = (vehicle != null) ? vehicle.rentalRatePerDay : 0.0;
     }
 
-    public double calculateTotal() {
-        if (vehicle == null) {
-            return 0.0;
-        }
-        //Snapshot current rental rate
-        double price = vehicle.rentalRatePerDay;
-
-        double total = rentDays * price - discount;
+    double calculateTotal() {
+        if (vehicle == null) return 0.0;
+        double total = rentDays * snapshotRate - discount;
         return total;
     }
 
     @Override
     public String toString() {
-        return "Rent [rentId=" + rentId + ", rentDays=" + rentDays + ", " + vehicle + ", " + customer + ", payment="
-                + payment + "]";
+        return "Rent [rentId=" + rentId + ", rentDays=" + rentDays + ", " + vehicle + ", " + customer + ", payment=" + payment + "]";
     }
-
 }

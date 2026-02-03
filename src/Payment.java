@@ -1,29 +1,29 @@
-public class Payment {
+class Payment {
     int paymentId;
     double amount;
-    String paymentMethod; // e.g., credit card, cash, online transfer, etc.
+    String paymentMethod;
     int extraDays;
     double damageFee;
+    double snapshotRate;
 
-    static int countPaymentId = 1; // to ensure unique payment IDs
+    static int countPaymentId = 1;
 
-    public Payment(Rent rent, String paymentMethod) {
+    Payment(Rent rent, String paymentMethod) {
         this.paymentId = countPaymentId++;
         this.amount = rent.calculateTotal();
         this.paymentMethod = paymentMethod;
-        this.extraDays = rent.extraDays; // Get from Rent
-        this.damageFee = rent.damageFee; // Get from Rent
+        this.extraDays = rent.extraDays;
+        this.damageFee = rent.damageFee;
+        this.snapshotRate = rent.snapshotRate;
     }
-    
 
-    public double finalTotalPayment() {
-        return amount + extraDays * (amount / (amount / extraDays)) + damageFee;
+    double finalTotalPayment() {
+        return amount + (extraDays * snapshotRate) + damageFee;
     }
 
     @Override
     public String toString() {
-        return "Payment [id=" + paymentId + ", amount=" + amount + "$ , method=" + paymentMethod + ", extraDays="
+        return "Payment [id=" + paymentId + ", amount=" + amount + "$, method=" + paymentMethod + ", extraDays="
                 + extraDays + ", damageFee=" + damageFee + "]";
     }
-
 }
