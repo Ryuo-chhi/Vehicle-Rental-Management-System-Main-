@@ -1,42 +1,41 @@
-class Rent {
+public class Rent {
     int rentId;
     int rentDays;
+    String startDate;
+    String endDate;
+    String returnDate;
     Vehicle vehicle;
     Customer customer;
     Payment payment;
-    double discount;
-    int extraDays;
-    double damageFee;
-    double snapshotRate;
 
-    static int countRentId = 1;
+    static int countRentId = 1; // to ensure unique rent IDs
 
-    Rent(Vehicle vehicle, Customer customer, int rentDays) {
+    public Rent(Vehicle vehicle, Customer customer, int rentDays, String startDate, String endDate) {
         this.rentId = countRentId++;
         this.vehicle = vehicle;
         this.customer = customer;
         this.rentDays = rentDays;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.returnDate = "TBD";
         this.payment = null;
-        this.discount = 0.0;
-        this.extraDays = 0;
-        this.damageFee = 0.0;
-        this.snapshotRate = (vehicle != null) ? vehicle.rentalRatePerDay : 0.0;
-    }
 
-    double calculateTotal() {
-        if (vehicle == null) return 0.0;
-        double total = rentDays * snapshotRate - discount;
-        return total;
+    }
+    public void setPayment(Payment payment) {
+        this.payment = payment;
     }
 
     @Override
     public String toString() {
         return "Rent{" +
                 "rentId=" + rentId +
-                ", rentDays=" + rentDays + "\n" +
+                ", rentDays=" + rentDays +
+                ", startDate='" + startDate + '\'' +
+                ", endDate='" + endDate + '\'' +
+                ", returnDate='" + returnDate + '\'' + "\n" +
                 ", vehicle=" + vehicle + "\n" +
-                ", customer=" + customer + "\n" +
-                ", payment=" + payment +
+                ", customer=" + customer +"\n" +
+                ", payment=" + payment + "\n" +
                 '}';
     }
 }
