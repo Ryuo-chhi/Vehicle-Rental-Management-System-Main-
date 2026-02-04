@@ -7,7 +7,7 @@ public class Payment {
     int extraDays;
     double damageFee;
     String payDate;
-    // Rent rent;
+    String status; // PENDING or PAID
     double deposit;
 
     static int countPaymentId = 1; // to ensure unique payment IDs
@@ -19,11 +19,11 @@ public class Payment {
         this.discount = 0.0;
         this.extraDays = 0;
         this.damageFee = 0.0;
-        this.deposit = deposit>0 ? deposit: 0.0;
+        this.deposit = deposit > 0 ? deposit : 0.0;
         this.rentDays = rentDays;
         this.payDate = "TBD";
+        this.status = "PENDING";
     }
-
 
     public double calculateTotal() {
         // Base cost for the rental period
@@ -48,7 +48,7 @@ public class Payment {
         return total;
     }
 
-    public  double expectedTotal(){
+    public double expectedTotal() {
         return price * this.rentDays - deposit;
     }
 
@@ -65,6 +65,7 @@ public class Payment {
                 ", deposit=" + deposit + "$" +
                 ", Expected total=" + expectedTotal() + "$" +
                 ", Final total=" + calculateTotal() + "$" +
+                ", status='" + status + '\'' +
                 '}';
     }
 }

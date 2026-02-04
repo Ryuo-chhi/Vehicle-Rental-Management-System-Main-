@@ -21,6 +21,7 @@ public class Rent {
         this.payment = null;
 
     }
+
     public void setPayment(Payment payment) {
         this.payment = payment;
     }
@@ -34,7 +35,7 @@ public class Rent {
                 ", endDate='" + endDate + '\'' +
                 ", returnDate='" + returnDate + '\'' + "\n" +
                 ", vehicle=" + vehicle + "\n" +
-                ", customer=" + customer +"\n" +
+                ", customer=" + customer.toStringSimple() + "\n" +
                 ", payment=" + payment + "\n" +
                 '}';
     }

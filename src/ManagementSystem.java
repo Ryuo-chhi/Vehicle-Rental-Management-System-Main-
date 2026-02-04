@@ -5,22 +5,22 @@ public class ManagementSystem {
     int garageSize; // capacity
     int count; // current number of vehicles
     String[][] cars = {
-            { "gasoline", "SUV", "Ford", "Escape", "300", "DL-01-AB-1234", "PP-1000" },
-            { "electric", "Sedan", "Tesla", "Model 3", "500", "DL-02-CD-5678", "PP-1001" },
-            { "diesel", "Truck", "Toyota", "Hilux", "400", "DL-03-EF-9012", "PP-1002" },
-            { "hybrid", "Hatchback", "Honda", "Insight", "350", "DL-04-GH-3456", "PP-1003" },
-            { "gasoline", "Coupe", "BMW", "M4", "600", "DL-05-IJ-7890", "PP-1004" }
+            { "gasoline", "SUV", "Ford", "Escape", "300", "VL-01-AB-1234", "PP-1000" },
+            { "electric", "Sedan", "Tesla", "Model 3", "500", "VL-02-CD-5678", "PP-1001" },
+            { "diesel", "Truck", "Toyota", "Hilux", "400", "VL-03-EF-9012", "PP-1002" },
+            { "hybrid", "Hatchback", "Honda", "Insight", "350", "VL-04-GH-3456", "PP-1003" },
+            { "gasoline", "Coupe", "BMW", "M4", "600", "VL-05-IJ-7890", "PP-1004" }
     };
 
     Customer[] customers;
     int customerSize;
     int customerCount;
     String[][] custs = {
-            { "Aruna Smith", "D7654321", "0662345679" },
-            { "Bona Johnson", "D2345678", "0122345680" },
-            { "Champa Brown", "D3456789", "0172345681" },
-            { "Diana Prince", "D4567890", "0882345682" },
-            { "Eno Gonzalez", "D5678901", "0972345683" }
+            { "Aruna Smith", "D7654321", "0662345679", "IDCard.jpg", "DriverLicense.jpg" },
+            { "Bona Johnson", "D2345678", "0122345680", "IDCard.jpg", "DriverLicense.jpg" },
+            { "Champa Brown", "D3456789", "0172345681", "IDCard.jpg", "DriverLicense.jpg" },
+            { "Diana Prince", "D4567890", "0882345682", "IDCard.jpg", "DriverLicense.jpg" },
+            { "Eno Gonzalez", "D5678901", "0972345683", "IDCard.jpg", "DriverLicense.jpg" }
     };
 
     Rent[] rents;
@@ -56,7 +56,8 @@ public class ManagementSystem {
                 System.out.println("Not enough space to add all predefined cars.");
                 break;
             }
-            Vehicle newVehicle = new Vehicle(car[0], car[1], car[2], car[3], Double.parseDouble(car[4]), car[5], car[6]);
+            Vehicle newVehicle = new Vehicle(car[0], car[1], car[2], car[3], Double.parseDouble(car[4]), car[5],
+                    car[6]);
             garage[count++] = newVehicle;
         }
     }
@@ -67,7 +68,7 @@ public class ManagementSystem {
         int choice;
         do {
             System.out.println("""
-                    0.Quit
+                    0. Back to Main Menu
                     1. Add Vehicle
                     2. Show Vehicles
                     3. Update Vehicle
@@ -204,7 +205,7 @@ public class ManagementSystem {
                 do {
                     System.out.println("""
                             Update vehicle:
-                            0.Quit
+                            0. Back to Vehicle Management
                             1. powerSource
                             2. Vehicle Class
                             3. Brand
@@ -302,7 +303,7 @@ public class ManagementSystem {
         int choice;
         do {
             System.out.println("""
-                    0.Quit
+                    0. Back to Main Menu
                     1. Add Customer
                     2. Show Customers
                     3. Update Customer
@@ -385,11 +386,14 @@ public class ManagementSystem {
                 int choice;
                 do {
                     System.out.println("""
-                            Update customer:
-                            0.Quit
-                            1. ID Card
-                            2. Name
-                            3. Phone""");
+                                Update customer:
+                                0. Back to Customer Management
+                                1. ID Card Number
+                                2. Name
+                                3. Phone
+                                4. ID Card Photo
+                                5. Driver License Photo
+                            """);
 
                     System.out.print("Enter choice: ");
                     choice = scanner.nextInt();
@@ -411,6 +415,14 @@ public class ManagementSystem {
                         case 3:
                             System.out.print("New Phone: ");
                             item.customerPhone = scanner.nextLine();
+                            break;
+                        case 4:
+                            System.out.print("New ID Card Photo: ");
+                            item.IDCardPhoto = scanner.nextLine();
+                            break;
+                        case 5:
+                            System.out.print("New Driver License Photo: ");
+                            item.DriverLicensePhoto = scanner.nextLine();
                             break;
                         default:
                             System.out.println("Invalid choice!");
@@ -487,7 +499,7 @@ public class ManagementSystem {
         int choice;
         do {
             System.out.println("""
-                        0.Quit
+                        0. Back to Main Menu
                         1. Add Rent
                         2. Show Rents
                         3. Update Rent
@@ -534,7 +546,7 @@ public class ManagementSystem {
             return;
         }
         // Take inputs
-        System.out.print("Enter number of days: ");
+        System.out.print("Enter number of days(int): ");
         int rentDays = scanner.nextInt();
         scanner.nextLine(); // consume newline
 
@@ -558,8 +570,7 @@ public class ManagementSystem {
         System.out.print("Enter end date: ");
         String endDate = scanner.nextLine();
 
-
-        //snapshot vehicle price
+        // snapshot vehicle price
         double vehiclePrice = selectedVehicle.rentalRatePerDay;
         Rent newRent = new Rent(selectedVehicle, selectedCustomer, rentDays, startDate, endDate);
 
@@ -607,7 +618,7 @@ public class ManagementSystem {
                 do {
                     System.out.println("""
                             Update rent:
-                            0.Quit
+                            0. Back to Rent Management
                             1. Rent Days
                             2. Vehicle
                             3. Customer
@@ -726,13 +737,24 @@ public class ManagementSystem {
                 // if there's discount or extra day or damage
                 System.out.print("Update special case(true/false): ");
                 boolean update = scanner.nextBoolean();
-                if(update) updatePayment(scanner, item);
+                scanner.nextLine(); // consume newline after boolean
+                if (update)
+                    updatePayment(scanner, item);
 
-                System.out.print("Enter payDate: ");
-                item.payment.payDate = scanner.nextLine();
-                item.returnDate = item.payment.payDate;
+                // Require payDate - keep asking until valid input
+                String payDate = "";
+                while (payDate.trim().isEmpty()) {
+                    System.out.print("Enter payDate (required): ");
+                    payDate = scanner.nextLine();
+                    if (payDate.trim().isEmpty()) {
+                        System.out.println("PayDate cannot be empty!");
+                    }
+                }
+                item.payment.payDate = payDate;
+                item.returnDate = payDate;
 
                 item.payment.paymentMethod = paymentMethod;
+                item.payment.status = "PAID";
                 double total = item.payment.calculateTotal();
 
                 item.vehicle.isAvailable = true;
@@ -759,7 +781,11 @@ public class ManagementSystem {
     }
 
     // Payment Management
-    public void  updatePayment(Scanner scanner, Rent item){
+    public void updatePayment(Scanner scanner, Rent item) {
+        if (item == null) {
+            System.out.println("Rent not found!");
+            return;
+        }
         System.out.print("Enter discount (0 if none): ");
         item.payment.discount = scanner.nextDouble();
         scanner.nextLine(); // consume newline
@@ -771,6 +797,36 @@ public class ManagementSystem {
         System.out.print("Enter damage fee (0 if none): ");
         item.payment.damageFee = scanner.nextDouble();
         scanner.nextLine(); // consume newline
+    }
+
+    public void showPayment(Scanner scanner) {
+        if (rentCount == 0) {
+            System.out.println("No rent, no payment to show!");
+            return;
+        }
+        for (int i = 0; i < rentCount; i++) {
+            System.out.println(rents[i].payment);
+        }
+    }
+
+    public void paymentManagement(Scanner scanner) {
+        boolean quit = false;
+        do {
+            System.out.println("Payment Management: \n" +
+                    "0. Back to Main Menu\n" +
+                    "1. Show payment\n" +
+                    "2. Update payment\n");
+            System.out.print("Enter your choice(int): ");
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+            switch (choice) {
+                case 0 -> quit = true;
+                case 1 -> showPayment(scanner);
+                case 2 -> updatePayment(scanner, findRentByID(scanner));
+                default -> System.out.println("Invalid choice!");
+            }
+            System.out.println();
+        } while (!quit);
     }
 
     // History Management
