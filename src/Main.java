@@ -47,7 +47,7 @@ class Main {
         Customer testCustomer = new Customer("John Doe", "P1234567", "0123456789");
         Rent rent = new Rent(vehicleForRent, testCustomer, 5, "2026-02-05", "2026-02-10");
         // Create payment with snapshot of vehicle price
-        Payment payment = new Payment(rent.rentDays, vehicleForRent.rentalRatePerDay, 100);
+        Payment payment = new Payment(rent.getRentDays(), vehicleForRent.rentalRatePerDay, 100);
         double snapshotTotal = payment.expectedTotal(); // Uses price captured at Payment creation
         vehicleForRent.rentalRatePerDay = 1000; // Change original after payment created
         double afterChangeTotal = payment.expectedTotal(); // Still uses snapshot price
@@ -57,6 +57,11 @@ class Main {
         System.out.println("  After changing vehicle rate to 1000:");
         System.out.println("  Recalculated total still uses snapshot: " + afterChangeTotal);
         System.out.println("  Proof: Payment uses snapshot price, not current vehicle rate.\n");
+
+        // Static Method Proof
+        System.out.println("Static Method Proof:");
+        System.out.println("  Rent.getTotalRentCount(): " + Rent.getTotalRentCount());
+        System.out.println("  (Called using ClassName.method())\n");
 
         System.out.println("========== END OF PROOFS ==========");
         System.out.println();

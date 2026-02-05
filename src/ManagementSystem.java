@@ -160,7 +160,7 @@ public class ManagementSystem {
         scanner.nextLine(); // consume newline
 
         for (int i = 0; i < rentCount; i++) {
-            if (rents[i] != null && rents[i].vehicle != null && rents[i].vehicle.vehicleId == id) {
+            if (rents[i] != null && rents[i].getVehicle() != null && rents[i].getVehicle().vehicleId == id) {
                 System.out.println("Vehicle is currently rented and cannot be removed.");
                 return;
             }
@@ -247,7 +247,7 @@ public class ManagementSystem {
                             // Check if vehicle is currently rented
                             boolean isRented = false;
                             for (int j = 0; j < rentCount; j++) {
-                                if (rents[j] != null && rents[j].vehicle.vehicleId == id) {
+                                if (rents[j] != null && rents[j].getVehicle().vehicleId == id) {
                                     isRented = true;
                                     break;
                                 }
@@ -448,7 +448,7 @@ public class ManagementSystem {
 
         if (rentCount > 0) {
             for (int i = 0; i < rentCount; i++) {
-                if (rents[i] != null && rents[i].customer != null && rents[i].customer.customerId == id) {
+                if (rents[i] != null && rents[i].getCustomer() != null && rents[i].getCustomer().customerId == id) {
                     System.out.println("Customer is associated with an active rent and cannot be removed.");
                     return;
                 }
@@ -518,7 +518,6 @@ public class ManagementSystem {
                 case 1:
                     addRent(scanner);
                     break;
-
                 case 2:
                     showRents();
                     break;
@@ -546,9 +545,18 @@ public class ManagementSystem {
             return;
         }
         // Take inputs
-        System.out.print("Enter number of days(int): ");
-        int rentDays = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+        // Take inputs
+        int rentDays;
+        while (true) {
+            System.out.print("Enter number of days(int): ");
+            rentDays = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+            if (rentDays > 0) {
+                break;
+            } else {
+                System.out.println("Rent days must be greater than 0. Please try again.");
+            }
+        }
 
         Vehicle selectedVehicle = findVehicleByID(scanner);
         Customer selectedCustomer = findCustomerByID(scanner);
@@ -577,7 +585,7 @@ public class ManagementSystem {
         System.out.print("Enter deposit amount: ");
         double deposit = scanner.nextDouble();
         scanner.nextLine(); // consume newline
-        Payment payment = new Payment(newRent.rentDays, vehiclePrice, deposit);
+        Payment payment = new Payment(newRent.getRentDays(), vehiclePrice, deposit);
 
         // add payment to rent
         newRent.setPayment(payment);
@@ -612,7 +620,7 @@ public class ManagementSystem {
 
         for (int i = 0; i < rentCount; i++) {
             Rent item = rents[i];
-            if (item.rentId == id) {
+            if (item.getRentId() == id) {
                 boolean quit = false;
                 int choice;
                 do {
@@ -634,7 +642,7 @@ public class ManagementSystem {
                             break;
                         case 1:
                             System.out.print("New Rent Days: ");
-                            item.rentDays = scanner.nextInt();
+                            item.setRentDays(scanner.nextInt());
                             scanner.nextLine();
                             break;
 
@@ -646,13 +654,13 @@ public class ManagementSystem {
                                 System.out.println("Selected vehicle is not available!");
                             } else {
                                 // Mark old vehicle as available
-                                if (item.vehicle != null) {
-                                    item.vehicle.isAvailable = true;
+                                if (item.getVehicle() != null) {
+                                    item.getVehicle().isAvailable = true;
                                 }
                                 // Mark new vehicle as unavailable
                                 newVehicle.isAvailable = false;
                                 // Update the vehicle
-                                item.vehicle = newVehicle;
+                                item.setVehicle(newVehicle);
                                 System.out.println("Vehicle updated successfully.");
                             }
                             break;
@@ -661,7 +669,7 @@ public class ManagementSystem {
                             if (newCustomer == null) {
                                 System.out.println("Customer not found!");
                             } else {
-                                item.customer = newCustomer;
+                                item.setCustomer(newCustomer);
                                 System.out.println("Customer updated successfully.");
                             }
                             break;
@@ -690,7 +698,7 @@ public class ManagementSystem {
 
         int index = -1;
         for (int i = 0; i < rentCount; i++) {
-            if (rents[i].rentId == id) {
+            if (rents[i].getRentId() == id) {
                 index = i;
                 break;
             }
@@ -700,8 +708,8 @@ public class ManagementSystem {
             return;
         }
         // Mark vehicle as available when rent is removed
-        if (rents[index].vehicle != null) {
-            rents[index].vehicle.isAvailable = true;
+        if (rents[index].getVehicle() != null) {
+            rents[index].getVehicle().isAvailable = true;
         } else {
             System.out.println("Warning: Rent has no associated vehicle!");
         }
@@ -724,8 +732,8 @@ public class ManagementSystem {
 
         for (int i = 0; i < rentCount; i++) {
             Rent item = rents[i];
-            if (item.rentId == id) {
-                if (item.vehicle == null) {
+            if (item.getRentId() == id) {
+                if (item.getVehicle() == null) {
                     System.out.println("Warning: Rent has no associated vehicle!"); // most likely not happen, an error
                     // (corrupted data or manual
                     // editing).
@@ -750,17 +758,17 @@ public class ManagementSystem {
                         System.out.println("PayDate cannot be empty!");
                     }
                 }
-                item.payment.payDate = payDate;
-                item.returnDate = payDate;
+                item.getPayment().payDate = payDate;
+                item.setReturnDate(payDate);
 
-                item.payment.paymentMethod = paymentMethod;
-                item.payment.status = "PAID";
-                double total = item.payment.calculateTotal();
+                item.getPayment().paymentMethod = paymentMethod;
+                item.getPayment().status = "PAID";
+                double total = item.getPayment().calculateTotal();
 
-                item.vehicle.isAvailable = true;
+                item.getVehicle().isAvailable = true;
                 System.out.println("Payment created. Final total amount: $" + total);
                 System.out.println(
-                        "Vehicle with ID " + item.vehicle.vehicleId + " has been returned and is now available.");
+                        "Vehicle with ID " + item.getVehicle().vehicleId + " has been returned and is now available.");
                 System.out.println();
                 return;
             }
@@ -774,7 +782,7 @@ public class ManagementSystem {
         scanner.nextLine(); // consume newline
 
         for (int i = 0; i < rentCount; i++) {
-            if (rents[i].rentId == id)
+            if (rents[i].getRentId() == id)
                 return rents[i];
         }
         return null;
@@ -787,15 +795,15 @@ public class ManagementSystem {
             return;
         }
         System.out.print("Enter discount (0 if none): ");
-        item.payment.discount = scanner.nextDouble();
+        item.getPayment().discount = scanner.nextDouble();
         scanner.nextLine(); // consume newline
 
         System.out.print("Enter extra days (0 if none): ");
-        item.payment.extraDays = scanner.nextInt();
+        item.getPayment().extraDays = scanner.nextInt();
         scanner.nextLine(); // consume newline
 
         System.out.print("Enter damage fee (0 if none): ");
-        item.payment.damageFee = scanner.nextDouble();
+        item.getPayment().damageFee = scanner.nextDouble();
         scanner.nextLine(); // consume newline
     }
 
@@ -805,7 +813,7 @@ public class ManagementSystem {
             return;
         }
         for (int i = 0; i < rentCount; i++) {
-            System.out.println(rents[i].payment);
+            System.out.println(rents[i].getPayment());
         }
     }
 
