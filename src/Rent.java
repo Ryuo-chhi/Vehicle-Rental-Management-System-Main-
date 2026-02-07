@@ -4,6 +4,7 @@ public class Rent {
     private String startDate;
     private String endDate;
     private String returnDate;
+    private boolean status;
     
     private Vehicle vehicle;
     private Customer customer;
@@ -20,7 +21,7 @@ public class Rent {
         this.endDate = endDate;
         this.returnDate = "TBD";
         this.payment = null;
-
+        this.status = false;
     }
 
     // ===== GETTERS =====
@@ -54,6 +55,10 @@ public class Rent {
 
     public Payment getPayment() {
         return payment;
+    }
+
+    public boolean isStatus() {
+        return status;
     }
 
     public static int getTotalRentCount() {
@@ -101,6 +106,9 @@ public class Rent {
         }
     }
 
+    public void setStatus(){
+        this.status = true;
+    }
     @Override
     public String toString() {
         return "Rent{" +

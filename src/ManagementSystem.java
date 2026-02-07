@@ -160,7 +160,7 @@ public class ManagementSystem {
         scanner.nextLine(); // consume newline
 
         for (int i = 0; i < rentCount; i++) {
-            if (rents[i] != null && rents[i].getVehicle() != null && rents[i].getVehicle().vehicleId == id) {
+            if (rents[i] != null && rents[i].getVehicle() != null && rents[i].getVehicle().getVehicleId() == id) {
                 System.out.println("Vehicle is currently rented and cannot be removed.");
                 return;
             }
@@ -168,7 +168,7 @@ public class ManagementSystem {
 
         int index = -1;
         for (int i = 0; i < count; i++) {
-            if (garage[i].vehicleId == id) {
+            if (garage[i].getVehicleId() == id) {
                 index = i;
                 break;
             }
@@ -199,7 +199,7 @@ public class ManagementSystem {
         int id = scanner.nextInt();
         for (int i = 0; i < count; i++) {
             Vehicle item = garage[i];
-            if (item.vehicleId == id) {
+            if (item.getVehicleId() == id) {
                 boolean quit = false;
                 int choice;
                 do {
@@ -223,31 +223,36 @@ public class ManagementSystem {
                             break;
                         case 1:
                             System.out.print("New powerSource: ");
-                            item.powerSource = scanner.nextLine();
+                            String powerSource = scanner.nextLine();
+                            item.setPowerSource(powerSource);
                             break;
 
                         case 2:
                             System.out.print("New Vehicle Class: ");
-                            item.vehicleClass = scanner.nextLine();
+                            String vehicleClass = scanner.nextLine();
+                            item.setVehicleClass(vehicleClass);
                             break;
                         case 3:
                             System.out.print("New Brand: ");
-                            item.vehicleBrand = scanner.nextLine();
+                            String vehicleBrand = scanner.nextLine();
+                            item.setVehicleBrand(vehicleBrand);
                             break;
                         case 4:
                             System.out.print("New Model: ");
-                            item.vehicleModel = scanner.nextLine();
+                            String vehicleModel = scanner.nextLine();
+                            item.setVehicleModel(vehicleModel);
                             break;
                         case 5:
                             System.out.print("New Price: ");
-                            item.rentalRatePerDay = scanner.nextDouble();
+                            double rentalRatePerDay = scanner.nextDouble();
+                            item.setRentalRatePerDay(rentalRatePerDay);
                             scanner.nextLine();
                             break;
                         case 6:
                             // Check if vehicle is currently rented
                             boolean isRented = false;
                             for (int j = 0; j < rentCount; j++) {
-                                if (rents[j] != null && rents[j].getVehicle().vehicleId == id) {
+                                if (rents[j] != null && rents[j].getVehicle().getVehicleId() == id) {
                                     isRented = true;
                                     break;
                                 }
@@ -256,7 +261,8 @@ public class ManagementSystem {
                                 System.out.println("Cannot change status - vehicle is currently rented!");
                             } else {
                                 System.out.print("Update status(true/false): ");
-                                item.isAvailable = scanner.nextBoolean();
+                                boolean status = scanner.nextBoolean();
+                                item.setAvailable(status);
                                 scanner.nextLine();
                             }
                             break;
@@ -278,7 +284,7 @@ public class ManagementSystem {
         scanner.nextLine(); // consume newline
 
         for (int i = 0; i < count; i++) {
-            if (garage[i].vehicleId == id)
+            if (garage[i].getVehicleId() == id)
                 return garage[i];
         }
         return null;
@@ -545,7 +551,6 @@ public class ManagementSystem {
             return;
         }
         // Take inputs
-        // Take inputs
         int rentDays;
         while (true) {
             System.out.print("Enter number of days(int): ");
@@ -569,7 +574,7 @@ public class ManagementSystem {
             System.out.println("Customer not found!");
             return;
         }
-        if (!selectedVehicle.isAvailable) {
+        if (!selectedVehicle.getIsAvailable()) {
             System.out.println("Vehicle is not available for rent!");
             return;
         }
@@ -579,7 +584,7 @@ public class ManagementSystem {
         String endDate = scanner.nextLine();
 
         // snapshot vehicle price
-        double vehiclePrice = selectedVehicle.rentalRatePerDay;
+        double vehiclePrice = selectedVehicle.getRentalRatePerDay();
         Rent newRent = new Rent(selectedVehicle, selectedCustomer, rentDays, startDate, endDate);
 
         System.out.print("Enter deposit amount: ");
@@ -591,7 +596,7 @@ public class ManagementSystem {
         newRent.setPayment(payment);
 
         // Mark vehicle as unavailable
-        selectedVehicle.isAvailable = false;
+        selectedVehicle.setAvailable(false);
 
         rents[rentCount++] = newRent;
         System.out.println("Add rent successfully.");
@@ -650,15 +655,15 @@ public class ManagementSystem {
                             Vehicle newVehicle = findVehicleByID(scanner);
                             if (newVehicle == null) {
                                 System.out.println("Vehicle not found!");
-                            } else if (!newVehicle.isAvailable) {
+                            } else if (!newVehicle.getIsAvailable()) {
                                 System.out.println("Selected vehicle is not available!");
                             } else {
                                 // Mark old vehicle as available
                                 if (item.getVehicle() != null) {
-                                    item.getVehicle().isAvailable = true;
+                                    item.getVehicle().setAvailable(true);
                                 }
                                 // Mark new vehicle as unavailable
-                                newVehicle.isAvailable = false;
+                                newVehicle.setAvailable(false);
                                 // Update the vehicle
                                 item.setVehicle(newVehicle);
                                 System.out.println("Vehicle updated successfully.");
@@ -709,7 +714,7 @@ public class ManagementSystem {
         }
         // Mark vehicle as available when rent is removed
         if (rents[index].getVehicle() != null) {
-            rents[index].getVehicle().isAvailable = true;
+            rents[index].getVehicle().setAvailable(true);
         } else {
             System.out.println("Warning: Rent has no associated vehicle!");
         }
@@ -732,6 +737,10 @@ public class ManagementSystem {
 
         for (int i = 0; i < rentCount; i++) {
             Rent item = rents[i];
+            if(item.isStatus()){
+                System.out.println("This receipt is already paid!");
+                return;
+            }
             if (item.getRentId() == id) {
                 if (item.getVehicle() == null) {
                     System.out.println("Warning: Rent has no associated vehicle!"); // most likely not happen, an error
@@ -765,11 +774,12 @@ public class ManagementSystem {
                 item.getPayment().status = "PAID";
                 double total = item.getPayment().calculateTotal();
 
-                item.getVehicle().isAvailable = true;
+                item.getVehicle().setAvailable(true);
                 System.out.println("Payment created. Final total amount: $" + total);
                 System.out.println(
-                        "Vehicle with ID " + item.getVehicle().vehicleId + " has been returned and is now available.");
+                        "Vehicle with ID " + item.getVehicle().getVehicleId() + " has been returned and is now available.");
                 System.out.println();
+                item.setStatus();
                 return;
             }
         }
