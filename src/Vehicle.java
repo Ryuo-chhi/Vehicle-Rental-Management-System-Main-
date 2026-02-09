@@ -1,4 +1,5 @@
 import java.util.Objects;
+import java.util.Scanner;
 
 public class Vehicle {
     private int vehicleId;
@@ -19,7 +20,7 @@ public class Vehicle {
         this.vehicleClass = vehicleClass;
         this.vehicleBrand = vehicleBrand;
         this.vehicleModel = vehicleModel;
-        this.rentalRatePerDay = rentalRatePerDay > 0? rentalRatePerDay : 0;
+        setRentalRatePerDay(rentalRatePerDay);
         this.isAvailable = true;
         this.vehicleLicence = vehicleLicence;
         this.licencePlate = licencePlate;
@@ -27,14 +28,6 @@ public class Vehicle {
     //getter
     public int getVehicleId() {
         return vehicleId;
-    }
-
-    public String getPowerSource() {
-        return powerSource;
-    }
-
-    public String getVehicleClass() {
-        return vehicleClass;
     }
 
     public String getVehicleBrand() {
@@ -49,20 +42,12 @@ public class Vehicle {
         return rentalRatePerDay;
     }
 
-    public String getVehicleLicence() {
-        return vehicleLicence;
-    }
-
     public String getLicencePlate() {
         return licencePlate;
     }
 
-    public boolean getIsAvailable() {
-        return isAvailable;
-    }
-
-    public static int getCountVehicleId() {
-        return countVehicleId;
+    public boolean isAvailable() {
+        return !isAvailable;
     }
 
     //setter
@@ -84,7 +69,7 @@ public class Vehicle {
     }
 
     public void setRentalRatePerDay(double rentalRatePerDay) {
-        this.rentalRatePerDay = rentalRatePerDay > 0? rentalRatePerDay : 0;
+        this.rentalRatePerDay = rentalRatePerDay > 0? rentalRatePerDay : 0.0;
     }
 
     public void setAvailable(boolean available) {
@@ -93,15 +78,9 @@ public class Vehicle {
 
     @Override
     public boolean equals(Object o) {
-
         if (o == null || getClass() != o.getClass()) return false;
         Vehicle vehicle = (Vehicle) o;
-        return Objects.equals(powerSource, vehicle.powerSource) && Objects.equals(vehicleClass, vehicle.vehicleClass) && Objects.equals(vehicleBrand, vehicle.vehicleBrand) && Objects.equals(vehicleModel, vehicle.vehicleModel) && Objects.equals(vehicleLicence, vehicle.vehicleLicence) && Objects.equals(licencePlate, vehicle.licencePlate);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(powerSource, vehicleClass, vehicleBrand, vehicleModel, vehicleLicence, licencePlate);
+        return Objects.equals(getVehicleBrand(), vehicle.getVehicleBrand()) && Objects.equals(getVehicleModel(), vehicle.getVehicleModel()) && Objects.equals(getLicencePlate(), vehicle.getLicencePlate());
     }
 
     @Override

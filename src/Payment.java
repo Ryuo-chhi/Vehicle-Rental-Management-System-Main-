@@ -127,6 +127,7 @@ public class Payment {
     public String toString() {
         return "Payment{" +
                 "paymentId=" + paymentId +
+                ", status='" + status + '\'' +
                 ", paymentMethod='" + paymentMethod + '\'' +
                 ", Recorded price=" + price + "$" +
                 ", discount=" + discount + "%" +
@@ -136,7 +137,6 @@ public class Payment {
                 ", deposit=" + deposit + "$" +
                 ", Expected total=" + expectedTotal() + "$" +
                 ", Final total=" + calculateTotal() + "$" +
-                ", status='" + status + '\'' +
                 '}';
     }
 

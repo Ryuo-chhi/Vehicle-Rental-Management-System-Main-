@@ -222,24 +222,20 @@ public class ManagementSystem {
                             quit = true;
                             break;
                         case 1:
-                            System.out.print("New powerSource: ");
-                            String powerSource = scanner.nextLine();
+                            String powerSource = getRequiredInput(scanner, "New powerSource");
                             item.setPowerSource(powerSource);
                             break;
 
                         case 2:
-                            System.out.print("New Vehicle Class: ");
-                            String vehicleClass = scanner.nextLine();
+                            String vehicleClass = getRequiredInput(scanner, "New Vehicle Class");
                             item.setVehicleClass(vehicleClass);
                             break;
                         case 3:
-                            System.out.print("New Brand: ");
-                            String vehicleBrand = scanner.nextLine();
+                            String vehicleBrand = getRequiredInput(scanner, "New Brand");
                             item.setVehicleBrand(vehicleBrand);
                             break;
                         case 4:
-                            System.out.print("New Model: ");
-                            String vehicleModel = scanner.nextLine();
+                            String vehicleModel = getRequiredInput(scanner, "New Model");
                             item.setVehicleModel(vehicleModel);
                             break;
                         case 5:
@@ -277,12 +273,30 @@ public class ManagementSystem {
         }
         System.out.println("Vehicle not found!");
     }
-
+    //helper function
+    public String getRequiredInput(Scanner scanner, String fieldName) {
+        String input = "";
+        while (input.trim().isEmpty()) {
+            System.out.print("Enter " + fieldName + " (required): ");
+            input = scanner.nextLine();
+            if (input.trim().isEmpty()) {
+                System.out.println(fieldName + " cannot be empty!");
+            }
+        }
+        return input;
+    }
     public Vehicle findVehicleByID(Scanner scanner) {
         System.out.print("Enter vehicle ID(int): ");
         int id = scanner.nextInt();
         scanner.nextLine(); // consume newline
 
+        for (int i = 0; i < count; i++) {
+            if (garage[i].getVehicleId() == id)
+                return garage[i];
+        }
+        return null;
+    }
+    public Vehicle getVehicleByID(int id) {
         for (int i = 0; i < count; i++) {
             if (garage[i].getVehicleId() == id)
                 return garage[i];
@@ -574,7 +588,7 @@ public class ManagementSystem {
             System.out.println("Customer not found!");
             return;
         }
-        if (!selectedVehicle.getIsAvailable()) {
+        if (selectedVehicle.isAvailable()) {
             System.out.println("Vehicle is not available for rent!");
             return;
         }
@@ -655,7 +669,7 @@ public class ManagementSystem {
                             Vehicle newVehicle = findVehicleByID(scanner);
                             if (newVehicle == null) {
                                 System.out.println("Vehicle not found!");
-                            } else if (!newVehicle.getIsAvailable()) {
+                            } else if (newVehicle.isAvailable()) {
                                 System.out.println("Selected vehicle is not available!");
                             } else {
                                 // Mark old vehicle as available
@@ -746,6 +760,12 @@ public class ManagementSystem {
                     System.out.println("Warning: Rent has no associated vehicle!"); // most likely not happen, an error
                     // (corrupted data or manual
                     // editing).
+                    return;
+                }
+                // original vehicle from garage
+                Vehicle vehicle = getVehicleByID(item.getVehicle().getVehicleId());
+                if(!vehicle.equals(item.getVehicle())){
+                    System.out.println("Vehicle mismatch");
                     return;
                 }
 
