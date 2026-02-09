@@ -52,33 +52,6 @@ public class Payment {
         return price * this.rentDays - deposit;
     }
 
-    // ===== GETTERS and SETTERS =====
-    // ===== GETTERS =====
-    public int getPaymentId() {
-        return paymentId;
-    }
-
-    public double getDiscount() {
-        return discount;
-    }
-
-    public int getExtraDays() {
-        return extraDays;
-    }
-
-    public double getDamageFee() {
-        return damageFee;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public double getDeposit() {
-        return deposit;
-    }
-
-
 
     // ===== SETTERS (only for changeable fields) =====
 
@@ -99,20 +72,6 @@ public class Payment {
             this.damageFee = damageFee;
         }
     }
-
-    public void setStatus(String status) {
-        if (status != null &&
-                (status.equalsIgnoreCase("PENDING") || status.equalsIgnoreCase("PAID"))) {
-            this.status = status.toUpperCase();
-        }
-    }
-
-    public void setPayDate(String payDate) {
-        if (payDate != null && !payDate.isEmpty()) {
-            this.payDate = payDate;
-        }
-    }
-
 
     public void processPayment(String method, String date) {
         if (method == null || method.isEmpty()) method = "TBD";
