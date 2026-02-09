@@ -1,10 +1,10 @@
 public class Customer {
-    int customerId;
-    String customerName;
-    String customerIdCard;
-    String customerPhone;
-    String IDCardPhoto; // String path to photo of ID card
-    String DriverLicensePhoto; // String path to photo of driver license
+    private int customerId;
+    private String customerName;
+    private String customerIdCard;
+    private String customerPhone;
+    private String IDCardPhoto; // String path to photo of ID card
+    private String DriverLicensePhoto; // String path to photo of driver license
 
     static int countCustomerId = 1;
 
@@ -25,6 +25,43 @@ public class Customer {
         this.customerIdCard = customerIdCard;
         this.customerName = customerName;
         this.customerPhone = customerPhone;
+    }
+
+    /*===== Getter =====*/
+    public int getCustomerId() {
+        return customerId;
+    }
+    public String getCustomerName() {
+        return customerName;
+    }
+    public String getCustomerIdCard() {
+        return customerIdCard;
+    }
+    public String getCustomerPhone() {
+        return customerPhone;
+    }
+    public String getIDCardPhoto() {
+        return IDCardPhoto;
+    }
+    public String getDriverLicensePhoto() {
+        return DriverLicensePhoto;
+    }
+
+    /*===== Setter =====*/
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+    public void setCustomerIdCard(String customerIdCard) {
+        this.customerIdCard = customerIdCard;
+    }
+    public void setCustomerPhone(String customerPhone) {
+        this.customerPhone = customerPhone;
+    }
+    public void setIDCardPhoto(String IDCardPhoto) {
+        this.IDCardPhoto = IDCardPhoto;
+    }
+    public void setDriverLicensePhoto(String driverLicensePhoto) {
+        DriverLicensePhoto = driverLicensePhoto;
     }
 
     @Override

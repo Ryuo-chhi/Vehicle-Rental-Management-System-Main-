@@ -298,7 +298,7 @@ public class ManagementSystem {
             return;
         }
         for (String[] cust : custs) {
-            Customer newCustomer = new Customer(cust[0], cust[1], cust[2]);
+            Customer newCustomer = new Customer(cust[0], cust[1], cust[2], cust[3], cust[4]);
             customers[customerCount++] = newCustomer;
         }
     }
@@ -350,16 +350,16 @@ public class ManagementSystem {
             return;
         }
         // Take inputs
-        System.out.print("Enter customer ID Card: ");
-        String customerIdCard = scanner.nextLine();
-
         System.out.print("Enter customer Name: ");
         String customerName = scanner.nextLine();
+
+        System.out.print("Enter customer ID Card: ");
+        String customerIdCard = scanner.nextLine();
 
         System.out.print("Enter customer Phone: ");
         String customerPhone = scanner.nextLine();
 
-        Customer newCustomer = new Customer(customerIdCard, customerName, customerPhone);
+        Customer newCustomer = new Customer(customerName, customerIdCard, customerPhone);
 
         customers[customerCount++] = newCustomer;
         System.out.println("Add customer successfully.");
@@ -387,7 +387,7 @@ public class ManagementSystem {
         scanner.nextLine(); // consume newline
         for (int i = 0; i < customerCount; i++) {
             Customer item = customers[i];
-            if (item.customerId == id) {
+            if (item.getCustomerId() == id) {
                 boolean quit = false;
                 int choice;
                 do {
@@ -411,24 +411,24 @@ public class ManagementSystem {
                             break;
                         case 1:
                             System.out.print("New ID Card: ");
-                            item.customerIdCard = scanner.nextLine();
+                            item.setCustomerIdCard(scanner.nextLine());
                             break;
 
                         case 2:
                             System.out.print("New Name: ");
-                            item.customerName = scanner.nextLine();
+                            item.setCustomerName(scanner.nextLine());
                             break;
                         case 3:
                             System.out.print("New Phone: ");
-                            item.customerPhone = scanner.nextLine();
+                            item.setCustomerPhone(scanner.nextLine());
                             break;
                         case 4:
                             System.out.print("New ID Card Photo: ");
-                            item.IDCardPhoto = scanner.nextLine();
+                            item.setIDCardPhoto(scanner.nextLine());
                             break;
                         case 5:
                             System.out.print("New Driver License Photo: ");
-                            item.DriverLicensePhoto = scanner.nextLine();
+                            item.setDriverLicensePhoto(scanner.nextLine());
                             break;
                         default:
                             System.out.println("Invalid choice!");
@@ -454,7 +454,7 @@ public class ManagementSystem {
 
         if (rentCount > 0) {
             for (int i = 0; i < rentCount; i++) {
-                if (rents[i] != null && rents[i].getCustomer() != null && rents[i].getCustomer().customerId == id) {
+                if (rents[i] != null && rents[i].getCustomer() != null && rents[i].getCustomer().getCustomerId() == id) {
                     System.out.println("Customer is associated with an active rent and cannot be removed.");
                     return;
                 }
@@ -463,7 +463,7 @@ public class ManagementSystem {
 
         int index = -1;
         for (int i = 0; i < customerCount; i++) {
-            if (customers[i].customerId == id) {
+            if (customers[i].getCustomerId() == id) {
                 index = i;
                 break;
             }
@@ -491,7 +491,7 @@ public class ManagementSystem {
         scanner.nextLine(); // consume newline
 
         for (int i = 0; i < customerCount; i++) {
-            if (customers[i].customerId == id)
+            if (customers[i].getCustomerId() == id)
                 return customers[i];
         }
         return null;
