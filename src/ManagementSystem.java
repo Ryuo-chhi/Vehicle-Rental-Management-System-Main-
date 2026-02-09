@@ -767,11 +767,10 @@ public class ManagementSystem {
                         System.out.println("PayDate cannot be empty!");
                     }
                 }
-                item.getPayment().payDate = payDate;
+                item.getPayment().setPayDate(payDate);
                 item.setReturnDate(payDate);
 
-                item.getPayment().paymentMethod = paymentMethod;
-                item.getPayment().status = "PAID";
+                item.getPayment().processPayment(paymentMethod, payDate);
                 double total = item.getPayment().calculateTotal();
 
                 item.getVehicle().setAvailable(true);
@@ -799,33 +798,44 @@ public class ManagementSystem {
     }
 
     // Payment Management
+    public void showPayment(Scanner scanner) {
+        Rent rent = findRentByID(scanner);
+        if (rent == null) {
+            System.out.println("Rent not found!");
+            return;
+        }
+        Payment payment = rent.getPayment();
+        if (payment == null) {
+            System.out.println("No payment associated with this rent!");
+            return;
+        }
+        System.out.println(payment.toString());
+    }
     public void updatePayment(Scanner scanner, Rent item) {
         if (item == null) {
             System.out.println("Rent not found!");
             return;
         }
+
+        Payment payment = item.getPayment();
+
         System.out.print("Enter discount (0 if none): ");
-        item.getPayment().discount = scanner.nextDouble();
-        scanner.nextLine(); // consume newline
+        double discount = scanner.nextDouble();
+        payment.setDiscount(discount);
 
         System.out.print("Enter extra days (0 if none): ");
-        item.getPayment().extraDays = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+        int extraDays = scanner.nextInt();
+        payment.setExtraDays(extraDays);
 
         System.out.print("Enter damage fee (0 if none): ");
-        item.getPayment().damageFee = scanner.nextDouble();
+        double damageFee = scanner.nextDouble();
+        payment.setDamageFee(damageFee);
+
         scanner.nextLine(); // consume newline
+
+        System.out.println("Payment updated successfully!");
     }
 
-    public void showPayment(Scanner scanner) {
-        if (rentCount == 0) {
-            System.out.println("No rent, no payment to show!");
-            return;
-        }
-        for (int i = 0; i < rentCount; i++) {
-            System.out.println(rents[i].getPayment());
-        }
-    }
 
     public void paymentManagement(Scanner scanner) {
         boolean quit = false;

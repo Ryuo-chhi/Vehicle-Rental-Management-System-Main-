@@ -1,14 +1,14 @@
 public class Payment {
-    int paymentId;
-    String paymentMethod; // e.g., credit card, cash, online transfer, etc.
-    int rentDays;
-    double price;
-    double discount;
-    int extraDays;
-    double damageFee;
-    String payDate;
-    String status; // PENDING or PAID
-    double deposit;
+    private int paymentId;
+    private String paymentMethod; // e.g., credit card, cash, online transfer, etc.
+    private int rentDays;
+    private double price;
+    private double discount;
+    private int extraDays;
+    private double damageFee;
+    private String payDate;
+    private String status; // PENDING or PAID
+    private double deposit;
 
     static int countPaymentId = 1; // to ensure unique payment IDs
 
@@ -52,6 +52,77 @@ public class Payment {
         return price * this.rentDays - deposit;
     }
 
+    // ===== GETTERS and SETTERS =====
+    // ===== GETTERS =====
+    public int getPaymentId() {
+        return paymentId;
+    }
+
+    public double getDiscount() {
+        return discount;
+    }
+
+    public int getExtraDays() {
+        return extraDays;
+    }
+
+    public double getDamageFee() {
+        return damageFee;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public double getDeposit() {
+        return deposit;
+    }
+
+
+
+    // ===== SETTERS (only for changeable fields) =====
+
+    public void setDiscount(double discount) {
+        if (discount >= 0) {
+            this.discount = discount;
+        }
+    }
+
+    public void setExtraDays(int extraDays) {
+        if (extraDays >= 0) {
+            this.extraDays = extraDays;
+        }
+    }
+
+    public void setDamageFee(double damageFee) {
+        if (damageFee >= 0) {
+            this.damageFee = damageFee;
+        }
+    }
+
+    public void setStatus(String status) {
+        if (status != null &&
+                (status.equalsIgnoreCase("PENDING") || status.equalsIgnoreCase("PAID"))) {
+            this.status = status.toUpperCase();
+        }
+    }
+
+    public void setPayDate(String payDate) {
+        if (payDate != null && !payDate.isEmpty()) {
+            this.payDate = payDate;
+        }
+    }
+
+
+    public void processPayment(String method, String date) {
+        if (method == null || method.isEmpty()) method = "TBD";
+        if (date == null || date.isEmpty()) date = "TBD";
+        this.paymentMethod = method;
+        this.payDate = date;
+        this.status = "PAID";
+    }
+
+
     @Override
     public String toString() {
         return "Payment{" +
@@ -68,4 +139,6 @@ public class Payment {
                 ", status='" + status + '\'' +
                 '}';
     }
+
+
 }
