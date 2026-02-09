@@ -751,15 +751,14 @@ public class ManagementSystem {
 
         for (int i = 0; i < rentCount; i++) {
             Rent item = rents[i];
-            if(item.isStatus()){
-                System.out.println("This receipt is already paid!");
-                return;
-            }
             if (item.getRentId() == id) {
+                if (item.isStatus()) {
+                    System.out.println("This receipt is already paid!");
+                    return;
+                }
+
                 if (item.getVehicle() == null) {
-                    System.out.println("Warning: Rent has no associated vehicle!"); // most likely not happen, an error
-                    // (corrupted data or manual
-                    // editing).
+                    System.out.println("Error: No vehicle associated with this rent!");
                     return;
                 }
                 // original vehicle from garage
@@ -771,6 +770,7 @@ public class ManagementSystem {
 
                 System.out.print("Enter payment method: ");
                 String paymentMethod = scanner.nextLine();
+
                 // if there's discount or extra day or damage
                 System.out.print("Update special case(true/false): ");
                 boolean update = scanner.nextBoolean();
@@ -787,13 +787,16 @@ public class ManagementSystem {
                         System.out.println("PayDate cannot be empty!");
                     }
                 }
-                item.getPayment().setPayDate(payDate);
-                item.setReturnDate(payDate);
 
                 item.getPayment().processPayment(paymentMethod, payDate);
-                double total = item.getPayment().calculateTotal();
 
+                // Update rent return date
+                item.setReturnDate(payDate);
+
+                // Mark vehicle as available
                 item.getVehicle().setAvailable(true);
+
+                double total = item.getPayment().calculateTotal();
                 System.out.println("Payment created. Final total amount: $" + total);
                 System.out.println(
                         "Vehicle with ID " + item.getVehicle().getVehicleId() + " has been returned and is now available.");
