@@ -779,15 +779,7 @@ public class ManagementSystem {
                     updatePayment(scanner, item);
 
                 // Require payDate - keep asking until valid input
-                String payDate = "";
-                while (payDate.trim().isEmpty()) {
-                    System.out.print("Enter payDate (required): ");
-                    payDate = scanner.nextLine();
-                    if (payDate.trim().isEmpty()) {
-                        System.out.println("PayDate cannot be empty!");
-                    }
-                }
-
+                String payDate = getRequiredInput(scanner, "payDate");
                 item.getPayment().processPayment(paymentMethod, payDate);
 
                 // Update rent return date
@@ -801,7 +793,7 @@ public class ManagementSystem {
                 System.out.println(
                         "Vehicle with ID " + item.getVehicle().getVehicleId() + " has been returned and is now available.");
                 System.out.println();
-                item.setStatus();
+                item.setStatus(false);
                 return;
             }
         }

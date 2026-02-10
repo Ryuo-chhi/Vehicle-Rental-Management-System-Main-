@@ -12,7 +12,7 @@ public class Vehicle {
     private String licencePlate;
     private boolean isAvailable;
 
-    static int countVehicleId = 1; // this var keeps track of the next vehicle ID to assign. why static? because it's shared among all instances in order to ensure unique IDs.
+    private static int countVehicleId = 1;
 
     public Vehicle(String powerSource, String vehicleClass, String vehicleBrand, String vehicleModel, double rentalRatePerDay, String vehicleLicence, String licencePlate) {
         this.vehicleId = countVehicleId++;
