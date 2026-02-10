@@ -2,7 +2,6 @@ import java.util.Scanner;
 
 public class test {
     public static void main(String[] args){
-        ManagementSystem M = new ManagementSystem(10);
         Scanner scanner = new Scanner(System.in);
         
         // ===============================================
@@ -64,5 +63,7 @@ public class test {
         System.out.println("========== END OF PROOFS ==========");
         System.out.println();
 
+        scanner.close();
     }
+
 }

@@ -74,10 +74,25 @@ public class Payment {
     }
 
     public void processPayment(String method, String date) {
-        if (method == null || method.isEmpty()) method = "TBD";
-        if (date == null || date.isEmpty()) date = "TBD";
-        this.paymentMethod = method;
-        this.payDate = date;
+
+        // Validate payment method
+        if (method != null &&
+                (method.equalsIgnoreCase("CASH") ||
+                        method.equalsIgnoreCase("CARD") ||
+                        method.equalsIgnoreCase("ONLINE"))) {
+
+            this.paymentMethod = method.toUpperCase();
+        } else {
+            this.paymentMethod = "TBD";
+        }
+
+        // Validate date
+        if (date != null && !date.isEmpty()) {
+            this.payDate = date;
+        } else {
+            this.payDate = "TBD";
+        }
+
         this.status = "PAID";
     }
 
