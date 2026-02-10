@@ -16,9 +16,9 @@ public class Payment {
         this.paymentId = countPaymentId++;
         this.paymentMethod = "TBD";
         this.price = price;
-        this.discount = 0.0;
-        this.extraDays = 0;
-        this.damageFee = 0.0;
+        this.setDiscount(0);
+        this.setExtraDays(0);
+        this.setDamageFee(0);
         this.deposit = deposit > 0 ? deposit : 0.0;
         this.rentDays = rentDays;
         this.payDate = "TBD";
@@ -56,21 +56,15 @@ public class Payment {
     // ===== SETTERS (only for changeable fields) =====
 
     public void setDiscount(double discount) {
-        if (discount >= 0) {
-            this.discount = discount;
-        }
+            this.discount = discount>0 ? discount : 0.0;
     }
 
     public void setExtraDays(int extraDays) {
-        if (extraDays >= 0) {
-            this.extraDays = extraDays;
-        }
+            this.extraDays = extraDays>0 ? extraDays : 0;
     }
 
     public void setDamageFee(double damageFee) {
-        if (damageFee >= 0) {
-            this.damageFee = damageFee;
-        }
+            this.damageFee = damageFee>0 ? damageFee: 0.0;
     }
 
     public void processPayment(String method, String date) {

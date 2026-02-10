@@ -49,6 +49,9 @@ public class Vehicle {
         return !isAvailable;
     }
 
+    public static int getCountVehicleId() {
+        return countVehicleId;
+    }
     //setter
 
     public void setPowerSource(String powerSource) {

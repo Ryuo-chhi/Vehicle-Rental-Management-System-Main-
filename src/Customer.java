@@ -8,15 +8,15 @@ public class Customer {
     private String IDCardPhoto; // String path to photo of ID card
     private String DriverLicensePhoto; // String path to photo of driver license
 
-    static int countCustomerId = 1;
+    private static int countCustomerId = 1;
 
     // register customer
     public Customer(String customerName, String customerIdCard, String customerPhone, String IDCardPhoto,
             String DriverLicensePhoto) {
         this.customerId = countCustomerId++;
-        setCustomerIdCard(customerIdCard);
-        setCustomerName(customerName);
-        setCustomerPhone(customerPhone);
+        this.setCustomerIdCard(customerIdCard);
+        this.setCustomerName(customerName);
+        this.setCustomerPhone(customerPhone);
         this.IDCardPhoto = IDCardPhoto;
         this.DriverLicensePhoto = DriverLicensePhoto;
     }
@@ -24,9 +24,9 @@ public class Customer {
     // for using and testing
     public Customer(String customerName, String customerIdCard, String customerPhone) {
         this.customerId = countCustomerId++;
-        setCustomerIdCard(customerIdCard);
-        setCustomerName(customerName);
-        setCustomerPhone(customerPhone);
+        this.setCustomerIdCard(customerIdCard);
+        this.setCustomerName(customerName);
+        this.setCustomerPhone(customerPhone);
     }
 
     /*===== Getter =====*/
@@ -47,6 +47,10 @@ public class Customer {
     }
     public String getDriverLicensePhoto() {
         return DriverLicensePhoto;
+    }
+
+    public static int getCountCustomerId() {
+        return countCustomerId;
     }
 
     /*===== Setter =====*/
