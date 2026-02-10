@@ -10,18 +10,29 @@ public class Rent {
     private Customer customer;
     private Payment payment;
 
-    private static int countRentId = 0; // to ensure unique rent IDs
+    private static int countRentId = 0;
 
+    // create
     public Rent(Vehicle vehicle, Customer customer, int rentDays, String startDate, String endDate) {
         this.rentId = ++countRentId;
-        this.vehicle = vehicle;
-        this.customer = customer;
-        this.rentDays = rentDays;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.returnDate = "TBD";
-        this.payment = null;
-        this.status = false;
+        this.setVehicle(vehicle);
+        this.setCustomer(customer);
+        this.setRentDays(rentDays);
+        this.setStartDate(startDate);
+        this.setEndDate(endDate);
+        this.setReturnDate("TBD");
+        this.payment = null; // Initialized to null, will be set later(when payment is processed)
+        this.setStatus(true);
+    }
+
+    // rent lookup
+    public Rent(int rentId, Customer customer) {
+        if (rentId > 0) {
+            this.rentId = rentId;
+        } else {
+            System.out.println("Error: Rent ID must be greater than 0");
+        }
+        this.setCustomer(customer);
     }
 
     // ===== GETTERS =====
@@ -74,14 +85,6 @@ public class Rent {
         }
     }
 
-    public void setRentDays(int rentDays) {
-        if (rentDays > 0) {
-            this.rentDays = rentDays;
-        } else {
-            System.out.println("Error: Rent days must be greater than 0");
-        }
-    }
-
     public void setVehicle(Vehicle vehicle) {
         if (vehicle != null) {
             this.vehicle = vehicle;
@@ -98,17 +101,56 @@ public class Rent {
         }
     }
 
-    public void setReturnDate(String returnDate) {
-        if (returnDate != null && !returnDate.trim().isEmpty()) {
-            this.returnDate = returnDate;
+    public void setRentDays(int rentDays) {
+        if (rentDays > 0) {
+            this.rentDays = rentDays;
         } else {
-            System.out.println("Error: Return date cannot be empty");
+            System.out.println("Error: Rent days must be greater than 0");
         }
     }
 
-    public void setStatus(){
-        this.status = true;
+    public void setStartDate(String startDate) {
+        if (isValidDateFormat(startDate)) {
+            this.startDate = startDate;
+        } else {
+            System.out.println("Error: Start date must be in dd-MM-yyyy format");
+        }
     }
+
+    public void setEndDate(String endDate) {
+        if (isValidDateFormat(endDate)) {
+            this.endDate = endDate;
+        } else {
+            System.out.println("Error: End date must be in dd-MM-yyyy format");
+        }
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
+
+    public void setReturnDate(String returnDate) {
+        if ("TBD".equals(returnDate) || isValidDateFormat(returnDate)) {
+            this.returnDate = returnDate;
+        } else {
+            System.out.println("Error: Return date must be in dd-MM-yyyy format or 'TBD'");
+        }
+    }
+
+    private boolean isValidDateFormat(String date) {
+        return date != null && date.matches("\\d{2}-\\d{2}-\\d{4}");
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Rent other = (Rent) obj;
+        if (this.rentId != other.rentId) return false;
+        if (this.customer == null || other.customer == null) return false;
+        return this.customer.getCustomerId() == other.customer.getCustomerId();
+    }
+
     @Override
     public String toString() {
         return "Rent{" +
@@ -120,6 +162,9 @@ public class Rent {
                 ", vehicle=" + vehicle + "\n" +
                 ", customer=" + customer.toStringSimple() + "\n" +
                 ", payment=" + payment + "\n" +
+                ", status=" + (status ? "Active" : "Completed") + "\n" +
                 '}';
     }
+
+
 }
