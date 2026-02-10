@@ -1,10 +1,9 @@
 import java.util.Scanner;
 
 public class ManagementSystem {
-    Vehicle[] garage;
-    int garageSize; // capacity
-    int count; // current number of vehicles
-    String[][] cars = {
+    private Vehicle[] garage;
+    private int count; // current number of vehicles
+    private String[][] cars = {
             { "gasoline", "SUV", "Ford", "Escape", "300", "VL-01-AB-1234", "PP-1000" },
             { "electric", "Sedan", "Tesla", "Model 3", "500", "VL-02-CD-5678", "PP-1001" },
             { "diesel", "Truck", "Toyota", "Hilux", "400", "VL-03-EF-9012", "PP-1002" },
@@ -12,10 +11,9 @@ public class ManagementSystem {
             { "gasoline", "Coupe", "BMW", "M4", "600", "VL-05-IJ-7890", "PP-1004" }
     };
 
-    Customer[] customers;
-    int customerSize;
-    int customerCount;
-    String[][] custs = {
+    private Customer[] customers;
+    private int customerCount;
+    private String[][] custs = {
             { "Aruna Smith", "D7654321", "0662345679", "IDCard.jpg", "DriverLicense.jpg" },
             { "Bona Johnson", "D2345678", "0122345680", "IDCard.jpg", "DriverLicense.jpg" },
             { "Champa Brown", "D3456789", "0172345681", "IDCard.jpg", "DriverLicense.jpg" },
@@ -23,24 +21,20 @@ public class ManagementSystem {
             { "Eno Gonzalez", "D5678901", "0972345683", "IDCard.jpg", "DriverLicense.jpg" }
     };
 
-    Rent[] rents;
-    int rentSize;
-    int rentCount;
+    private Rent[] rents;
+    private int rentCount;
 
     public ManagementSystem(int maxSize) {
         // Initialize garage
         this.garage = new Vehicle[maxSize];
-        this.garageSize = maxSize;
         this.count = 0;
         generateVehicleToGarage();
         // Initialize customer list
         this.customers = new Customer[maxSize];
-        this.customerSize = maxSize;
         this.customerCount = 0;
         generateCustomerToSystem();
         // Initialize rent list
         this.rents = new Rent[maxSize];
-        this.rentSize = maxSize;
         this.rentCount = 0;
     }
 
@@ -273,6 +267,7 @@ public class ManagementSystem {
         }
         System.out.println("Vehicle not found!");
     }
+
     //helper function
     public String getRequiredInput(Scanner scanner, String fieldName) {
         String input = "";
@@ -285,6 +280,7 @@ public class ManagementSystem {
         }
         return input;
     }
+
     public Vehicle findVehicleByID(Scanner scanner) {
         System.out.print("Enter vehicle ID(int): ");
         int id = scanner.nextInt();
@@ -296,12 +292,17 @@ public class ManagementSystem {
         }
         return null;
     }
+
     public Vehicle getVehicleByID(int id) {
         for (int i = 0; i < count; i++) {
             if (garage[i].getVehicleId() == id)
                 return garage[i];
         }
         return null;
+    }
+
+    private boolean isValidDateFormat(String date) {
+        return date != null && date.matches("\\d{2}-\\d{2}-\\d{4}");
     }
 
     // Customer Management
@@ -592,11 +593,19 @@ public class ManagementSystem {
             System.out.println("Vehicle is not available for rent!");
             return;
         }
-        System.out.print("Enter start date: ");
-        String startDate = scanner.nextLine();
-        System.out.print("Enter end date: ");
-        String endDate = scanner.nextLine();
 
+        String startDate = getRequiredInput(scanner, "start date");
+        while (!isValidDateFormat(startDate)) {
+            System.out.println("Invalid date format! Please enter date in dd-MM-yyyy format.");
+            startDate = getRequiredInput(scanner, "start date");
+        }
+
+        String endDate = getRequiredInput(scanner, "end date");
+        while (!isValidDateFormat(endDate)) {
+            System.out.println("Invalid date format! Please enter date in dd-MM-yyyy format.");
+            endDate = getRequiredInput(scanner, "end date");
+        }
+///////////////////////////////
         // snapshot vehicle price
         double vehiclePrice = selectedVehicle.getRentalRatePerDay();
         Rent newRent = new Rent(selectedVehicle, selectedCustomer, rentDays, startDate, endDate);
@@ -801,7 +810,7 @@ public class ManagementSystem {
                 System.out.println(
                         "Vehicle with ID " + item.getVehicle().getVehicleId() + " has been returned and is now available.");
                 System.out.println();
-                item.setStatus();
+                item.setStatus(false);
                 return;
             }
         }

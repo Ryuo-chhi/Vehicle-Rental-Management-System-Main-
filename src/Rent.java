@@ -110,19 +110,11 @@ public class Rent {
     }
 
     public void setStartDate(String startDate) {
-        if (isValidDateFormat(startDate)) {
-            this.startDate = startDate;
-        } else {
-            System.out.println("Error: Start date must be in dd-MM-yyyy format");
-        }
+        this.startDate = startDate;
     }
 
     public void setEndDate(String endDate) {
-        if (isValidDateFormat(endDate)) {
-            this.endDate = endDate;
-        } else {
-            System.out.println("Error: End date must be in dd-MM-yyyy format");
-        }
+        this.endDate = endDate;
     }
 
     public void setStatus(boolean status) {
@@ -130,16 +122,9 @@ public class Rent {
     }
 
     public void setReturnDate(String returnDate) {
-        if ("TBD".equals(returnDate) || isValidDateFormat(returnDate)) {
-            this.returnDate = returnDate;
-        } else {
-            System.out.println("Error: Return date must be in dd-MM-yyyy format or 'TBD'");
-        }
+        this.returnDate = returnDate;
     }
 
-    private boolean isValidDateFormat(String date) {
-        return date != null && date.matches("\\d{2}-\\d{2}-\\d{4}");
-    }
 
     @Override
     public boolean equals(Object obj) {

@@ -1,5 +1,4 @@
 import java.util.Objects;
-import java.util.Scanner;
 
 public class Vehicle {
     private int vehicleId;
@@ -20,7 +19,7 @@ public class Vehicle {
         this.vehicleClass = vehicleClass;
         this.vehicleBrand = vehicleBrand;
         this.vehicleModel = vehicleModel;
-        setRentalRatePerDay(rentalRatePerDay);
+        this.setRentalRatePerDay(rentalRatePerDay);
         this.isAvailable = true;
         this.vehicleLicence = vehicleLicence;
         this.licencePlate = licencePlate;
