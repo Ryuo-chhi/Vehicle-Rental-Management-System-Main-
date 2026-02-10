@@ -1,3 +1,5 @@
+import java.util.Objects;
+
 public class Customer {
     private int customerId;
     private String customerName;
@@ -12,9 +14,9 @@ public class Customer {
     public Customer(String customerName, String customerIdCard, String customerPhone, String IDCardPhoto,
             String DriverLicensePhoto) {
         this.customerId = countCustomerId++;
-        this.customerIdCard = customerIdCard;
-        this.customerName = customerName;
-        this.customerPhone = customerPhone;
+        setCustomerIdCard(customerIdCard);
+        setCustomerName(customerName);
+        setCustomerPhone(customerPhone);
         this.IDCardPhoto = IDCardPhoto;
         this.DriverLicensePhoto = DriverLicensePhoto;
     }
@@ -22,9 +24,9 @@ public class Customer {
     // for using and testing
     public Customer(String customerName, String customerIdCard, String customerPhone) {
         this.customerId = countCustomerId++;
-        this.customerIdCard = customerIdCard;
-        this.customerName = customerName;
-        this.customerPhone = customerPhone;
+        setCustomerIdCard(customerIdCard);
+        setCustomerName(customerName);
+        setCustomerPhone(customerPhone);
     }
 
     /*===== Getter =====*/
@@ -49,12 +51,24 @@ public class Customer {
 
     /*===== Setter =====*/
     public void setCustomerName(String customerName) {
+        if(customerName == null || customerName.trim().isEmpty()) {
+            System.out.println("Customer name cannot be null or empty.");
+            return;
+        }
         this.customerName = customerName;
     }
     public void setCustomerIdCard(String customerIdCard) {
+        if(customerIdCard == null || customerIdCard.trim().isEmpty()) {
+            System.out.println("Customer ID card cannot be null or empty.");
+            return;
+        }
         this.customerIdCard = customerIdCard;
     }
     public void setCustomerPhone(String customerPhone) {
+        if(customerPhone == null || !customerPhone.matches("^[0-9]{9,10}$")) {
+            System.out.println("Customer phone must be a 9-10-digit number.");
+            return;
+        }
         this.customerPhone = customerPhone;
     }
     public void setIDCardPhoto(String IDCardPhoto) {
@@ -75,6 +89,21 @@ public class Customer {
     public String toStringSimple() {
         return "Customer [id=" + customerId + ", name=\"" + customerName + "\", idCard=\"" + customerIdCard
                 + "\", phone=\"" + customerPhone + "\"]";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        Customer customer = (Customer) obj;
+       return Objects.equals(customerId, customer.customerId) && Objects.equals(customerIdCard, customer.customerIdCard);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(customerId, customerIdCard);
     }
 }
 
