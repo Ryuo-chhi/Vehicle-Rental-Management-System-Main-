@@ -15,15 +15,18 @@ public class Vehicle {
 
     public Vehicle(String powerSource, String vehicleClass, String vehicleBrand, String vehicleModel, double rentalRatePerDay, String vehicleLicence, String licencePlate) {
         this.vehicleId = countVehicleId++;
-        this.powerSource = powerSource;
-        this.vehicleClass = vehicleClass;
-        this.vehicleBrand = vehicleBrand;
-        this.vehicleModel = vehicleModel;
+        this.setPowerSource(powerSource);
+        this.setVehicleClass(vehicleClass);
+        this.setVehicleBrand(vehicleBrand);
+        this.setVehicleModel(vehicleModel);
         this.setRentalRatePerDay(rentalRatePerDay);
         this.isAvailable = true;
-        this.vehicleLicence = vehicleLicence;
-        this.licencePlate = licencePlate;
+        this.setVehicleLicence(vehicleLicence);
+        this.setLicencePlate(licencePlate);
     }
+
+    
+    
     //getter
     public int getVehicleId() {
         return vehicleId;
@@ -77,6 +80,18 @@ public class Vehicle {
     public void setAvailable(boolean available) {
         isAvailable = available;
     }
+
+    public void setVehicleLicence(String vehicleLicence) {
+        this.vehicleLicence = vehicleLicence;
+    }
+
+
+
+    public void setLicencePlate(String licencePlate) {
+        this.licencePlate = licencePlate;
+    }
+
+
 
     @Override
     public boolean equals(Object o) {

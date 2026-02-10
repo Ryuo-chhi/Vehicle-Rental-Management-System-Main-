@@ -1,30 +1,16 @@
 import java.util.Scanner;
 
-public class ManagementSystem {
+public class Garage {
     private Vehicle[] garage;
     private int count; // current number of vehicles
-    private String[][] cars = {
-            { "gasoline", "SUV", "Ford", "Escape", "300", "VL-01-AB-1234", "PP-1000" },
-            { "electric", "Sedan", "Tesla", "Model 3", "500", "VL-02-CD-5678", "PP-1001" },
-            { "diesel", "Truck", "Toyota", "Hilux", "400", "VL-03-EF-9012", "PP-1002" },
-            { "hybrid", "Hatchback", "Honda", "Insight", "350", "VL-04-GH-3456", "PP-1003" },
-            { "gasoline", "Coupe", "BMW", "M4", "600", "VL-05-IJ-7890", "PP-1004" }
-    };
 
     private Customer[] customers;
     private int customerCount;
-    private String[][] custs = {
-            { "Aruna Smith", "D7654321", "0662345679", "IDCard.jpg", "DriverLicense.jpg" },
-            { "Bona Johnson", "D2345678", "0122345680", "IDCard.jpg", "DriverLicense.jpg" },
-            { "Champa Brown", "D3456789", "0172345681", "IDCard.jpg", "DriverLicense.jpg" },
-            { "Diana Prince", "D4567890", "0882345682", "IDCard.jpg", "DriverLicense.jpg" },
-            { "Eno Gonzalez", "D5678901", "0972345683", "IDCard.jpg", "DriverLicense.jpg" }
-    };
 
     private Rent[] rents;
     private int rentCount;
 
-    public ManagementSystem(int maxSize) {
+    public Garage(int maxSize) {
         // Initialize garage
         this.garage = new Vehicle[maxSize];
         this.count = 0;
@@ -41,6 +27,13 @@ public class ManagementSystem {
     // Vehicle Management
 
     public void generateVehicleToGarage() {
+        String[][] cars = {
+            { "gasoline", "SUV", "Ford", "Escape", "300", "VL-01-AB-1234", "PP-1000" },
+            { "electric", "Sedan", "Tesla", "Model 3", "500", "VL-02-CD-5678", "PP-1001" },
+            { "diesel", "Truck", "Toyota", "Hilux", "400", "VL-03-EF-9012", "PP-1002" },
+            { "hybrid", "Hatchback", "Honda", "Insight", "350", "VL-04-GH-3456", "PP-1003" },
+            { "gasoline", "Coupe", "BMW", "M4", "600", "VL-05-IJ-7890", "PP-1004" }
+        };
         if (count >= garage.length) {
             System.out.println("Garage is full! Cannot add new car.");
             return;
@@ -103,27 +96,26 @@ public class ManagementSystem {
             return;
         }
         // Take inputs
-        System.out.print("Enter powerSource ( Electric, Gasoline): ");
-        String powerSource = scanner.nextLine();
+        String powerSource = getRequiredInput(scanner, "powerSource");
 
         System.out.print("Enter vehicle class ( SUV, Sedan, Van): ");
-        String vehicleClass = scanner.nextLine();
+        String vehicleClass = getRequiredInput(scanner, "vehicle class");
 
         System.out.print("Enter brand: ");
-        String brand = scanner.nextLine();
+        String brand = getRequiredInput(scanner, "brand");
 
         System.out.print("Enter model: ");
-        String model = scanner.nextLine();
+        String model = getRequiredInput(scanner, "model");
 
         System.out.print("Enter price: ");
         double price = scanner.nextDouble();
         scanner.nextLine(); // consume newline
 
         System.out.print("Enter vehicle licence (e.g., DL-01-AB-1234): ");
-        String vehicleLicence = scanner.nextLine();
+        String vehicleLicence = getRequiredInput(scanner, "vehicle licence");
 
         System.out.print("Enter licence plate (e.g., PP-1000): ");
-        String licencePlate = scanner.nextLine();
+        String licencePlate = getRequiredInput(scanner, "licence plate");
 
         Vehicle newVehicle = new Vehicle(powerSource, vehicleClass, brand, model, price, vehicleLicence, licencePlate);
 
@@ -308,6 +300,13 @@ public class ManagementSystem {
     // Customer Management
 
     public void generateCustomerToSystem() {
+        String[][] custs = {
+            { "Aruna Smith", "D7654321", "0662345679", "IDCard.jpg", "DriverLicense.jpg" },
+            { "Bona Johnson", "D2345678", "0122345680", "IDCard.jpg", "DriverLicense.jpg" },
+            { "Champa Brown", "D3456789", "0172345681", "IDCard.jpg", "DriverLicense.jpg" },
+            { "Diana Prince", "D4567890", "0882345682", "IDCard.jpg", "DriverLicense.jpg" },
+            { "Eno Gonzalez", "D5678901", "0972345683", "IDCard.jpg", "DriverLicense.jpg" }
+        };
         if (customerCount >= customers.length) {
             System.out.println("Customer list is full! Cannot add new customer.");
             return;
@@ -368,13 +367,13 @@ public class ManagementSystem {
         System.out.print("Enter customer Name: ");
         String customerName = scanner.nextLine();
 
-        System.out.print("Enter customer ID Card: ");
-        String customerIdCard = scanner.nextLine();
+        System.out.print("Enter customer ID Number: ");
+        String customerIdNum = scanner.nextLine();
 
         System.out.print("Enter customer Phone: ");
         String customerPhone = scanner.nextLine();
 
-        Customer newCustomer = new Customer(customerName, customerIdCard, customerPhone);
+        Customer newCustomer = new Customer(customerName, customerIdNum, customerPhone);
 
         customers[customerCount++] = newCustomer;
         System.out.println("Add customer successfully.");
@@ -426,7 +425,7 @@ public class ManagementSystem {
                             break;
                         case 1:
                             System.out.print("New ID Card: ");
-                            item.setCustomerIdCard(scanner.nextLine());
+                            item.setcustomerIdNum(scanner.nextLine());
                             break;
 
                         case 2:
@@ -435,7 +434,7 @@ public class ManagementSystem {
                             break;
                         case 3:
                             System.out.print("New Phone: ");
-                            item.setCustomerPhone(scanner.nextLine());
+                            item.setCustomerPhone(scanner.nextLine(), customers);
                             break;
                         case 4:
                             System.out.print("New ID Card Photo: ");
@@ -761,7 +760,7 @@ public class ManagementSystem {
         for (int i = 0; i < rentCount; i++) {
             Rent item = rents[i];
             if (item.getRentId() == id) {
-                if (item.isStatus()) {
+                if (!item.isStatus()) {
                     System.out.println("This receipt is already paid!");
                     return;
                 }
@@ -787,11 +786,12 @@ public class ManagementSystem {
                 if (update)
                     updatePayment(scanner, item);
 
-                // Require payDate - keep asking until valid input
-                String payDate = getRequiredInput(scanner, "payDate");
+                String payDate = getRequiredInput(scanner, "payDate"); // valid payDate
+
+                // Process payment
                 item.getPayment().processPayment(paymentMethod, payDate);
 
-                // Update rent return date
+                // Set rent return date
                 item.setReturnDate(payDate);
 
                 // Mark vehicle as available
@@ -835,6 +835,7 @@ public class ManagementSystem {
         }
         System.out.println(payment.toString());
     }
+
     public void updatePayment(Scanner scanner, Rent item) {
         if (item == null) {
             System.out.println("Rent not found!");

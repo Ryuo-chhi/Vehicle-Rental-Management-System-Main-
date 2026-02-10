@@ -3,7 +3,7 @@ import java.util.Objects;
 public class Customer {
     private int customerId;
     private String customerName;
-    private String customerIdCard;
+    private String customerIdNum;
     private String customerPhone;
     private String IDCardPhoto; // String path to photo of ID card
     private String DriverLicensePhoto; // String path to photo of driver license
@@ -11,22 +11,22 @@ public class Customer {
     private static int countCustomerId = 1;
 
     // register customer
-    public Customer(String customerName, String customerIdCard, String customerPhone, String IDCardPhoto,
+    public Customer(String customerName, String customerIdNum, String customerPhone, String IDCardPhoto,
             String DriverLicensePhoto) {
         this.customerId = countCustomerId++;
-        this.setCustomerIdCard(customerIdCard);
+        this.setcustomerIdNum(customerIdNum);
         this.setCustomerName(customerName);
-        this.setCustomerPhone(customerPhone);
+        this.setCustomerPhone(customerPhone, null );
         this.IDCardPhoto = IDCardPhoto;
         this.DriverLicensePhoto = DriverLicensePhoto;
     }
 
     // for using and testing
-    public Customer(String customerName, String customerIdCard, String customerPhone) {
+    public Customer(String customerName, String customerIdNum, String customerPhone) {
         this.customerId = countCustomerId++;
-        this.setCustomerIdCard(customerIdCard);
+        this.setcustomerIdNum(customerIdNum);
         this.setCustomerName(customerName);
-        this.setCustomerPhone(customerPhone);
+        this.setCustomerPhone(customerPhone, null );
     }
 
     /*===== Getter =====*/
@@ -36,8 +36,8 @@ public class Customer {
     public String getCustomerName() {
         return customerName;
     }
-    public String getCustomerIdCard() {
-        return customerIdCard;
+    public String getcustomerIdNum() {
+        return customerIdNum;
     }
     public String getCustomerPhone() {
         return customerPhone;
@@ -61,18 +61,22 @@ public class Customer {
         }
         this.customerName = customerName;
     }
-    public void setCustomerIdCard(String customerIdCard) {
-        if(customerIdCard == null || customerIdCard.trim().isEmpty()) {
+    public void setcustomerIdNum(String customerIdNum) {
+        if(customerIdNum == null || customerIdNum.trim().isEmpty()) {
             System.out.println("Customer ID card cannot be null or empty.");
             return;
         }
-        this.customerIdCard = customerIdCard;
+        this.customerIdNum = customerIdNum;
     }
-    public void setCustomerPhone(String customerPhone) {
-        if(customerPhone == null || !customerPhone.matches("^[0-9]{9,10}$")) {
+    public void setCustomerPhone(String customerPhone, Customer[] customers) {
+        if(customerPhone == null || customerPhone.trim().isEmpty() || !customerPhone.matches("^[0-9]{9,10}$")) {
             System.out.println("Customer phone must be a 9-10-digit number.");
             return;
         }
+        if(customers != null && isPhoneExisted(customerPhone, customers)){
+            System.out.println("Customer phone number already exists.");
+            return;
+        } 
         this.customerPhone = customerPhone;
     }
     public void setIDCardPhoto(String IDCardPhoto) {
@@ -82,16 +86,30 @@ public class Customer {
         DriverLicensePhoto = driverLicensePhoto;
     }
 
+    public boolean isPhoneExisted(String phone, Customer[] customers) {
+        if (customers == null) {
+            return false;
+        }
+        for (Customer customer : customers) {
+            if (customer == null) continue;
+            String existingPhone = customer.getCustomerPhone();
+            if (existingPhone != null && existingPhone.equals(phone)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public String toString() {
-        return "Customer [id=" + customerId + ", name=\"" + customerName + "\", idCard=\"" + customerIdCard
+        return "Customer [id=" + customerId + ", name=\"" + customerName + "\", idCard=\"" + customerIdNum
                 + "\", phone=\"" + customerPhone + "\", IDCardPhoto=\"" + IDCardPhoto + "\", DriverLicensePhoto=\""
                 + DriverLicensePhoto + "\"]";
     }
 
     // Simple version - no photo paths
     public String toStringSimple() {
-        return "Customer [id=" + customerId + ", name=\"" + customerName + "\", idCard=\"" + customerIdCard
+        return "Customer [id=" + customerId + ", name=\"" + customerName + "\", idCard=\"" + customerIdNum
                 + "\", phone=\"" + customerPhone + "\"]";
     }
 
@@ -102,12 +120,14 @@ public class Customer {
         if (obj == null || getClass() != obj.getClass())
             return false;
         Customer customer = (Customer) obj;
-       return Objects.equals(customerId, customer.customerId) && Objects.equals(customerIdCard, customer.customerIdCard);
+       return Objects.equals(customerId, customer.customerId) && Objects.equals(customerIdNum, customer.customerIdNum);
     }
+
+    
 
     @Override
     public int hashCode() {
-        return Objects.hash(customerId, customerIdCard);
+        return Objects.hash(customerId, customerIdNum);
     }
 }
 

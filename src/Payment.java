@@ -67,26 +67,22 @@ public class Payment {
             this.damageFee = damageFee>0 ? damageFee: 0.0;
     }
 
-    public void processPayment(String method, String date) {
+    public void processPayment(String method, String payDate) {
 
         // Validate payment method
         if (method != null &&
                 (method.equalsIgnoreCase("CASH") ||
                         method.equalsIgnoreCase("CARD") ||
-                        method.equalsIgnoreCase("ONLINE"))) {
-
+                        method.equalsIgnoreCase("ABA") ||
+                        method.equalsIgnoreCase("ACLEDA") ||
+                        method.equalsIgnoreCase("WING")))
+                        {
             this.paymentMethod = method.toUpperCase();
         } else {
             this.paymentMethod = "TBD";
         }
 
-        // Validate date
-        if (date != null && !date.isEmpty()) {
-            this.payDate = date;
-        } else {
-            this.payDate = "TBD";
-        }
-
+        this.payDate = payDate;
         this.status = "PAID";
     }
 
@@ -107,6 +103,5 @@ public class Payment {
                 ", Final total=" + calculateTotal() + "$" +
                 '}';
     }
-
-
+       
 }

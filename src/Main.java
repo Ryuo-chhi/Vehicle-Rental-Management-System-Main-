@@ -3,7 +3,7 @@ import java.util.Scanner;
 class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        ManagementSystem M = new ManagementSystem(10);
+        Garage myGarage = new Garage(10);
 
         System.out.println("Hello Admin!");
 
@@ -28,10 +28,10 @@ class Main {
                     quit = true;
                     System.out.println("Exiting...");
                 }
-                case 1 -> M.vehicleManagement(scanner);
-                case 2 -> M.customerManagement(scanner);
-                case 3 -> M.rentManagement(scanner);
-                case 4 -> M.paymentManagement(scanner);
+                case 1 -> myGarage.vehicleManagement(scanner);
+                case 2 -> myGarage.customerManagement(scanner);
+                case 3 -> myGarage.rentManagement(scanner);
+                case 4 -> myGarage.paymentManagement(scanner);
                 case 5, 6 -> System.out.println("Coming soon...");
                 default -> System.out.println("Invalid choice!");
             }
