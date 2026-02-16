@@ -1,7 +1,8 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Garage {
-    private Vehicle[] garage;
+    private ArrayList<Vehicle> garage;
     private int count; // current number of vehicles
 
     private Customer[] customers;
@@ -12,7 +13,7 @@ public class Garage {
 
     public Garage(int maxSize) {
         // Initialize garage
-        this.garage = new Vehicle[maxSize];
+        this.garage = new ArrayList<>(maxSize);
         this.count = 0;
         generateVehicleToGarage();
         // Initialize customer list
@@ -34,18 +35,18 @@ public class Garage {
             { "hybrid", "Hatchback", "Honda", "Insight", "350", "VL-04-GH-3456", "PP-1003" },
             { "gasoline", "Coupe", "BMW", "M4", "600", "VL-05-IJ-7890", "PP-1004" }
         };
-        if (count >= garage.length) {
+        if (count >= garage.size()) {
             System.out.println("Garage is full! Cannot add new car.");
             return;
         }
         for (String[] car : cars) {
-            if (count >= garage.length) {
+            if (count >= garage.size()) {
                 System.out.println("Not enough space to add all predefined cars.");
                 break;
             }
             Vehicle newVehicle = new Vehicle(car[0], car[1], car[2], car[3], Double.parseDouble(car[4]), car[5],
                     car[6]);
-            garage[count++] = newVehicle;
+            garage.add(newVehicle);
         }
     }
 
@@ -91,7 +92,7 @@ public class Garage {
     }
 
     public void addVehicle(Scanner scanner) {
-        if (count >= garage.length) {
+        if (count >= garage.size()) {
             System.out.println("Garage is full! Cannot add new car.");
             return;
         }
@@ -119,7 +120,7 @@ public class Garage {
 
         Vehicle newVehicle = new Vehicle(powerSource, vehicleClass, brand, model, price, vehicleLicence, licencePlate);
 
-        garage[count++] = newVehicle;
+        garage.add(newVehicle);
         System.out.println("Add vehicle successfully.");
         System.out.println("count: " + count);
     }
@@ -129,8 +130,8 @@ public class Garage {
             System.out.println("Garage is empty!");
             return;
         }
-        for (int i = 0; i < count; i++) {
-            System.out.println(garage[i].toString());
+        for(Vehicle vehicle : garage) {
+            System.out.println(vehicle.toString());
         }
         System.out.println();
     }
@@ -152,24 +153,14 @@ public class Garage {
             }
         }
 
-        int index = -1;
-        for (int i = 0; i < count; i++) {
-            if (garage[i].getVehicleId() == id) {
-                index = i;
-                break;
-            }
-        }
+        boolean removed = garage.removeIf(v -> v.getVehicleId() == id);
 
-        if (index == -1) {
+        if (removed) {
+            System.out.println("Vehicle with ID " + id + " removed successfully.");
+        } else {
             System.out.println("Vehicle with ID " + id + " not found.");
-            return;
         }
 
-        for (int i = index; i < count - 1; i++) {
-            garage[i] = garage[i + 1];
-        }
-
-        garage[count - 1] = null;
         count--;
 
         System.out.println("Vehicle with ID " + id + " removed successfully.");
@@ -183,8 +174,7 @@ public class Garage {
         }
         System.out.print("Enter vehicle ID(int): ");
         int id = scanner.nextInt();
-        for (int i = 0; i < count; i++) {
-            Vehicle item = garage[i];
+        for (Vehicle item:  garage) {
             if (item.getVehicleId() == id) {
                 boolean quit = false;
                 int choice;
@@ -278,17 +268,19 @@ public class Garage {
         int id = scanner.nextInt();
         scanner.nextLine(); // consume newline
 
-        for (int i = 0; i < count; i++) {
-            if (garage[i].getVehicleId() == id)
-                return garage[i];
+        for (Vehicle v : garage) {
+            if (v.getVehicleId() == id) {
+                return v;
+            }
         }
         return null;
     }
 
     public Vehicle getVehicleByID(int id) {
-        for (int i = 0; i < count; i++) {
-            if (garage[i].getVehicleId() == id)
-                return garage[i];
+        for (Vehicle v : garage) {
+            if (v.getVehicleId() == id) {
+                return v;
+            }
         }
         return null;
     }
@@ -833,7 +825,7 @@ public class Garage {
             System.out.println("No payment associated with this rent!");
             return;
         }
-        System.out.println(payment.toString());
+        System.out.println(payment);
     }
 
     public void updatePayment(Scanner scanner, Rent item) {
@@ -865,10 +857,12 @@ public class Garage {
     public void paymentManagement(Scanner scanner) {
         boolean quit = false;
         do {
-            System.out.println("Payment Management: \n" +
-                    "0. Back to Main Menu\n" +
-                    "1. Show payment\n" +
-                    "2. Update payment\n");
+            System.out.println("""
+                    Payment Management:\s
+                    0. Back to Main Menu
+                    1. Show payment
+                    2. Update payment
+                    """);
             System.out.print("Enter your choice(int): ");
             int choice = scanner.nextInt();
             scanner.nextLine(); // consume newline
