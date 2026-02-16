@@ -8,7 +8,7 @@ public class Garage {
     private Customer[] customers;
     private int customerCount;
 
-    private Rent[] rents;
+    private ArrayList<Rent> rents;
     private int rentCount;
 
     public Garage(int maxSize) {
@@ -21,7 +21,7 @@ public class Garage {
         this.customerCount = 0;
         generateCustomerToSystem();
         // Initialize rent list
-        this.rents = new Rent[maxSize];
+        this.rents = new ArrayList<>(maxSize);
         this.rentCount = 0;
     }
 
@@ -146,8 +146,8 @@ public class Garage {
         int id = scanner.nextInt();
         scanner.nextLine(); // consume newline
 
-        for (int i = 0; i < rentCount; i++) {
-            if (rents[i] != null && rents[i].getVehicle() != null && rents[i].getVehicle().getVehicleId() == id) {
+        for (Rent rent : rents) {
+            if (rent != null && rent.getVehicle() != null && rent.getVehicle().getVehicleId() == id) {
                 System.out.println("Vehicle is currently rented and cannot be removed.");
                 return;
             }
@@ -223,8 +223,8 @@ public class Garage {
                         case 6:
                             // Check if vehicle is currently rented
                             boolean isRented = false;
-                            for (int j = 0; j < rentCount; j++) {
-                                if (rents[j] != null && rents[j].getVehicle().getVehicleId() == id) {
+                            for (Rent rent : rents) {
+                                if (rent != null && rent.getVehicle().getVehicleId() == id) {
                                     isRented = true;
                                     break;
                                 }
@@ -459,8 +459,8 @@ public class Garage {
         scanner.nextLine(); // consume newline
 
         if (rentCount > 0) {
-            for (int i = 0; i < rentCount; i++) {
-                if (rents[i] != null && rents[i].getCustomer() != null && rents[i].getCustomer().getCustomerId() == id) {
+             for (Rent rent : rents) {
+                if (rent != null && rent.getCustomer() != null && rent.getCustomer().getCustomerId() == id) {
                     System.out.println("Customer is associated with an active rent and cannot be removed.");
                     return;
                 }
@@ -524,26 +524,13 @@ public class Garage {
             scanner.nextLine(); // consume newline
 
             switch (choice) {
-                case 0:
-                    quit = true;
-                    break;
-                case 1:
-                    addRent(scanner);
-                    break;
-                case 2:
-                    showRents();
-                    break;
-                case 3:
-                    updateRent(scanner);
-                    break;
-                case 4:
-                    removeRent(scanner);
-                    break;
-                case 5:
-                    returnVehicle(scanner);
-                    break;
-                default:
-                    System.out.println("Invalid choice!");
+                case 0 -> quit = true;
+                case 1 -> addRent(scanner);
+                case 2 -> showRents();
+                case 3 -> updateRent(scanner);
+                case 4 -> removeRent(scanner);
+                case 5 -> returnVehicle(scanner);
+                default -> System.out.println("Invalid choice!");
             }
             System.out.println();
 
@@ -552,7 +539,7 @@ public class Garage {
 
     public void addRent(Scanner scanner) {
 
-        if (rentCount >= rents.length) {
+        if (rentCount >= rents.size()) {
             System.out.println("Rent list is full! Cannot add new rent.");
             return;
         }
@@ -612,7 +599,8 @@ public class Garage {
         // Mark vehicle as unavailable
         selectedVehicle.setAvailable(false);
 
-        rents[rentCount++] = newRent;
+        rents.add(newRent);
+        rentCount++;
         System.out.println("Add rent successfully.");
         System.out.println("rentCount: " + rentCount);
     }
@@ -622,8 +610,8 @@ public class Garage {
             System.out.println("No rents!");
             return;
         }
-        for (int i = 0; i < rentCount; i++) {
-            System.out.println(rents[i].toString());
+        for (Rent rent : rents) {
+            System.out.println(rent.toString());
         }
         System.out.println();
     }
@@ -637,9 +625,8 @@ public class Garage {
         int id = scanner.nextInt();
         scanner.nextLine(); // consume newline
 
-        for (int i = 0; i < rentCount; i++) {
-            Rent item = rents[i];
-            if (item.getRentId() == id) {
+        for (Rent rent : rents) {
+            if (rent.getRentId() == id) {
                 boolean quit = false;
                 int choice;
                 do {
@@ -661,7 +648,7 @@ public class Garage {
                             break;
                         case 1:
                             System.out.print("New Rent Days: ");
-                            item.setRentDays(scanner.nextInt());
+                            rent.setRentDays(scanner.nextInt());
                             scanner.nextLine();
                             break;
 
@@ -673,13 +660,13 @@ public class Garage {
                                 System.out.println("Selected vehicle is not available!");
                             } else {
                                 // Mark old vehicle as available
-                                if (item.getVehicle() != null) {
-                                    item.getVehicle().setAvailable(true);
+                                if (rent.getVehicle() != null) {
+                                    rent.getVehicle().setAvailable(true);
                                 }
                                 // Mark new vehicle as unavailable
                                 newVehicle.setAvailable(false);
                                 // Update the vehicle
-                                item.setVehicle(newVehicle);
+                                rent.setVehicle(newVehicle);
                                 System.out.println("Vehicle updated successfully.");
                             }
                             break;
@@ -688,7 +675,7 @@ public class Garage {
                             if (newCustomer == null) {
                                 System.out.println("Customer not found!");
                             } else {
-                                item.setCustomer(newCustomer);
+                                rent.setCustomer(newCustomer);
                                 System.out.println("Customer updated successfully.");
                             }
                             break;
@@ -716,9 +703,9 @@ public class Garage {
         scanner.nextLine(); // consume newline
 
         int index = -1;
-        for (int i = 0; i < rentCount; i++) {
-            if (rents[i].getRentId() == id) {
-                index = i;
+        for  (Rent rent : rents) {
+             if (rent.getRentId() == id) {
+                index = rents.indexOf(rent);
                 break;
             }
         }
@@ -726,17 +713,18 @@ public class Garage {
             System.out.println("Rent ID not found!");
             return;
         }
+
+        Rent rentToRemove = rents.get(index);
         // Mark vehicle as available when rent is removed
-        if (rents[index].getVehicle() != null) {
-            rents[index].getVehicle().setAvailable(true);
+        if (rentToRemove.getVehicle() != null) {
+            rentToRemove.getVehicle().setAvailable(true);
         } else {
             System.out.println("Warning: Rent has no associated vehicle!");
         }
 
-        for (int i = index; i < rentCount - 1; i++) {
-            rents[i] = rents[i + 1];
-        }
-        rents[--rentCount] = null; // clear last element & decrement count
+        rents.remove(index);
+        rentCount--;
+
         System.out.println("Remove rent successfully.");
     }
 
@@ -749,21 +737,20 @@ public class Garage {
         int id = scanner.nextInt();
         scanner.nextLine(); // consume newline
 
-        for (int i = 0; i < rentCount; i++) {
-            Rent item = rents[i];
-            if (item.getRentId() == id) {
-                if (!item.isStatus()) {
+        for (Rent rent : rents) {
+            if (rent.getRentId() == id) {
+                if (!rent.isStatus()) {
                     System.out.println("This receipt is already paid!");
                     return;
                 }
 
-                if (item.getVehicle() == null) {
+                if (rent.getVehicle() == null) {
                     System.out.println("Error: No vehicle associated with this rent!");
                     return;
                 }
                 // original vehicle from garage
-                Vehicle vehicle = getVehicleByID(item.getVehicle().getVehicleId());
-                if(!vehicle.equals(item.getVehicle())){
+                Vehicle vehicle = getVehicleByID(rent.getVehicle().getVehicleId());
+                if(!vehicle.equals(rent.getVehicle())){
                     System.out.println("Vehicle mismatch");
                     return;
                 }
@@ -776,25 +763,25 @@ public class Garage {
                 boolean update = scanner.nextBoolean();
                 scanner.nextLine(); // consume newline after boolean
                 if (update)
-                    updatePayment(scanner, item);
+                    updatePayment(scanner, rent);
 
                 String payDate = getRequiredInput(scanner, "payDate"); // valid payDate
 
                 // Process payment
-                item.getPayment().processPayment(paymentMethod, payDate);
+                rent.getPayment().processPayment(paymentMethod, payDate);
 
                 // Set rent return date
-                item.setReturnDate(payDate);
+                rent.setReturnDate(payDate);
 
                 // Mark vehicle as available
-                item.getVehicle().setAvailable(true);
+                rent.getVehicle().setAvailable(true);
 
-                double total = item.getPayment().calculateTotal();
+                double total = rent.getPayment().calculateTotal();
                 System.out.println("Payment created. Final total amount: $" + total);
                 System.out.println(
-                        "Vehicle with ID " + item.getVehicle().getVehicleId() + " has been returned and is now available.");
+                        "Vehicle with ID " + rent.getVehicle().getVehicleId() + " has been returned and is now available.");
                 System.out.println();
-                item.setStatus(false);
+                rent.setStatus(false);
                 return;
             }
         }
@@ -806,9 +793,9 @@ public class Garage {
         int id = scanner.nextInt();
         scanner.nextLine(); // consume newline
 
-        for (int i = 0; i < rentCount; i++) {
-            if (rents[i].getRentId() == id)
-                return rents[i];
+        for (Rent rent : rents) {
+            if (rent.getRentId() == id)
+                return rent;
         }
         return null;
     }
@@ -838,17 +825,18 @@ public class Garage {
 
         System.out.print("Enter discount (0 if none): ");
         double discount = scanner.nextDouble();
+        scanner.nextLine();
         payment.setDiscount(discount);
 
         System.out.print("Enter extra days (0 if none): ");
         int extraDays = scanner.nextInt();
+        scanner.nextLine();
         payment.setExtraDays(extraDays);
 
         System.out.print("Enter damage fee (0 if none): ");
         double damageFee = scanner.nextDouble();
+        scanner.nextLine();
         payment.setDamageFee(damageFee);
-
-        scanner.nextLine(); // consume newline
 
         System.out.println("Payment updated successfully!");
     }
