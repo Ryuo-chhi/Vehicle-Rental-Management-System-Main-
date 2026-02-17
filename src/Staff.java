@@ -1,3 +1,5 @@
+import java.util.Objects;
+
 public class Staff {
     private int staffId;
     private String name;
@@ -48,6 +50,19 @@ public class Staff {
     @Override
     public String toString() {
         return "Staff [staffId=" + staffId + ", name=" + name + ", role=" + role + ", salary=" + salary + "]";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Staff staff = (Staff) o;
+        return staffId == staff.staffId; 
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(staffId);
     }
 
 }

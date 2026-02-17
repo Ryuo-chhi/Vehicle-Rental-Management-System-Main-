@@ -16,7 +16,7 @@ class Main {
                     2. Customer Management
                     3. Rent Management
                     4. Payment Management
-                    5. Record Management -- soon
+                    5. Staff Management 
                     6. Other Management -- soon
                     """);
             System.out.print("Enter choice: ");
@@ -32,7 +32,8 @@ class Main {
                 case 2 -> myGarage.customerManagement(scanner);
                 case 3 -> myGarage.rentManagement(scanner);
                 case 4 -> myGarage.paymentManagement(scanner);
-                case 5, 6 -> System.out.println("Coming soon...");
+                case 5 -> myGarage.staffManagement(scanner);
+                case 6 -> System.out.println("Coming soon...");
                 default -> System.out.println("Invalid choice!");
             }
             System.out.println();

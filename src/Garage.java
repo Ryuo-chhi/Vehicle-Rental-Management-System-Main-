@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Scanner;
 
 public class Garage {
@@ -10,6 +11,9 @@ public class Garage {
 
     private ArrayList<Rent> rents;
     private int rentCount;
+
+    private HashSet<Staff> staffs;
+    private int staffCount;
 
     public Garage(int maxSize) {
         // Initialize garage
@@ -23,6 +27,152 @@ public class Garage {
         // Initialize rent list
         this.rents = new ArrayList<>(maxSize);
         this.rentCount = 0;
+        // Initialize staff list
+        this.staffs = new HashSet<>();
+        this.staffCount = 0;
+    }
+
+    // Staff Management
+
+    public void generateStaffToSystem() {
+        Staff s1 = new Staff("Alex", "Root", 2000);
+        Staff s2 = new Staff("Bob", "Manager", 3000);
+        Staff s3 = new Staff("Charlie", "Staff", 1500);
+        staffs.add(s1);
+        staffs.add(s2);
+        staffs.add(s3);
+        staffCount += 3;
+    }
+
+    public void staffManagement(Scanner scanner) {
+        System.out.println("Staff Management:");
+        boolean quit = false;
+        int choice;
+        do {
+            System.out.println("""
+                    0. Back to Main Menu
+                    1. Add Staff
+                    2. Show Staffs
+                    3. Update Staff
+                    4. Remove Staff""");
+
+            System.out.print("Enter choice: ");
+            choice = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+
+            switch (choice) {
+                case 0 -> quit = true;
+                case 1 -> addStaff(scanner);
+                case 2 -> showStaffs();
+                case 3 -> updateStaff(scanner);   
+                case 4 -> removeStaff(scanner);
+                default -> System.out.println("Invalid choice!");
+            }
+            System.out.println();
+
+        } while (!quit);
+    }
+
+    public void addStaff(Scanner scanner) {
+        System.out.print("Enter staff name: ");
+        String name = scanner.nextLine();
+
+        System.out.print("Enter staff role: ");
+        String role = scanner.nextLine();
+
+        System.out.print("Enter staff salary: ");
+        double salary = scanner.nextDouble();
+        scanner.nextLine(); 
+
+        Staff newStaff = new Staff(name, role, salary);
+        if (staffs.add(newStaff)) {
+            staffCount++;
+            System.out.println("Add staff successfully.");
+            System.out.println("staffCount: " + staffCount);
+        } else {
+            System.out.println("Failed to add staff. A staff with the same ID already exists.");
+        }
+    }
+
+    public void showStaffs() {
+        if (staffCount == 0) {
+            System.out.println("No staffs!");
+            return;
+        }
+        for (Staff staff : staffs) {
+            System.out.println(staff.toString());
+        }
+        System.out.println();
+    }
+
+    public void updateStaff(Scanner scanner) {
+        System.out.print("Enter staff ID(int): ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        for (Staff staff : staffs) {
+            if (staff.getStaffId() == id) {
+                boolean quit = false;
+                int choice;
+                do {
+                    System.out.println("""
+                            Update staff:
+                            0. Back to Staff Management
+                            1. Name
+                            2. Role
+                            3. Salary""");
+
+                    System.out.print("Enter choice: ");
+                    choice = scanner.nextInt();
+                    scanner.nextLine(); // consume newline
+
+                    switch (choice) {
+                        case 0 -> quit = true;
+                        case 1 -> {
+                            System.out.print("New Name: ");
+                            staff.setName(scanner.nextLine());
+                        }
+                        case 2 -> {
+                            System.out.print("New Role: ");
+                            staff.setRole(scanner.nextLine());
+                        }
+                        case 3 -> {
+                            System.out.print("New Salary: ");
+                            staff.setSalary(scanner.nextDouble());
+                            scanner.nextLine();
+                        }
+                        default -> System.out.println("Invalid choice!");
+                    }
+                    System.out.println();
+
+                } while (!quit);
+                return;
+            }
+        }
+        System.out.println("Staff not found!");
+    }
+
+    public void removeStaff(Scanner scanner) {
+        System.out.print("Enter staff ID(int): ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        Staff staffToRemove = null;
+        for (Staff staff : staffs) {
+            if (staff.getStaffId() == id) {
+                staffToRemove = staff;
+                break;
+            }
+        }
+
+        if (staffToRemove != null) {
+            staffs.remove(staffToRemove);
+            staffCount--;
+            System.out.println("Staff with ID " + id + " removed successfully.");
+            System.out.println("staffCount: " + staffCount);
+        } else {
+            System.out.println("Staff with ID " + id + " not found.");
+        }
     }
 
     // Vehicle Management
