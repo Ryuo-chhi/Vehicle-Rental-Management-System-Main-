@@ -55,6 +55,14 @@ public class Payment {
 
     // ===== SETTERS (only for changeable fields) =====
 
+    public void setRentDays(int rentDays) { //use this method to update rent days in case of extension or early return
+        this.rentDays = rentDays;
+    }
+
+    public void setPrice(double price) { // use this method to update price in case of vehicle change  (but not rate change)
+        this.price = price;
+    }
+
     public void setDiscount(double discount) {
             this.discount = discount>0 ? discount : 0.0;
     }

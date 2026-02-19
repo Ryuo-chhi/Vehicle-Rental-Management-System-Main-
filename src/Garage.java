@@ -185,15 +185,15 @@ public class Garage {
             { "hybrid", "Hatchback", "Honda", "Insight", "350", "VL-04-GH-3456", "PP-1003" },
             { "gasoline", "Coupe", "BMW", "M4", "600", "VL-05-IJ-7890", "PP-1004" }
         };
-        if (count >= garage.size()) {
-            System.out.println("Garage is full! Cannot add new car.");
-            return;
-        }
+        // if (count >= garage.size()) {
+        //     System.out.println("Garage is full! Cannot add new car.");
+        //     return;
+        // }
         for (String[] car : cars) {
-            if (count >= garage.size()) {
-                System.out.println("Not enough space to add all predefined cars.");
-                break;
-            }
+            // if (count >= garage.size()) {
+            //     System.out.println("Not enough space to add all predefined cars.");
+            //     break;
+            // }
             Vehicle newVehicle = new Vehicle(car[0], car[1], car[2], car[3], Double.parseDouble(car[4]), car[5],
                     car[6]);
             garage.add(newVehicle);
@@ -242,10 +242,10 @@ public class Garage {
     }
 
     public void addVehicle(Scanner scanner) {
-        if (count >= garage.size()) {
-            System.out.println("Garage is full! Cannot add new car.");
-            return;
-        }
+        // if (count >= garage.size()) {
+        //     System.out.println("Garage is full! Cannot add new car.");
+        //     return;
+        // }
         // Take inputs
         String powerSource = getRequiredInput(scanner, "powerSource");
 
@@ -671,7 +671,7 @@ public class Garage {
 
             System.out.print("Enter choice: ");
             choice = scanner.nextInt();
-            scanner.nextLine(); // consume newline
+            scanner.nextLine(); 
 
             switch (choice) {
                 case 0 -> quit = true;
@@ -689,16 +689,11 @@ public class Garage {
 
     public void addRent(Scanner scanner) {
 
-        if (rentCount >= rents.size()) {
-            System.out.println("Rent list is full! Cannot add new rent.");
-            return;
-        }
-        // Take inputs
         int rentDays;
         while (true) {
             System.out.print("Enter number of days(int): ");
             rentDays = scanner.nextInt();
-            scanner.nextLine(); // consume newline
+            scanner.nextLine(); 
             if (rentDays > 0) {
                 break;
             } else {
@@ -733,22 +728,20 @@ public class Garage {
             System.out.println("Invalid date format! Please enter date in dd-MM-yyyy format.");
             endDate = getRequiredInput(scanner, "end date");
         }
-///////////////////////////////
-        // snapshot vehicle price
-        double vehiclePrice = selectedVehicle.getRentalRatePerDay();
-        Rent newRent = new Rent(selectedVehicle, selectedCustomer, rentDays, startDate, endDate);
+
+        double vehiclePrice = selectedVehicle.getRentalRatePerDay(); // snapshot vehicle price
+        Rent newRent = new Rent(selectedVehicle, selectedCustomer, rentDays, startDate, endDate); // create rent without payment first
 
         System.out.print("Enter deposit amount: ");
         double deposit = scanner.nextDouble();
-        scanner.nextLine(); // consume newline
-        Payment payment = new Payment(newRent.getRentDays(), vehiclePrice, deposit);
+        scanner.nextLine();
+        Payment payment = new Payment(newRent.getRentDays(), vehiclePrice, deposit); // create payment with deposit and base price
 
-        // add payment to rent
-        newRent.setPayment(payment);
+        newRent.setPayment(payment); // add payment to rent
 
-        // Mark vehicle as unavailable
-        selectedVehicle.setAvailable(false);
+        selectedVehicle.setAvailable(false); // mark vehicle as unavailable
 
+        // add rent to list
         rents.add(newRent);
         rentCount++;
         System.out.println("Add rent successfully.");
@@ -773,7 +766,7 @@ public class Garage {
         }
         System.out.print("Enter rent ID(int): ");
         int id = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+        scanner.nextLine(); 
 
         for (Rent rent : rents) {
             if (rent.getRentId() == id) {
@@ -790,19 +783,53 @@ public class Garage {
 
                     System.out.print("Enter choice: ");
                     choice = scanner.nextInt();
-                    scanner.nextLine(); // consume newline
+                    scanner.nextLine(); 
 
                     switch (choice) {
-                        case 0:
-                            quit = true;
-                            break;
-                        case 1:
+                        case 0 -> quit = true;
+                        case 1 -> {
                             System.out.print("New Rent Days: ");
-                            rent.setRentDays(scanner.nextInt());
+                            int newRentDays = scanner.nextInt();
                             scanner.nextLine();
-                            break;
 
-                        case 2:
+                            if (newRentDays <= 0) {
+                                System.out.println("Rent days must be greater than 0.");
+                                break;
+                            }
+
+                            if (newRentDays == rent.getRentDays()) {
+                                System.out.println("Rent days is the same as before. No update needed.");
+                                break;
+                            }
+
+                            System.out.print("Warning: Changing rent days may affect the total price. Confirm (yes/no): ");
+                            String confirm = scanner.nextLine();
+                            if (!confirm.equalsIgnoreCase("yes")) {
+                                System.out.println("Rent days update cancelled.");
+                                break;
+                            }
+
+                            rent.setRentDays(newRentDays);
+                            rent.getPayment().setRentDays(newRentDays); // update rent days in payment as well
+
+                            System.out.println("Rent days updated successfully.");
+                            System.out.println("Please re-enter start date and end date again.");
+
+                            String newStartDate = getRequiredInput(scanner, "new start date");
+                            while (!isValidDateFormat(newStartDate)) {
+                                System.out.println("Invalid date format! Please enter date in dd-MM-yyyy format.");
+                                newStartDate = getRequiredInput(scanner, "new start date");
+                            }
+                            rent.setStartDate(newStartDate);
+
+                            String newEndDate = getRequiredInput(scanner, "new end date");
+                            while (!isValidDateFormat(newEndDate)) {
+                                System.out.println("Invalid date format! Please enter date in dd-MM-yyyy format.");
+                                newEndDate = getRequiredInput(scanner, "new end date");
+                            }
+                            rent.setEndDate(newEndDate);
+                        }
+                        case 2 -> {
                             Vehicle newVehicle = findVehicleByID(scanner);
                             if (newVehicle == null) {
                                 System.out.println("Vehicle not found!");
@@ -817,10 +844,11 @@ public class Garage {
                                 newVehicle.setAvailable(false);
                                 // Update the vehicle
                                 rent.setVehicle(newVehicle);
+                                rent.getPayment().setPrice(newVehicle.getRentalRatePerDay()); // update price in payment as well
                                 System.out.println("Vehicle updated successfully.");
                             }
-                            break;
-                        case 3:
+                        }
+                        case 3 -> {
                             Customer newCustomer = findCustomerByID(scanner);
                             if (newCustomer == null) {
                                 System.out.println("Customer not found!");
@@ -828,12 +856,11 @@ public class Garage {
                                 rent.setCustomer(newCustomer);
                                 System.out.println("Customer updated successfully.");
                             }
-                            break;
-                        case 4:
+                        }
+                        case 4 -> {
                             // update payment
-                            break;
-                        default:
-                            System.out.println("Invalid choice!");
+                        }
+                        default -> System.out.println("Invalid choice!");
                     }
                     System.out.println();
 
@@ -853,14 +880,27 @@ public class Garage {
         scanner.nextLine(); // consume newline
 
         int index = -1;
-        for  (Rent rent : rents) {
-             if (rent.getRentId() == id) {
-                index = rents.indexOf(rent);
+        for (int i = 0; i < rents.size(); i++) {
+            if (rents.get(i).getRentId() == id) {
+                index = i;
                 break;
             }
         }
         if (index == -1) {
             System.out.println("Rent ID not found!");
+            return;
+        }
+
+        System.out.println("""
+                            Warning:
+                            * This action cannot be undone, once it is removed.
+                            * Removing a rent will also remove its associated payment.
+                             
+                            Are you sure you want to remove this rent? (yes/no): 
+                            """);
+        String confirm = scanner.nextLine();
+        if (!confirm.equalsIgnoreCase("yes")) {
+            System.out.println("Removal cancelled.");
             return;
         }
 
@@ -915,7 +955,11 @@ public class Garage {
                 if (update)
                     updatePayment(scanner, rent);
 
-                String payDate = getRequiredInput(scanner, "payDate"); // valid payDate
+                String payDate = getRequiredInput(scanner, "payDate");
+                while (!isValidDateFormat(payDate)) {
+                    System.out.println("Invalid date format! Please enter date in dd-MM-yyyy format.");
+                    payDate = getRequiredInput(scanner, "payDate");
+                }
 
                 // Process payment
                 rent.getPayment().processPayment(paymentMethod, payDate);
@@ -965,13 +1009,13 @@ public class Garage {
         System.out.println(payment);
     }
 
-    public void updatePayment(Scanner scanner, Rent item) {
-        if (item == null) {
+    public void updatePayment(Scanner scanner, Rent rent) {
+        if (rent == null) {
             System.out.println("Rent not found!");
             return;
         }
 
-        Payment payment = item.getPayment();
+        Payment payment = rent.getPayment();
 
         System.out.print("Enter discount (0 if none): ");
         double discount = scanner.nextDouble();
