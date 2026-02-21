@@ -12,7 +12,7 @@ public class Garage {
     private ArrayList<Rent> rents;
     private int rentCount;
 
-    private HashSet<Staff> staffs;
+    private HashSet<IStaff> staffs;
     private int staffCount;
 
     public Garage(int maxSize) {
@@ -35,9 +35,9 @@ public class Garage {
     // Staff Management
 
     public void generateStaffToSystem() {
-        Staff s1 = new Staff("Alex", "Root", 2000);
-        Staff s2 = new Staff("Bob", "Manager", 3000);
-        Staff s3 = new Staff("Charlie", "Staff", 1500);
+        Staff s1 = new Staff("Alex", "Root", 2000, "alex_root", "root123");
+        Staff s2 = new Staff("Bob", "Manager", 3000, "bob_manager", "manager123");
+        Staff s3 = new Staff("Charlie", "Staff", 1500, "charlie_staff", "staff123");
         staffs.add(s1);
         staffs.add(s2);
         staffs.add(s3);
@@ -84,7 +84,13 @@ public class Garage {
         double salary = scanner.nextDouble();
         scanner.nextLine(); 
 
-        Staff newStaff = new Staff(name, role, salary);
+        System.out.print("Enter staff username: ");
+        String username = scanner.nextLine();
+
+        System.out.print("Enter staff password: ");
+        String password = scanner.nextLine();
+
+        Staff newStaff = new Staff(name, role, salary, username, password);
         if (staffs.add(newStaff)) {
             staffCount++;
             System.out.println("Add staff successfully.");
@@ -99,7 +105,7 @@ public class Garage {
             System.out.println("No staffs!");
             return;
         }
-        for (Staff staff : staffs) {
+        for (IStaff staff : staffs) {
             System.out.println(staff.toString());
         }
         System.out.println();
@@ -110,8 +116,8 @@ public class Garage {
         int id = scanner.nextInt();
         scanner.nextLine(); // consume newline
 
-        for (Staff staff : staffs) {
-            if (staff.getStaffId() == id) {
+        for (IStaff staff : staffs) {
+            if (staff.getId() == id) {
                 boolean quit = false;
                 int choice;
                 do {
@@ -157,9 +163,9 @@ public class Garage {
         int id = scanner.nextInt();
         scanner.nextLine(); // consume newline
 
-        Staff staffToRemove = null;
-        for (Staff staff : staffs) {
-            if (staff.getStaffId() == id) {
+        IStaff staffToRemove = null;
+        for (IStaff staff : staffs) {
+            if (staff.getId() == id) {
                 staffToRemove = staff;
                 break;
             }
@@ -779,8 +785,7 @@ public class Garage {
                             1. Rent Days
                             2. Vehicle
                             3. Customer
-                            4. Payment""");
-
+                            """);
                     System.out.print("Enter choice: ");
                     choice = scanner.nextInt();
                     scanner.nextLine(); 
@@ -856,9 +861,6 @@ public class Garage {
                                 rent.setCustomer(newCustomer);
                                 System.out.println("Customer updated successfully.");
                             }
-                        }
-                        case 4 -> {
-                            // update payment
                         }
                         default -> System.out.println("Invalid choice!");
                     }
