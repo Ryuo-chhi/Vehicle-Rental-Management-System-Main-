@@ -1,4 +1,4 @@
-import java.util.Objects;
+import java.util.HashSet;
 
 public class Customer {
     private int customerId;
@@ -68,7 +68,7 @@ public class Customer {
         }
         this.customerIdNum = customerIdNum;
     }
-    public void setCustomerPhone(String customerPhone, Customer[] customers) {
+    public void setCustomerPhone(String customerPhone, HashSet<Customer> customers) {
         if(customerPhone == null || customerPhone.trim().isEmpty() || !customerPhone.matches("^[0-9]{9,10}$")) {
             System.out.println("Customer phone must be a 9-10-digit number.");
             return;
@@ -86,7 +86,7 @@ public class Customer {
         DriverLicensePhoto = driverLicensePhoto;
     }
 
-    public boolean isPhoneExisted(String phone, Customer[] customers) {
+    public boolean isPhoneExisted(String phone, HashSet<Customer> customers) {
         if (customers == null) {
             return false;
         }
@@ -114,21 +114,37 @@ public class Customer {
     }
 
     @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((customerIdNum == null) ? 0 : customerIdNum.hashCode());
+        result = prime * result + ((customerPhone == null) ? 0 : customerPhone.hashCode());
+        return result;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (obj == null || getClass() != obj.getClass())
+        if (obj == null)
             return false;
-        Customer customer = (Customer) obj;
-       return Objects.equals(customerId, customer.customerId) && Objects.equals(customerIdNum, customer.customerIdNum);
+        if (getClass() != obj.getClass())
+            return false;
+        Customer other = (Customer) obj;
+        if (customerIdNum == null) {
+            if (other.customerIdNum != null)
+                return false;
+        } else if (!customerIdNum.equals(other.customerIdNum))
+            return false;
+        if (customerPhone == null) {
+            if (other.customerPhone != null)
+                return false;
+        } else if (!customerPhone.equals(other.customerPhone))
+            return false;
+        return true;
     }
 
     
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(customerId, customerIdNum);
-    }
 }
 
 // Note: All Customer must be registered before renting a vehicle. All customer

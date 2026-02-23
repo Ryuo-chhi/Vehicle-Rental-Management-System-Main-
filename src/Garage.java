@@ -6,7 +6,7 @@ public class Garage {
     private ArrayList<Vehicle> garage;
     private int count; // current number of vehicles
 
-    private Customer[] customers;
+    private HashSet<Customer> customers;
     private int customerCount;
 
     private ArrayList<Rent> rents;
@@ -21,7 +21,7 @@ public class Garage {
         this.count = 0;
         generateVehicleToGarage();
         // Initialize customer list
-        this.customers = new Customer[maxSize];
+        this.customers = new HashSet<>();
         this.customerCount = 0;
         generateCustomerToSystem();
         // Initialize rent list
@@ -455,13 +455,11 @@ public class Garage {
             { "Diana Prince", "D4567890", "0882345682", "IDCard.jpg", "DriverLicense.jpg" },
             { "Eno Gonzalez", "D5678901", "0972345683", "IDCard.jpg", "DriverLicense.jpg" }
         };
-        if (customerCount >= customers.length) {
-            System.out.println("Customer list is full! Cannot add new customer.");
-            return;
-        }
+    
         for (String[] cust : custs) {
             Customer newCustomer = new Customer(cust[0], cust[1], cust[2], cust[3], cust[4]);
-            customers[customerCount++] = newCustomer;
+            customers.add(newCustomer);
+            customerCount++;
         }
     }
 
@@ -507,10 +505,6 @@ public class Garage {
     }
 
     public void addCustomer(Scanner scanner) {
-        if (customerCount >= customers.length) {
-            System.out.println("Customer list is full! Cannot add new customer.");
-            return;
-        }
         // Take inputs
         System.out.print("Enter customer Name: ");
         String customerName = scanner.nextLine();
@@ -523,7 +517,8 @@ public class Garage {
 
         Customer newCustomer = new Customer(customerName, customerIdNum, customerPhone);
 
-        customers[customerCount++] = newCustomer;
+        customers.add(newCustomer);
+        customerCount++;
         System.out.println("Add customer successfully.");
         System.out.println("customerCount: " + customerCount);
     }
@@ -533,8 +528,8 @@ public class Garage {
             System.out.println("No customers!");
             return;
         }
-        for (int i = 0; i < customerCount; i++) {
-            System.out.println(customers[i].toString());
+        for (Customer customer : customers) {
+            System.out.println(customer.toString());
         }
         System.out.println();
     }
@@ -547,8 +542,8 @@ public class Garage {
         System.out.print("Enter customer ID(int): ");
         int id = scanner.nextInt();
         scanner.nextLine(); // consume newline
-        for (int i = 0; i < customerCount; i++) {
-            Customer item = customers[i];
+        for (Customer item : customers) {
+
             if (item.getCustomerId() == id) {
                 boolean quit = false;
                 int choice;
@@ -623,25 +618,13 @@ public class Garage {
             }
         }
 
-        int index = -1;
-        for (int i = 0; i < customerCount; i++) {
-            if (customers[i].getCustomerId() == id) {
-                index = i;
+        for (Customer customer : customers) {
+            if (customer.getCustomerId() == id) {
+                customers.remove(customer);
+                customerCount--;
                 break;
             }
-        }
-
-        if (index == -1) {
-            System.out.println("Customer with ID " + id + " not found.");
-            return;
-        }
-
-        for (int i = index; i < customerCount - 1; i++) {
-            customers[i] = customers[i + 1];
-        }
-
-        customers[customerCount - 1] = null;
-        customerCount--;
+        } 
 
         System.out.println("Customer with ID " + id + " removed successfully.");
         System.out.println("customerCount: " + customerCount);
@@ -652,9 +635,9 @@ public class Garage {
         int id = scanner.nextInt();
         scanner.nextLine(); // consume newline
 
-        for (int i = 0; i < customerCount; i++) {
-            if (customers[i].getCustomerId() == id)
-                return customers[i];
+        for (Customer customer : customers) {
+            if (customer.getCustomerId() == id)
+                return customer;
         }
         return null;
     }
