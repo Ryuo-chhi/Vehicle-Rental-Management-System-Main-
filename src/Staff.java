@@ -9,6 +9,8 @@ public class Staff implements IStaff {
     private String username;
     private String password;
     private boolean status;
+    private boolean active;
+
 
     private static int staffCount = 0;
 
@@ -18,7 +20,8 @@ public class Staff implements IStaff {
         if (action.equals(Garage.VIEW_VEHICLE) || 
             action.equals(Garage.VIEW_CUSTOMER) || 
             action.equals(Garage.ADD_RENT) || 
-            action.equals(Garage.RETURN_VEHICLE) || 
+            action.equals(Garage.VIEW_RENT) ||
+            action.equals(Garage.RETURN_VEHICLE) ||
             action.equals(Garage.SHOW_PAYMENT)) {
             return true;
         }
@@ -36,6 +39,7 @@ public class Staff implements IStaff {
         this.setPassword(password);
 
         this.status = true;
+        this.active = true;
     }
 
     // login
@@ -69,6 +73,9 @@ public class Staff implements IStaff {
     public boolean getStatus() {
         return status;
     }
+    @Override
+    public boolean isActive() { return !active; }
+
 
     /*====== For login check ======*/
     public boolean checkPassword(String input) {

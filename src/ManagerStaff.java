@@ -10,6 +10,8 @@ public class ManagerStaff implements IStaff {
     private String username;
     private String password;
     private boolean status;
+    private boolean active;
+
 
     private static int staffCount = 0;
 
@@ -29,6 +31,7 @@ public class ManagerStaff implements IStaff {
         this.setPassword(password);
 
         this.status = true;
+        this.active = true;
     }
 
     // login
@@ -62,6 +65,8 @@ public class ManagerStaff implements IStaff {
     public boolean getStatus() {
         return status;
     }
+    @Override
+    public boolean isActive() { return !active; }
 
     /*====== For login check ======*/
     public boolean checkPassword(String input) {

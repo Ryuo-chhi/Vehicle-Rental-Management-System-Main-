@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Scanner;
 
+
 public class Garage {
 
     /*====== Action Constants ====== */
@@ -28,6 +29,16 @@ public class Garage {
     private HashSet<IStaff> staffs;
     private int staffCount;
 
+    // =========================
+    //  LOGIN DEPENDENCY
+    // =========================
+    private IStaff loggedInStaff;   // null = no staff login
+
+    // =========================
+    // 4) FEEDBACK MESSAGE
+    // =========================
+    private String lastMessage;
+
     public Garage(int maxSize) {
         // Initialize garage
         this.garage = new ArrayList<>(maxSize);
@@ -43,6 +54,21 @@ public class Garage {
         // Initialize staff list
         this.staffs = new HashSet<>();
         this.staffCount = 0;
+
+        loggedInStaff = null;
+        lastMessage = "CoffeeShop created. Default staff: Alex / root123";
+
+    }
+
+    // =========================
+    // GETTERS / SETTERS
+    // =========================
+    public String getLastMessage() { return lastMessage; }
+    public boolean isStaffLoggedIn() { return loggedInStaff != null; }
+    public IStaff getLoggedInStaff() { return loggedInStaff; }
+
+    private void setLastMessage(String msg) {
+        lastMessage = msg;
     }
 
     // Staff Management
@@ -84,6 +110,62 @@ public class Garage {
             System.out.println();
 
         } while (!quit);
+    }
+    // =========================
+    // LOGIN CHECK (dependency)
+    // =========================
+    private boolean requireStaffLogin() {
+        if (loggedInStaff == null) {
+            setLastMessage("Action denied: staff must login first.");
+            return false;
+        }
+
+        if (loggedInStaff.isActive()) {
+            loggedInStaff = null;
+            setLastMessage("Action denied: staff is inactive (auto logout).");
+            return false;
+        }
+
+        return true;
+    }
+
+    // =========================
+    // STAFF LOGIN / LOGOUT
+    // =========================
+
+    public void staffLogin(String username, String password) {
+
+        if (username.isBlank() || password == null) {
+            setLastMessage("Login failed: missing username/password.");
+            return;
+        }
+
+        for (IStaff s:  staffs) {
+
+            if (s.getUsername().equalsIgnoreCase(username.trim())) {
+
+                if (s.isActive()) {
+                    setLastMessage("Login failed: staff is inactive.");
+                    return;
+                }
+
+                if (!s.checkPassword(password)) {
+                    setLastMessage("Login failed: wrong password.");
+                    return;
+                }
+
+                loggedInStaff = s;
+                setLastMessage("Login success. Welcome " + s.getUsername() + "!");
+                return;
+            }
+        }
+
+        setLastMessage("Login failed: username not found.");
+    }
+
+    public void staffLogout() {
+        loggedInStaff = null;
+        setLastMessage("Logged out successfully.");
     }
 
     public void addStaff(Scanner scanner) {
