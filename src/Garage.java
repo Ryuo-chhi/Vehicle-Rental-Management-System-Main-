@@ -3,6 +3,19 @@ import java.util.HashSet;
 import java.util.Scanner;
 
 public class Garage {
+
+    /*====== Action Constants ====== */
+    public static final String VIEW_VEHICLE = "VIEW_VEHICLE";
+    public static final String MANAGE_VEHICLE = "MANAGE_VEHICLE";
+    public static final String VIEW_CUSTOMER = "VIEW_CUSTOMER";
+    public static final String MANAGE_CUSTOMER = "MANAGE_CUSTOMER";
+    public static final String VIEW_RENT = "VIEW_RENT";
+    public static final String ADD_RENT = "ADD_RENT";
+    public static final String RETURN_VEHICLE = "RETURN_VEHICLE";
+    public static final String SHOW_PAYMENT = "SHOW_PAYMENT";
+    public static final String MANAGE_STAFF = "MANAGE_STAFF";
+    public static final String VIEW_REPORTS = "VIEW_REPORTS";
+
     private ArrayList<Vehicle> garage;
     private int count; // current number of vehicles
 

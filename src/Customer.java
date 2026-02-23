@@ -55,6 +55,7 @@ public class Customer {
 
     /*===== Setter =====*/
     public void setCustomerName(String customerName) {
+        
         if(customerName == null || customerName.trim().isEmpty()) {
             System.out.println("Customer name cannot be null or empty.");
             return;

@@ -1,6 +1,7 @@
 import java.util.Objects;
 
 public class Staff implements IStaff {
+    /* ====== Fields (Encapsulation) ====== */
     private int staffId;
     private String name;
     private String role;
@@ -11,7 +12,21 @@ public class Staff implements IStaff {
 
     private static int staffCount = 0;
 
-    // register
+    /*====== Staff Permissions ====== */
+    @Override
+    public boolean can(String action) {
+        if (action.equals(Garage.VIEW_VEHICLE) || 
+            action.equals(Garage.VIEW_CUSTOMER) || 
+            action.equals(Garage.ADD_RENT) || 
+            action.equals(Garage.RETURN_VEHICLE) || 
+            action.equals(Garage.SHOW_PAYMENT)) {
+            return true;
+        }
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    /*====== Register ====== */
     public Staff(String name, String role, double salary, String username, String password) {
         this.staffId = ++staffCount;
         this.setName(name);
@@ -19,6 +34,7 @@ public class Staff implements IStaff {
         this.setSalary(salary);
         this.setUsername(username);
         this.setPassword(password);
+
         this.status = true;
     }
 
@@ -28,95 +44,85 @@ public class Staff implements IStaff {
         this.setUsername(username);
     }
 
-    // IStaff Interface Methods - Getters
+    /*====== Getters ====== */
     @Override
     public int getId() {
         return staffId;
     }
-
     @Override
     public String getName() {
         return name;
     }
-
     @Override
     public String getRole() {
         return role;
     }
-
     @Override
     public double getSalary() {
         return salary;
     }
-
     @Override
     public String getUsername() {
         return username;
     }
-
     @Override
     public boolean getStatus() {
         return status;
     }
 
-    // IStaff Interface Methods - Setters
+    /*====== For login check ======*/
+    public boolean checkPassword(String input) {
+        return password != null && password.equals(input);
+    }
+
+    /*====== Setters (with simple validation) ====== */
     @Override
     public void setName(String name) {
-        this.name = name;
+        if (name == null || name.trim().isEmpty()) {
+            System.out.println("Staff name cannot be null or empty.");
+            return;
+        }
+        this.name = name.trim();
     }
 
     @Override
     public void setRole(String role) {
-        this.role = role;
+        if (role == null || role.trim().isEmpty()) {
+            System.out.println("Staff role cannot be null or empty.");
+            return;
+        }
+        this.role = role.trim();
     }
 
     @Override
     public void setSalary(double salary) {
+        if (salary < 0) {
+            System.out.println("Salary cannot be negative.");
+            return;
+        }
         this.salary = salary;
     }
 
     @Override
     public void setUsername(String username) {
-        this.username = username;
+        if (username == null || username.trim().isEmpty()) {
+            System.out.println("Username cannot be null or empty.");
+            return;
+        }
+        this.username = username.trim();
     }
 
     @Override
     public void setPassword(String password) {
+        String pw = (password == null) ? "" : password;
+        if (pw.length() < 4) {
+            System.out.println("Password must be at least 4 characters.");
+            return;
+        }
         this.password = password;
     }
-
     @Override
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
-
-    // IStaff Permissions
-    @Override
-    public boolean can(String action) {
-        if (action == null || role == null) return false;
-
-        return switch (role.toUpperCase()) {
-            case "ADMIN" -> true; // Admin can do everything
-            case "MANAGER" -> canManager(action);
-            case "STAFF" -> canStaff(action);
-            default -> false;
-        };
-    }
-
-    private boolean canStaff(String action) {
-        return switch (action) {
-            case "VIEW_VEHICLE", "VIEW_CUSTOMER", "ADD_RENT", "RETURN_VEHICLE", "SHOW_PAYMENT" -> true;
-            default -> false;
-        };
-    }
-
-    private boolean canManager(String action) {
-        return switch (action) {
-            case "VIEW_VEHICLE", "VIEW_CUSTOMER", "ADD_RENT", "RETURN_VEHICLE", "SHOW_PAYMENT",
-                 "MANAGE_VEHICLE", "MANAGE_CUSTOMER", "VIEW_REPORTS", "MANAGE_STAFF" -> true;
-            default -> false;
-        };
-    }
+    public void setStatus(boolean status) {this.status = status;}
 
     // Additional Methods
     public static int getStaffCount() {
