@@ -19,13 +19,14 @@ public class Staff implements IStaff {
     public boolean can(String action) {
         if (action.equals(Garage.VIEW_VEHICLE) || 
             action.equals(Garage.VIEW_CUSTOMER) || 
+            action.equals(Garage.MANAGE_CUSTOMER) || 
             action.equals(Garage.ADD_RENT) || 
             action.equals(Garage.VIEW_RENT) ||
             action.equals(Garage.RETURN_VEHICLE) ||
             action.equals(Garage.SHOW_PAYMENT)) {
             return true;
         }
-        // TODO Auto-generated method stub
+
         return false;
     }
 
@@ -39,7 +40,7 @@ public class Staff implements IStaff {
         this.setPassword(password);
 
         this.status = true;
-        this.active = true;
+        this.active = false; // Offline by default, becomes true when login
     }
 
     // login
@@ -74,7 +75,7 @@ public class Staff implements IStaff {
         return status;
     }
     @Override
-    public boolean isActive() { return !active; }
+    public boolean isActive() { return active; }
 
 
     /*====== For login check ======*/
@@ -130,6 +131,8 @@ public class Staff implements IStaff {
     }
     @Override
     public void setStatus(boolean status) {this.status = status;}
+    @Override
+    public void setActive(boolean active) {this.active = active;}
 
     // Additional Methods
     public static int getStaffCount() {

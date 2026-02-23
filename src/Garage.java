@@ -54,9 +54,10 @@ public class Garage {
         // Initialize staff list
         this.staffs = new HashSet<>();
         this.staffCount = 0;
+        generateStaffToSystem();
 
         loggedInStaff = null;
-        lastMessage = "CoffeeShop created. Default staff: Alex / root123";
+        lastMessage = "Garage created. No staff logged in.";
 
     }
 
@@ -74,9 +75,9 @@ public class Garage {
     // Staff Management
 
     public void generateStaffToSystem() {
-        Staff s1 = new Staff("Alex", "Root", 2000, "alex_root", "root123");
-        Staff s2 = new Staff("Bob", "Manager", 3000, "bob_manager", "manager123");
-        Staff s3 = new Staff("Charlie", "Staff", 1500, "charlie_staff", "staff123");
+        IStaff s1 = new ManagerStaff("Admin", "Manager", 0, "admin_root", "root123");
+        IStaff s2 = new ManagerStaff("Bob", "Manager", 3000, "bob_manager", "manager123");
+        IStaff s3 = new Staff("Chan", "Staff", 1500, "chan_staff", "staff123");
         staffs.add(s1);
         staffs.add(s2);
         staffs.add(s3);
@@ -84,6 +85,16 @@ public class Garage {
     }
 
     public void staffManagement(Scanner scanner) {
+        // Check if staff is logged in and has permission
+        if (!requireStaffLogin()) {
+            System.out.println(getLastMessage());
+            return;
+        }
+        if (!loggedInStaff.can(MANAGE_STAFF)) {
+            System.out.println("Access denied: insufficient permissions.");
+            return;
+        }
+
         System.out.println("Staff Management:");
         boolean quit = false;
         int choice;
@@ -120,7 +131,7 @@ public class Garage {
             return false;
         }
 
-        if (loggedInStaff.isActive()) {
+        if (!loggedInStaff.isActive()) {
             loggedInStaff = null;
             setLastMessage("Action denied: staff is inactive (auto logout).");
             return false;
@@ -144,8 +155,8 @@ public class Garage {
 
             if (s.getUsername().equalsIgnoreCase(username.trim())) {
 
-                if (s.isActive()) {
-                    setLastMessage("Login failed: staff is inactive.");
+                if (!s.getStatus()) {
+                    setLastMessage("Login failed: staff is no longer employed.");
                     return;
                 }
 
@@ -154,8 +165,10 @@ public class Garage {
                     return;
                 }
 
+                // Set staff as online (active)
+                s.setActive(true);
                 loggedInStaff = s;
-                setLastMessage("Login success. Welcome " + s.getUsername() + "!");
+                setLastMessage("\nLogin success. Welcome " + s.getUsername() + "!\n");
                 return;
             }
         }
@@ -164,6 +177,10 @@ public class Garage {
     }
 
     public void staffLogout() {
+        if (loggedInStaff != null) {
+            // Set staff as offline (inactive)
+            loggedInStaff.setActive(false);
+        }
         loggedInStaff = null;
         setLastMessage("Logged out successfully.");
     }
@@ -185,8 +202,18 @@ public class Garage {
         System.out.print("Enter staff password: ");
         String password = scanner.nextLine();
 
-        Staff newStaff = new Staff(name, role, salary, username, password);
-        if (staffs.add(newStaff)) {
+        IStaff newStaff = switch (role.trim().toUpperCase()) {
+            case "MANAGER", "ADMIN" -> new ManagerStaff(name, role, salary, username, password);
+            case "STAFF" -> new Staff(name, role, salary, username, password);
+            default -> {
+                yield null;
+            }
+        };
+
+        if (newStaff == null) {
+            System.out.println("Invalid role! Staff will not be created.");
+            return;
+        } else if (staffs.add(newStaff)) {
             staffCount++;
             System.out.println("Add staff successfully.");
             System.out.println("staffCount: " + staffCount);
@@ -302,6 +329,16 @@ public class Garage {
     }
 
     public void vehicleManagement(Scanner scanner) {
+        // Check if staff is logged in and has permission
+        if (!requireStaffLogin()) {
+            System.out.println(getLastMessage());
+            return;
+        }
+        if (!loggedInStaff.can(MANAGE_VEHICLE)) {
+            System.out.println("Access denied: insufficient permissions.");
+            return;
+        }
+
         System.out.println("Vehicle Management:");
         boolean quit = false;
         int choice;
@@ -559,6 +596,16 @@ public class Garage {
     }
 
     public void customerManagement(Scanner scanner) {
+        // Check if staff is logged in and has permission
+        if (!requireStaffLogin()) {
+            System.out.println(getLastMessage());
+            return;
+        }
+        if (!loggedInStaff.can(MANAGE_CUSTOMER)) {
+            System.out.println("Access denied: insufficient permissions.");
+            return;
+        }
+
         System.out.println("Customer Management:");
         boolean quit = false;
         int choice;
@@ -740,6 +787,12 @@ public class Garage {
     // Rent Management
 
     public void rentManagement(Scanner scanner) {
+        // Check if staff is logged in
+        if (!requireStaffLogin()) {
+            System.out.println(getLastMessage());
+            return;
+        }
+
         System.out.println("Rent Management:");
         boolean quit = false;
         int choice;
@@ -796,7 +849,7 @@ public class Garage {
             System.out.println("Customer not found!");
             return;
         }
-        if (selectedVehicle.isAvailable()) {
+        if (!selectedVehicle.isAvailable()) {
             System.out.println("Vehicle is not available for rent!");
             return;
         }
@@ -916,7 +969,7 @@ public class Garage {
                             Vehicle newVehicle = findVehicleByID(scanner);
                             if (newVehicle == null) {
                                 System.out.println("Vehicle not found!");
-                            } else if (newVehicle.isAvailable()) {
+                            } else if (!newVehicle.isAvailable()) {
                                 System.out.println("Selected vehicle is not available!");
                             } else {
                                 // Mark old vehicle as available
@@ -1117,6 +1170,16 @@ public class Garage {
 
 
     public void paymentManagement(Scanner scanner) {
+        // Check if staff is logged in and has permission
+        if (!requireStaffLogin()) {
+            System.out.println(getLastMessage());
+            return;
+        }
+        if (!loggedInStaff.can(SHOW_PAYMENT)) {
+            System.out.println("Access denied: insufficient permissions.");
+            return;
+        }
+
         boolean quit = false;
         do {
             System.out.println("""

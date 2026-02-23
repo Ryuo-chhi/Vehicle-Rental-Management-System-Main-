@@ -16,8 +16,10 @@ public interface IStaff {
     void setUsername(String username);
     void setPassword(String password);
     void setStatus(boolean status);
-    boolean isActive();
+    void setActive(boolean active);
 
+    // Other Methods
+    boolean isActive();
     boolean checkPassword(String input);
     boolean can(String action);
 

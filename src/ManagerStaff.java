@@ -31,7 +31,7 @@ public class ManagerStaff implements IStaff {
         this.setPassword(password);
 
         this.status = true;
-        this.active = true;
+        this.active = false; // Offline by default, becomes true when login
     }
 
     // login
@@ -66,7 +66,7 @@ public class ManagerStaff implements IStaff {
         return status;
     }
     @Override
-    public boolean isActive() { return !active; }
+    public boolean isActive() { return active; }
 
     /*====== For login check ======*/
     public boolean checkPassword(String input) {
@@ -120,6 +120,8 @@ public class ManagerStaff implements IStaff {
     }
     @Override
     public void setStatus(boolean status) {this.status = status;}
+    @Override
+    public void setActive(boolean active) {this.active = active;}
 
     // Additional Methods
     public static int getStaffCount() {

@@ -49,7 +49,7 @@ public class Vehicle {
     }
 
     public boolean isAvailable() {
-        return !isAvailable;
+        return isAvailable;
     }
 
     public static int getCountVehicleId() {
