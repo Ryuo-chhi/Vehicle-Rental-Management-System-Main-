@@ -8,9 +8,9 @@ class Main {
         System.out.println("Welcome to the Vehicle Rental Management System!");
 
         System.out.println("Please login to continue...");
-        System.out.println("Enter username: ");
+        System.out.print("Enter username: ");
         String username = scanner.nextLine();
-        System.out.println("Enter password: ");
+        System.out.print("Enter password: ");
         String password = scanner.nextLine();
 
         myGarage.staffLogin(username, password);

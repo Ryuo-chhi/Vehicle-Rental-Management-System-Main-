@@ -325,6 +325,7 @@ public class Garage {
             Vehicle newVehicle = new Vehicle(car[0], car[1], car[2], car[3], Double.parseDouble(car[4]), car[5],
                     car[6]);
             garage.add(newVehicle);
+            count++;
         }
     }
 
