@@ -11,10 +11,10 @@ public class Car implements IVehicle{
     private String licencePlate;
     private boolean isAvailable;
 
-    private static int countVehicleId = 1;
+    private static int countCarId = 1; // count all cars
 
     public Car(String powerSource, String vehicleClass, String vehicleBrand, String vehicleModel, double rentalRatePerDay, String vehicleLicence, String licencePlate) {
-        this.vehicleId = "Car-" + countVehicleId++;
+        this.vehicleId = "Car-" + countCarId++;
         this.setPowerSource(powerSource);
         this.setVehicleClass(vehicleClass);
         this.setVehicleBrand(vehicleBrand);
@@ -63,8 +63,8 @@ public class Car implements IVehicle{
         return isAvailable;
     }
 
-    public static int getCountVehicleId() {
-        return countVehicleId;
+    public static int getCountCarId() {
+        return countCarId - 1; // Return the actual count of cars created, since countCarId is incremented after assignment
     }
     //setter
 

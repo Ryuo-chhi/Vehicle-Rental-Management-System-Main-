@@ -11,10 +11,10 @@ public class Moto implements IVehicle{
     private String licencePlate;
     private boolean isAvailable;
 
-    private static int countVehicleId = 1;
+    private static int countMotoId = 1;
 
     public Moto(String powerSource, String vehicleClass, String vehicleBrand, String vehicleModel, double rentalRatePerDay, String vehicleLicence, String licencePlate) {
-        this.vehicleId = "Moto-" + countVehicleId++;
+        this.vehicleId = "Moto-" + countMotoId++;
         this.setPowerSource(powerSource);
         this.setVehicleClass(vehicleClass);
         this.setVehicleBrand(vehicleBrand);
@@ -63,8 +63,8 @@ public class Moto implements IVehicle{
         return isAvailable;
     }
 
-    public static int getCountVehicleId() {
-        return countVehicleId;
+    public static int getCountMotoId() {
+        return countMotoId;
     }
     //setter
 

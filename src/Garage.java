@@ -17,8 +17,8 @@ public class Garage {
     public static final String MANAGE_STAFF = "MANAGE_STAFF";
     public static final String VIEW_REPORTS = "VIEW_REPORTS";
 
-    private ArrayList<Car> garage;
-    private int count; // current number of vehicles
+    private ArrayList<IVehicle> garage;
+    private int vehicleCount; // current number of vehicles
 
     private HashSet<Customer> customers;
     private int customerCount;
@@ -42,7 +42,7 @@ public class Garage {
     public Garage(int maxSize) {
         // Initialize garage
         this.garage = new ArrayList<>(maxSize);
-        this.count = 0;
+        this.vehicleCount = 0;
         generateVehicleToGarage();
         // Initialize customer list
         this.customers = new HashSet<>();
@@ -325,7 +325,7 @@ public class Garage {
             Car newCar = new Car(car[0], car[1], car[2], car[3], Double.parseDouble(car[4]), car[5],
                     car[6]);
             garage.add(newCar);
-            count++;
+            vehicleCount++;
         }
     }
 
@@ -380,16 +380,7 @@ public class Garage {
         } while (!quit);
     }
 
-    public void addVehicle(Scanner scanner) {
-        // if (count >= garage.size()) {
-        //     System.out.println("Garage is full! Cannot add new car.");
-        //     return;
-        // }
-        // Take inputs
-        if (!loggedInStaff.can(MANAGE_VEHICLE)) {
-            System.out.println("Access denied: insufficient permissions.");
-            return;
-        }
+    public void addCar(Scanner scanner) {
         String powerSource = getRequiredInput(scanner, "powerSource");
 
         System.out.print("Enter car class ( SUV, Sedan, Van): ");
@@ -411,11 +402,40 @@ public class Garage {
         System.out.print("Enter licence plate (e.g., PP-1000): ");
         String licencePlate = getRequiredInput(scanner, "licence plate");
 
-        Car newCar = new Car(powerSource, vehicleClass, brand, model, price, vehicleLicence, licencePlate);
+        IVehicle newCar = new Car(powerSource, vehicleClass, brand, model, price, vehicleLicence, licencePlate);
 
         garage.add(newCar);
-        System.out.println("Add car successfully.");
-        System.out.println("count: " + count);
+        System.out.println("Add car successfully. Total cars: " + Car.getCountCarId());
+        vehicleCount++;
+        System.out.println("vehicleCount: " + vehicleCount);
+    }
+
+    public void addMoto(Scanner scanner) {
+        System.out.println("Moto is not supported in this version.");
+    }
+
+    public void addVehicle(Scanner scanner) {
+
+        if (!loggedInStaff.can(MANAGE_VEHICLE)) {
+            System.out.println("Access denied: insufficient permissions.");
+            return;
+        }
+
+        while (true) {
+            System.out.print("Enter vehicle type (Car or Moto): ");
+            String vehicleType = scanner.nextLine().trim();
+            if (vehicleType.equalsIgnoreCase("Car")) {
+                addCar(scanner);
+                break;
+            } else if (vehicleType.equalsIgnoreCase("Moto")) {
+                addMoto(scanner);
+                break;
+            } else {
+                System.out.println("Invalid vehicle type. Please enter 'Car' or 'Moto'.");
+            }
+        }
+        
+        
     }
 
     public void showVehicle() {
@@ -423,11 +443,11 @@ public class Garage {
             System.out.println("Access denied: insufficient permissions.");
             return;
         }
-        if (count == 0) {
+        if (vehicleCount == 0) {
             System.out.println("Garage is empty!");
             return;
         }
-        for(Car car : garage) {
+        for(IVehicle car : garage) {
             System.out.println(car.toString());
         }
         System.out.println();
@@ -438,8 +458,8 @@ public class Garage {
             System.out.println("Access denied: insufficient permissions.");
             return;
         }
-        if (count == 0) {
-            System.out.println("No car to remove!");
+        if (vehicleCount == 0) {
+            System.out.println("No vehicle to remove!");
             return;
         }
 
@@ -460,10 +480,10 @@ public class Garage {
             System.out.println("Vehicle with ID " + carID + " not found.");
         }
 
-        count--;
+        vehicleCount--;
 
         System.out.println("Vehicle with ID " + carID + " removed successfully.");
-        System.out.println("count: " + count);
+        System.out.println("vehicleCount: " + vehicleCount );
     }
 
     public void updateVehicle(Scanner scanner) {
@@ -471,13 +491,13 @@ public class Garage {
             System.out.println("Access denied: insufficient permissions.");
             return;
         }
-        if (count == 0) {
+        if (vehicleCount == 0) {
             System.out.println("Garage is Empty!");
             return;
         }
         String carID = getRequiredInput(scanner, "car ID");
 
-        for (Car item:  garage) {
+        for (IVehicle item:  garage) {
             if (item.getVehicleId().equals(carID)) {
                 boolean quit = false;
                 int choice;
@@ -569,18 +589,18 @@ public class Garage {
     public Car findVehicleByID(Scanner scanner) {
         String carID = getRequiredInput(scanner, "car ID");
 
-        for (Car v : garage) {
+        for (IVehicle v : garage) {
             if (v.getVehicleId().equals(carID)) {
-                return v;
+                return (Car) v;
             }
         }
         return null;
     }
 
     public Car getVehicleByID(String id) {
-        for (Car v : garage) {
+        for (IVehicle v : garage) {
             if (v.getVehicleId().equals(id)) {
-                return v;
+                return (Car) v;
             }
         }
         return null;
