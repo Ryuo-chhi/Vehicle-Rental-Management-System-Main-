@@ -27,12 +27,16 @@ public class Moto implements IVehicle{
 
     @Override
     public boolean canBeRented(Customer customer) {
-        if(!isAvailable){
+        if (!isAvailable) {
             System.out.println("Vehicle Not Available");
             return false;
         }
-        if(customer.getIDCardPhoto() == null){
+        if (customer.getIDCardPhoto() == null) {
             System.out.println("Customer does not have ID Card");
+            return false;
+        }
+        if (customer.getDriverLicensePhoto() == null) {
+            System.out.println("Customer does not have Motorcycle Driver License");
             return false;
         }
         return true;
@@ -64,7 +68,7 @@ public class Moto implements IVehicle{
     }
 
     public static int getCountMotoId() {
-        return countMotoId;
+        return countMotoId - 1; // Subtract 1 to get the actual count since it was incremented after assignment
     }
     //setter
 

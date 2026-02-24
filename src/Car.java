@@ -27,7 +27,7 @@ public class Car implements IVehicle{
 
     @Override
     public boolean canBeRented(Customer customer) {
-        if(!isAvailable){
+        if (!isAvailable) {
             System.out.println("Vehicle Not Available");
             return false;
         }
