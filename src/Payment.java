@@ -59,6 +59,8 @@ public class Payment {
         this.rentDays = rentDays;
     }
 
+    public String getPaymentMethod() { return paymentMethod; }
+
     public void setPrice(double price) { // use this method to update price in case of vehicle change  (but not rate change)
         this.price = price;
     }

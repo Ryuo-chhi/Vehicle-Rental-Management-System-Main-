@@ -29,14 +29,10 @@ public class Garage {
     private HashSet<IStaff> staffs;
     private int staffCount;
 
-    // =========================
-    //  LOGIN DEPENDENCY
-    // =========================
-    private IStaff loggedInStaff;   // null = no staff login
+    private ArrayList<RentRecord> rentalHistory;
 
-    // =========================
-    // 4) FEEDBACK MESSAGE
-    // =========================
+    //  LOGIN DEPENDENCY & FEEDBACK MESSAGE
+    private IStaff loggedInStaff;   // null = no staff login
     private String lastMessage;
 
     public Garage(int maxSize) {
@@ -55,22 +51,21 @@ public class Garage {
         this.staffs = new HashSet<>();
         this.staffCount = 0;
         generateStaffToSystem();
+        // Initialize rental history
+        this.rentalHistory = new ArrayList<>();
 
         loggedInStaff = null;
-        lastMessage = "Garage created. No staff logged in.";
+        lastMessage = "Garage created successfully!";
 
     }
 
-    // =========================
-    // GETTERS / SETTERS
-    // =========================
+    // GETTERS 
     public String getLastMessage() { return lastMessage; }
     public boolean isStaffLoggedIn() { return loggedInStaff != null; }
     public IStaff getLoggedInStaff() { return loggedInStaff; }
-
-    private void setLastMessage(String msg) {
-        lastMessage = msg;
-    }
+    
+    // SETTERS
+    private void setLastMessage(String msg) { lastMessage = msg; }
 
     // Staff Management
 
@@ -108,7 +103,7 @@ public class Garage {
 
             System.out.print("Enter choice: ");
             choice = scanner.nextInt();
-            scanner.nextLine(); // consume newline
+            scanner.nextLine();
 
             switch (choice) {
                 case 0 -> quit = true;
@@ -169,6 +164,7 @@ public class Garage {
                 s.setActive(true);
                 loggedInStaff = s;
                 setLastMessage("\nLogin success. Welcome " + s.getUsername() + "!\n");
+                showDashboard();
                 return;
             }
         }
@@ -303,7 +299,7 @@ public class Garage {
         }
     }
 
-    // Car Management
+    // Vehicle Management
 
     public void generateVehicleToGarage() {
         String[][] cars = {
@@ -311,19 +307,12 @@ public class Garage {
             { "electric", "Sedan", "Tesla", "Model 3", "500", "VL-02-CD-5678", "PP-1001" },
             { "diesel", "Truck", "Toyota", "Hilux", "400", "VL-03-EF-9012", "PP-1002" },
             { "hybrid", "Hatchback", "Honda", "Insight", "350", "VL-04-GH-3456", "PP-1003" },
-            { "gasoline", "Coupe", "BMW", "M4", "600", "VL-05-IJ-7890", "PP-1004" }
+            { "gasoline", "Coupe", "BMW", "M4", "600", "VL-05-IJ-7890", "PP-1004" },
+            { "gasoline", "sport", "Honda", "CBR600RR", "75", "MOTO-LIC-2026", "ABC-1234"}
         };
-        // if (count >= garage.size()) {
-        //     System.out.println("Garage is full! Cannot add new car.");
-        //     return;
-        // }
-        for (String[] car : cars) {
-            // if (count >= garage.size()) {
-            //     System.out.println("Not enough space to add all predefined cars.");
-            //     break;
-            // }
-            Car newCar = new Car(car[0], car[1], car[2], car[3], Double.parseDouble(car[4]), car[5],
-                    car[6]);
+        
+        for (String[] car : cars) { 
+            Car newCar = new Car(car[0], car[1], car[2], car[3], Double.parseDouble(car[4]), car[5], car[6]);
             garage.add(newCar);
             vehicleCount++;
         }
@@ -411,7 +400,33 @@ public class Garage {
     }
 
     public void addMoto(Scanner scanner) {
-        System.out.println("Moto is not supported in this version.");
+        String powerSource = getRequiredInput(scanner, "powerSource");
+
+        System.out.print("Enter moto class ( Sport, Cruiser, Touring): ");
+        String vehicleClass = getRequiredInput(scanner, "moto class");
+
+        System.out.print("Enter brand: ");
+        String brand = getRequiredInput(scanner, "brand");
+
+        System.out.print("Enter model: ");
+        String model = getRequiredInput(scanner, "model");
+
+        System.out.print("Enter price: ");
+        double price = scanner.nextDouble();
+        scanner.nextLine(); 
+
+        System.out.print("Enter moto licence (e.g., DL-01-AB-1234): "); // 125 CC up must have moto licence
+        String vehicleLicence = getRequiredInput(scanner, "moto licence");
+
+        System.out.print("Enter licence plate (e.g., PP-1000): "); 
+        String licencePlate = getRequiredInput(scanner, "licence plate");
+
+        IVehicle newMoto = new Moto(powerSource, vehicleClass, brand, model, price, vehicleLicence, licencePlate);
+
+        garage.add(newMoto);
+        System.out.println("Add moto successfully. Total motos: " + Moto.getCountMotoId());
+        vehicleCount++;
+        System.out.println("vehicleCount: " + vehicleCount);
     }
 
     public void addVehicle(Scanner scanner) {
@@ -586,21 +601,21 @@ public class Garage {
         return input;
     }
 
-    public Car findVehicleByID(Scanner scanner) {
-        String carID = getRequiredInput(scanner, "car ID");
+    public IVehicle findVehicleByID(Scanner scanner) {
+        String carID = getRequiredInput(scanner, "vehicle ID");
 
         for (IVehicle v : garage) {
             if (v.getVehicleId().equals(carID)) {
-                return (Car) v;
+                return v;
             }
         }
         return null;
     }
 
-    public Car getVehicleByID(String id) {
+    public IVehicle getVehicleByID(String id) {
         for (IVehicle v : garage) {
             if (v.getVehicleId().equals(id)) {
-                return (Car) v;
+                return v;
             }
         }
         return null;
@@ -871,7 +886,7 @@ public class Garage {
             }
         }
 
-        Car selectedCar = findVehicleByID(scanner);
+        IVehicle selectedCar = findVehicleByID(scanner);
         Customer selectedCustomer = findCustomerByID(scanner);
 
         if (selectedCar == null) {
@@ -999,7 +1014,7 @@ public class Garage {
                             rent.setEndDate(newEndDate);
                         }
                         case 2 -> {
-                            Car newCar = findVehicleByID(scanner);
+                            IVehicle newCar = findVehicleByID(scanner);
                             if (newCar == null) {
                                 System.out.println("Vehicle not found!");
                             } else if (!newCar.isAvailable()) {
@@ -1104,9 +1119,9 @@ public class Garage {
                     System.out.println("Error: No car associated with this rent!");
                     return;
                 }
-                // original car from garage
-                Car car = getVehicleByID(rent.getVehicle().getVehicleId());
-                if(!car.equals(rent.getVehicle())){
+                // original vehicle from garage
+                IVehicle car = getVehicleByID(rent.getVehicle().getVehicleId());
+                if (!car.equals(rent.getVehicle())) {
                     System.out.println("Vehicle mismatch");
                     return;
                 }
@@ -1142,6 +1157,8 @@ public class Garage {
                         "Vehicle with ID " + rent.getVehicle().getVehicleId() + " has been returned and is now available.");
                 System.out.println();
                 rent.setStatus(false);
+                // --- Snapshot: add immutable record to rental history ---
+                rentalHistory.add(new RentRecord(rent));
                 return;
             }
         }
@@ -1235,6 +1252,54 @@ public class Garage {
     }
 
     // History Management
+
+    public void showRentalHistory() {
+        if (!requireStaffLogin()) {
+            System.out.println(getLastMessage());
+            return;
+        }
+        if (!loggedInStaff.can(VIEW_REPORTS)) {
+            System.out.println("Access denied: insufficient permissions.");
+            return;
+        }
+        if (rentalHistory.isEmpty()) {
+            System.out.println("No completed rentals in history yet.");
+            return;
+        }
+        System.out.println("===== Rental History ===== (" + rentalHistory.size() + " records)");
+        double totalRevenue = 0;
+        for (RentRecord record : rentalHistory) {
+            System.out.println(record);
+            totalRevenue += record.getTotalPaid();
+        }
+        System.out.printf("Total revenue from completed rentals: $%.2f%n", totalRevenue);
+    }
+
+    // ===== DASHBOARD =====
+
+    public void showDashboard() {
+        int availableVehicles = 0;
+        for (IVehicle v : garage) {
+            if (v.isAvailable()) availableVehicles++;
+        }
+
+        int activeRents = 0;
+        for (Rent r : rents) {
+            if (r.isStatus()) activeRents++;
+        }
+
+        System.out.println("\n========== GARAGE DASHBOARD ==========");
+        System.out.println("Logged in as : " + (loggedInStaff != null ? loggedInStaff.getName() + " (" + loggedInStaff.getRole() + ")" : "N/A"));
+        System.out.println("--------------------------------------");
+        System.out.println("Total vehicles   : " + vehicleCount);
+        System.out.println("Available now    : " + availableVehicles);
+        System.out.println("Rented out       : " + (vehicleCount - availableVehicles));
+        System.out.println("--------------------------------------");
+        System.out.println("Total customers  : " + customerCount);
+        System.out.println("Active rents     : " + activeRents);
+        System.out.println("Completed rents  : " + rentalHistory.size());
+        System.out.println("======================================\n");
+    }
 
     // Other Management
 }
