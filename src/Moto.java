@@ -1,7 +1,7 @@
 import java.util.Objects;
 
-public class Vehicle {
-    private int vehicleId;
+public class Moto implements IVehicle{
+    private String vehicleId;
     private String powerSource; // "gasoline", "diesel", "electric", "hybrid"
     private String vehicleClass; // "sedan", "SUV", "truck", etc.
     private String vehicleBrand;
@@ -13,8 +13,8 @@ public class Vehicle {
 
     private static int countVehicleId = 1;
 
-    public Vehicle(String powerSource, String vehicleClass, String vehicleBrand, String vehicleModel, double rentalRatePerDay, String vehicleLicence, String licencePlate) {
-        this.vehicleId = countVehicleId++;
+    public Moto(String powerSource, String vehicleClass, String vehicleBrand, String vehicleModel, double rentalRatePerDay, String vehicleLicence, String licencePlate) {
+        this.vehicleId = "Moto-" + countVehicleId++;
         this.setPowerSource(powerSource);
         this.setVehicleClass(vehicleClass);
         this.setVehicleBrand(vehicleBrand);
@@ -25,10 +25,21 @@ public class Vehicle {
         this.setLicencePlate(licencePlate);
     }
 
-    
-    
+    @Override
+    public boolean canBeRented(Customer customer) {
+        if(!isAvailable){
+            System.out.println("Vehicle Not Available");
+            return false;
+        }
+        if(customer.getIDCardPhoto() == null){
+            System.out.println("Customer does not have ID Card");
+            return false;
+        }
+        return true;
+    }
+
     //getter
-    public int getVehicleId() {
+    public String getVehicleId() {
         return vehicleId;
     }
 
@@ -96,7 +107,7 @@ public class Vehicle {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        Vehicle vehicle = (Vehicle) o;
+        Moto vehicle = (Moto) o;
         return Objects.equals(getVehicleBrand(), vehicle.getVehicleBrand()) && Objects.equals(getVehicleModel(), vehicle.getVehicleModel()) && Objects.equals(getLicencePlate(), vehicle.getLicencePlate());
     }
 

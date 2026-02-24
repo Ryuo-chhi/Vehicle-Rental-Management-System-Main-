@@ -6,16 +6,16 @@ public class Rent {
     private String returnDate;
     private boolean status;
     
-    private Vehicle vehicle;
+    private Car car;
     private Customer customer;
     private Payment payment;
 
     private static int countRentId = 0;
 
     // create
-    public Rent(Vehicle vehicle, Customer customer, int rentDays, String startDate, String endDate) {
+    public Rent(Car car, Customer customer, int rentDays, String startDate, String endDate) {
         this.rentId = ++countRentId;
-        this.setVehicle(vehicle);
+        this.setVehicle(car);
         this.setCustomer(customer);
         this.setRentDays(rentDays);
         this.setStartDate(startDate);
@@ -56,8 +56,8 @@ public class Rent {
         return returnDate;
     }
 
-    public Vehicle getVehicle() {
-        return vehicle;
+    public Car getVehicle() {
+        return car;
     }
 
     public Customer getCustomer() {
@@ -85,9 +85,9 @@ public class Rent {
         }
     }
 
-    public void setVehicle(Vehicle vehicle) {
-        if (vehicle != null) {
-            this.vehicle = vehicle;
+    public void setVehicle(Car car) {
+        if (car != null) {
+            this.car = car;
         } else {
             System.out.println("Error: Vehicle cannot be null");
         }
@@ -144,7 +144,7 @@ public class Rent {
                 ", startDate='" + startDate + '\'' +
                 ", endDate='" + endDate + '\'' +
                 ", returnDate='" + returnDate + '\'' + "\n" +
-                ", vehicle=" + vehicle + "\n" +
+                ", vehicle=" + car + "\n" +
                 ", customer=" + customer.toStringSimple() + "\n" +
                 ", payment=" + payment + "\n" +
                 ", status=" + (status ? "Active" : "Completed") + "\n" +

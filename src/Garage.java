@@ -17,7 +17,7 @@ public class Garage {
     public static final String MANAGE_STAFF = "MANAGE_STAFF";
     public static final String VIEW_REPORTS = "VIEW_REPORTS";
 
-    private ArrayList<Vehicle> garage;
+    private ArrayList<Car> garage;
     private int count; // current number of vehicles
 
     private HashSet<Customer> customers;
@@ -303,7 +303,7 @@ public class Garage {
         }
     }
 
-    // Vehicle Management
+    // Car Management
 
     public void generateVehicleToGarage() {
         String[][] cars = {
@@ -322,9 +322,9 @@ public class Garage {
             //     System.out.println("Not enough space to add all predefined cars.");
             //     break;
             // }
-            Vehicle newVehicle = new Vehicle(car[0], car[1], car[2], car[3], Double.parseDouble(car[4]), car[5],
+            Car newCar = new Car(car[0], car[1], car[2], car[3], Double.parseDouble(car[4]), car[5],
                     car[6]);
-            garage.add(newVehicle);
+            garage.add(newCar);
             count++;
         }
     }
@@ -392,8 +392,8 @@ public class Garage {
         }
         String powerSource = getRequiredInput(scanner, "powerSource");
 
-        System.out.print("Enter vehicle class ( SUV, Sedan, Van): ");
-        String vehicleClass = getRequiredInput(scanner, "vehicle class");
+        System.out.print("Enter car class ( SUV, Sedan, Van): ");
+        String vehicleClass = getRequiredInput(scanner, "car class");
 
         System.out.print("Enter brand: ");
         String brand = getRequiredInput(scanner, "brand");
@@ -405,16 +405,16 @@ public class Garage {
         double price = scanner.nextDouble();
         scanner.nextLine(); // consume newline
 
-        System.out.print("Enter vehicle licence (e.g., DL-01-AB-1234): ");
-        String vehicleLicence = getRequiredInput(scanner, "vehicle licence");
+        System.out.print("Enter car licence (e.g., DL-01-AB-1234): ");
+        String vehicleLicence = getRequiredInput(scanner, "car licence");
 
         System.out.print("Enter licence plate (e.g., PP-1000): ");
         String licencePlate = getRequiredInput(scanner, "licence plate");
 
-        Vehicle newVehicle = new Vehicle(powerSource, vehicleClass, brand, model, price, vehicleLicence, licencePlate);
+        Car newCar = new Car(powerSource, vehicleClass, brand, model, price, vehicleLicence, licencePlate);
 
-        garage.add(newVehicle);
-        System.out.println("Add vehicle successfully.");
+        garage.add(newCar);
+        System.out.println("Add car successfully.");
         System.out.println("count: " + count);
     }
 
@@ -427,8 +427,8 @@ public class Garage {
             System.out.println("Garage is empty!");
             return;
         }
-        for(Vehicle vehicle : garage) {
-            System.out.println(vehicle.toString());
+        for(Car car : garage) {
+            System.out.println(car.toString());
         }
         System.out.println();
     }
@@ -439,32 +439,30 @@ public class Garage {
             return;
         }
         if (count == 0) {
-            System.out.println("No vehicle to remove!");
+            System.out.println("No car to remove!");
             return;
         }
 
-        System.out.print("Enter vehicle ID(int): ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+        String carID = getRequiredInput(scanner, "car ID");
 
         for (Rent rent : rents) {
-            if (rent != null && rent.getVehicle() != null && rent.getVehicle().getVehicleId() == id) {
+            if (rent != null && rent.getVehicle() != null && rent.getVehicle().getVehicleId().equals(carID)) {
                 System.out.println("Vehicle is currently rented and cannot be removed.");
                 return;
             }
         }
 
-        boolean removed = garage.removeIf(v -> v.getVehicleId() == id);
+        boolean removed = garage.removeIf(v -> v.getVehicleId().equals(carID));
 
         if (removed) {
-            System.out.println("Vehicle with ID " + id + " removed successfully.");
+            System.out.println("Vehicle with ID " + carID + " removed successfully.");
         } else {
-            System.out.println("Vehicle with ID " + id + " not found.");
+            System.out.println("Vehicle with ID " + carID + " not found.");
         }
 
         count--;
 
-        System.out.println("Vehicle with ID " + id + " removed successfully.");
+        System.out.println("Vehicle with ID " + carID + " removed successfully.");
         System.out.println("count: " + count);
     }
 
@@ -477,15 +475,15 @@ public class Garage {
             System.out.println("Garage is Empty!");
             return;
         }
-        System.out.print("Enter vehicle ID(int): ");
-        int id = scanner.nextInt();
-        for (Vehicle item:  garage) {
-            if (item.getVehicleId() == id) {
+        String carID = getRequiredInput(scanner, "car ID");
+
+        for (Car item:  garage) {
+            if (item.getVehicleId().equals(carID)) {
                 boolean quit = false;
                 int choice;
                 do {
                     System.out.println("""
-                            Update vehicle:
+                            Update car:
                             0. Back to Vehicle Management
                             1. powerSource
                             2. Vehicle Class
@@ -526,16 +524,16 @@ public class Garage {
                             scanner.nextLine();
                             break;
                         case 6:
-                            // Check if vehicle is currently rented
+                            // Check if car is currently rented
                             boolean isRented = false;
                             for (Rent rent : rents) {
-                                if (rent != null && rent.getVehicle().getVehicleId() == id) {
+                                if (rent != null && rent.getVehicle().getVehicleId().equals(carID)) {
                                     isRented = true;
                                     break;
                                 }
                             }
                             if (isRented) {
-                                System.out.println("Cannot change status - vehicle is currently rented!");
+                                System.out.println("Cannot change status - car is currently rented!");
                             } else {
                                 System.out.print("Update status(true/false): ");
                                 boolean status = scanner.nextBoolean();
@@ -568,22 +566,20 @@ public class Garage {
         return input;
     }
 
-    public Vehicle findVehicleByID(Scanner scanner) {
-        System.out.print("Enter vehicle ID(int): ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+    public Car findVehicleByID(Scanner scanner) {
+        String carID = getRequiredInput(scanner, "car ID");
 
-        for (Vehicle v : garage) {
-            if (v.getVehicleId() == id) {
+        for (Car v : garage) {
+            if (v.getVehicleId().equals(carID)) {
                 return v;
             }
         }
         return null;
     }
 
-    public Vehicle getVehicleByID(int id) {
-        for (Vehicle v : garage) {
-            if (v.getVehicleId() == id) {
+    public Car getVehicleByID(String id) {
+        for (Car v : garage) {
+            if (v.getVehicleId().equals(id)) {
                 return v;
             }
         }
@@ -855,10 +851,10 @@ public class Garage {
             }
         }
 
-        Vehicle selectedVehicle = findVehicleByID(scanner);
+        Car selectedCar = findVehicleByID(scanner);
         Customer selectedCustomer = findCustomerByID(scanner);
 
-        if (selectedVehicle == null) {
+        if (selectedCar == null) {
             System.out.println("Vehicle not found!");
             return;
         }
@@ -866,7 +862,7 @@ public class Garage {
             System.out.println("Customer not found!");
             return;
         }
-        if (!selectedVehicle.isAvailable()) {
+        if (!selectedCar.isAvailable()) {
             System.out.println("Vehicle is not available for rent!");
             return;
         }
@@ -883,8 +879,8 @@ public class Garage {
             endDate = getRequiredInput(scanner, "end date");
         }
 
-        double vehiclePrice = selectedVehicle.getRentalRatePerDay(); // snapshot vehicle price
-        Rent newRent = new Rent(selectedVehicle, selectedCustomer, rentDays, startDate, endDate); // create rent without payment first
+        double vehiclePrice = selectedCar.getRentalRatePerDay(); // snapshot car price
+        Rent newRent = new Rent(selectedCar, selectedCustomer, rentDays, startDate, endDate); // create rent without payment first
 
         System.out.print("Enter deposit amount: ");
         double deposit = scanner.nextDouble();
@@ -893,7 +889,7 @@ public class Garage {
 
         newRent.setPayment(payment); // add payment to rent
 
-        selectedVehicle.setAvailable(false); // mark vehicle as unavailable
+        selectedCar.setAvailable(false); // mark car as unavailable
 
         // add rent to list
         rents.add(newRent);
@@ -983,21 +979,21 @@ public class Garage {
                             rent.setEndDate(newEndDate);
                         }
                         case 2 -> {
-                            Vehicle newVehicle = findVehicleByID(scanner);
-                            if (newVehicle == null) {
+                            Car newCar = findVehicleByID(scanner);
+                            if (newCar == null) {
                                 System.out.println("Vehicle not found!");
-                            } else if (!newVehicle.isAvailable()) {
-                                System.out.println("Selected vehicle is not available!");
+                            } else if (!newCar.isAvailable()) {
+                                System.out.println("Selected car is not available!");
                             } else {
-                                // Mark old vehicle as available
+                                // Mark old car as available
                                 if (rent.getVehicle() != null) {
                                     rent.getVehicle().setAvailable(true);
                                 }
-                                // Mark new vehicle as unavailable
-                                newVehicle.setAvailable(false);
-                                // Update the vehicle
-                                rent.setVehicle(newVehicle);
-                                rent.getPayment().setPrice(newVehicle.getRentalRatePerDay()); // update price in payment as well
+                                // Mark new car as unavailable
+                                newCar.setAvailable(false);
+                                // Update the car
+                                rent.setVehicle(newCar);
+                                rent.getPayment().setPrice(newCar.getRentalRatePerDay()); // update price in payment as well
                                 System.out.println("Vehicle updated successfully.");
                             }
                         }
@@ -1055,11 +1051,11 @@ public class Garage {
         }
 
         Rent rentToRemove = rents.get(index);
-        // Mark vehicle as available when rent is removed
+        // Mark car as available when rent is removed
         if (rentToRemove.getVehicle() != null) {
             rentToRemove.getVehicle().setAvailable(true);
         } else {
-            System.out.println("Warning: Rent has no associated vehicle!");
+            System.out.println("Warning: Rent has no associated car!");
         }
 
         rents.remove(index);
@@ -1085,12 +1081,12 @@ public class Garage {
                 }
 
                 if (rent.getVehicle() == null) {
-                    System.out.println("Error: No vehicle associated with this rent!");
+                    System.out.println("Error: No car associated with this rent!");
                     return;
                 }
-                // original vehicle from garage
-                Vehicle vehicle = getVehicleByID(rent.getVehicle().getVehicleId());
-                if(!vehicle.equals(rent.getVehicle())){
+                // original car from garage
+                Car car = getVehicleByID(rent.getVehicle().getVehicleId());
+                if(!car.equals(rent.getVehicle())){
                     System.out.println("Vehicle mismatch");
                     return;
                 }
@@ -1117,7 +1113,7 @@ public class Garage {
                 // Set rent return date
                 rent.setReturnDate(payDate);
 
-                // Mark vehicle as available
+                // Mark car as available
                 rent.getVehicle().setAvailable(true);
 
                 double total = rent.getPayment().calculateTotal();
