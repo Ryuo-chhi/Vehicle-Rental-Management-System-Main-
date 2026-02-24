@@ -335,7 +335,7 @@ public class Garage {
             System.out.println(getLastMessage());
             return;
         }
-        if (!loggedInStaff.can(MANAGE_VEHICLE)) {
+        if (!loggedInStaff.can(VIEW_VEHICLE)) {
             System.out.println("Access denied: insufficient permissions.");
             return;
         }
@@ -386,6 +386,10 @@ public class Garage {
         //     return;
         // }
         // Take inputs
+        if (!loggedInStaff.can(MANAGE_VEHICLE)) {
+            System.out.println("Access denied: insufficient permissions.");
+            return;
+        }
         String powerSource = getRequiredInput(scanner, "powerSource");
 
         System.out.print("Enter vehicle class ( SUV, Sedan, Van): ");
@@ -415,6 +419,10 @@ public class Garage {
     }
 
     public void showVehicle() {
+        if (!loggedInStaff.can(VIEW_VEHICLE)) {
+            System.out.println("Access denied: insufficient permissions.");
+            return;
+        }
         if (count == 0) {
             System.out.println("Garage is empty!");
             return;
@@ -426,6 +434,10 @@ public class Garage {
     }
 
     public void removeVehicle(Scanner scanner) {
+        if (!loggedInStaff.can(MANAGE_VEHICLE)) {
+            System.out.println("Access denied: insufficient permissions.");
+            return;
+        }
         if (count == 0) {
             System.out.println("No vehicle to remove!");
             return;
@@ -457,6 +469,10 @@ public class Garage {
     }
 
     public void updateVehicle(Scanner scanner) {
+        if (!loggedInStaff.can(MANAGE_VEHICLE)) {
+            System.out.println("Access denied: insufficient permissions.");
+            return;
+        }
         if (count == 0) {
             System.out.println("Garage is Empty!");
             return;
