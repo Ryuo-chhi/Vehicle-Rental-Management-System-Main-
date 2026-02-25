@@ -58,7 +58,7 @@ class Main {
                 case 3 -> myGarage.rentManagement(scanner);
                 case 4 -> myGarage.paymentManagement(scanner);
                 case 5 -> myGarage.staffManagement(scanner);
-                case 6 -> myGarage.showRentalHistory();
+                case 6 -> myGarage.generateReport();
                 case 7 -> System.out.println("Coming soon...");
                 default -> System.out.println("Invalid choice!");
             }

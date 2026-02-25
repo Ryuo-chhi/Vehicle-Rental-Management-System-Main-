@@ -1,7 +1,9 @@
 import java.util.Objects;
 
 public class Car implements IVehicle{
-    private String vehicleId;
+    private int vehicleId;        // global sequential ID: 1, 2, 3, …
+    private String vehicleCode;   // type-based code: Car-1, Car-2, …
+    private final String vehicleType = "Car"; // fixed type label for DB / display
     private String powerSource; // "gasoline", "diesel", "electric", "hybrid"
     private String vehicleClass; // "sedan", "SUV", "truck", etc.
     private String vehicleBrand;
@@ -11,10 +13,12 @@ public class Car implements IVehicle{
     private String licencePlate;
     private boolean isAvailable;
 
-    private static int countCarId = 1; // count all cars
+    private static int countCarId = 1;    // per-type counter for Car code
+    static int globalVehicleIdCounter = 1; // shared global counter across all vehicle types
 
     public Car(String powerSource, String vehicleClass, String vehicleBrand, String vehicleModel, double rentalRatePerDay, String vehicleLicence, String licencePlate) {
-        this.vehicleId = "Car-" + countCarId++;
+        this.vehicleId = Car.globalVehicleIdCounter++;
+        this.vehicleCode = "Car-" + countCarId++;
         this.setPowerSource(powerSource);
         this.setVehicleClass(vehicleClass);
         this.setVehicleBrand(vehicleBrand);
@@ -39,8 +43,24 @@ public class Car implements IVehicle{
     }
     
     //getter
-    public String getVehicleId() {
+    public int getVehicleId() {
         return vehicleId;
+    }
+
+    public String getVehicleCode() {
+        return vehicleCode;
+    }
+
+    public String getVehicleType() {
+        return vehicleType;
+    }
+
+    public String getPowerSource() {
+        return powerSource;
+    }
+
+    public String getVehicleClass() {
+        return vehicleClass;
     }
 
     public String getVehicleBrand() {
@@ -106,15 +126,23 @@ public class Car implements IVehicle{
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Car car = (Car) o;
-        return Objects.equals(getVehicleBrand(), car.getVehicleBrand()) && Objects.equals(getVehicleModel(), car.getVehicleModel()) && Objects.equals(getLicencePlate(), car.getLicencePlate());
+        return vehicleId == car.vehicleId && Objects.equals(getLicencePlate(), car.getLicencePlate());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(vehicleId, licencePlate);
     }
 
     @Override
     public String toString() {
         return "Vehicle{" +
                 "vehicleId=" + vehicleId +
+                ", vehicleType='" + vehicleType + '\'' +
+                ", vehicleCode='" + vehicleCode + '\'' +
                 ", powerSource='" + powerSource + '\'' +
                 ", vehicleClass='" + vehicleClass + '\'' +
                 ", vehicleBrand='" + vehicleBrand + '\'' +

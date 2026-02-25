@@ -131,9 +131,9 @@ public class Rent {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         Rent other = (Rent) obj;
-        if (this.rentId != other.rentId) return false;
-        if (this.customer == null || other.customer == null) return false;
-        return this.customer.getCustomerId() == other.customer.getCustomerId();
+        return this.rentId == other.rentId &&
+               this.vehicle != null && other.vehicle != null &&
+               this.vehicle.getVehicleId() == other.vehicle.getVehicleId();
     }
 
     @Override

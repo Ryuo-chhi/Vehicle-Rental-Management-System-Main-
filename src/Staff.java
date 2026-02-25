@@ -141,7 +141,7 @@ public class Staff implements IStaff {
 
     @Override
     public String toString() {
-        return "Staff [staffId=" + staffId + ", name=" + name + ", role=" + role + ", salary=" + salary + ", status=" + status + "]";
+        return "Staff [staffId=" + staffId + ", name=" + name + ", role=" + role + ", username=" + username + ", salary=" + salary + ", status=" + status + ", active=" + active + "]";
     }
 
     @Override
@@ -149,11 +149,11 @@ public class Staff implements IStaff {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Staff staff = (Staff) o;
-        return staffId == staff.staffId;
+        return staffId == staff.staffId && Objects.equals(username, staff.username);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(staffId);
+        return Objects.hash(staffId, username);
     }
 }

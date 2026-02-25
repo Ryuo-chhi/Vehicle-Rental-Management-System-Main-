@@ -1,7 +1,18 @@
 public interface IVehicle {
 
     // Getter Methods
-    public String getVehicleId() ;
+    /** Unique sequential integer ID across all vehicles: 1, 2, 3, … */
+    public int getVehicleId();
+
+    /** Type-based code, e.g. "Car-1", "Moto-2" */
+    public String getVehicleCode();
+
+    /** Type of vehicle: "Car" or "Moto" */
+    public String getVehicleType();
+
+    public String getPowerSource();
+
+    public String getVehicleClass();
 
     public String getVehicleBrand();
 

@@ -183,20 +183,47 @@ public class Garage {
 
     public void addStaff(Scanner scanner) {
         System.out.print("Enter staff name: ");
-        String name = scanner.nextLine();
+        String name = scanner.nextLine().trim();
+        if (name.isEmpty()) {
+            System.out.println("Staff name cannot be empty.");
+            return;
+        }
 
         System.out.print("Enter staff role: ");
-        String role = scanner.nextLine();
+        String role = scanner.nextLine().trim();
+        if (role.isEmpty()) {
+            System.out.println("Staff role cannot be empty.");
+            return;
+        }
 
         System.out.print("Enter staff salary: ");
         double salary = scanner.nextDouble();
         scanner.nextLine(); 
+        if (salary <= 0) {
+            System.out.println("Salary must be greater than 0.");
+            return;
+        }
 
         System.out.print("Enter staff username: ");
-        String username = scanner.nextLine();
+        String username = scanner.nextLine().trim();
+        if (username.isEmpty()) {
+            System.out.println("Username cannot be empty.");
+            return;
+        }
+        // Check username uniqueness
+        for (IStaff s : staffs) {
+            if (s.getUsername().equalsIgnoreCase(username)) {
+                System.out.println("Username already exists. Please choose another.");
+                return;
+            }
+        }
 
         System.out.print("Enter staff password: ");
         String password = scanner.nextLine();
+        if (password == null || password.trim().length() < 4) {
+            System.out.println("Password must be at least 4 characters.");
+            return;
+        }
 
         IStaff newStaff = switch (role.trim().toUpperCase()) {
             case "MANAGER", "ADMIN" -> new ManagerStaff(name, role, salary, username, password);
@@ -244,7 +271,8 @@ public class Garage {
                             0. Back to Staff Management
                             1. Name
                             2. Role
-                            3. Salary""");
+                            3. Salary
+                            4. Enable/Disable Status""");
 
                     System.out.print("Enter choice: ");
                     choice = scanner.nextInt();
@@ -254,16 +282,64 @@ public class Garage {
                         case 0 -> quit = true;
                         case 1 -> {
                             System.out.print("New Name: ");
-                            staff.setName(scanner.nextLine());
+                            String newName = scanner.nextLine().trim();
+                            if (newName.isEmpty()) {
+                                System.out.println("Name cannot be empty. No change made.");
+                            } else {
+                                staff.setName(newName);
+                                System.out.println("Staff name updated to " + newName + ".");
+                            }
                         }
                         case 2 -> {
                             System.out.print("New Role: ");
-                            staff.setRole(scanner.nextLine());
+                            String newRole = scanner.nextLine().trim();
+                            String currentRole = staff.getRole();
+                            if (newRole.equalsIgnoreCase(currentRole)) {
+                                System.out.println("Role is already set to " + currentRole + ". No change made.");
+                            } else if (currentRole.equalsIgnoreCase("Manager") && newRole.equalsIgnoreCase("Staff")) {
+                                System.out.print("Are you sure you want to demote this staff? (yes/no): ");
+                                String confirm = scanner.nextLine().trim();
+                                if (confirm.equalsIgnoreCase("yes")) {
+                                    staff.setRole(newRole);
+                                    System.out.println("Staff demoted to " + newRole + ".");
+                                } else {
+                                    System.out.println("Operation cancelled.");
+                                }
+                            } else if (currentRole.equalsIgnoreCase("Staff") && newRole.equalsIgnoreCase("Manager")) {
+                                System.out.print("Are you sure you want to promote this staff? (yes/no): ");
+                                String confirm = scanner.nextLine().trim();
+                                if (confirm.equalsIgnoreCase("yes")) {
+                                    staff.setRole(newRole);
+                                    System.out.println("Staff promoted to " + newRole + ".");
+                                } else {
+                                    System.out.println("Operation cancelled.");
+                                }
+                            } else {
+                                staff.setRole(newRole);
+                                System.out.println("Staff role changed to " + newRole + ".");
+                            }
                         }
                         case 3 -> {
                             System.out.print("New Salary: ");
-                            staff.setSalary(scanner.nextDouble());
+                            double newSalary = scanner.nextDouble();
                             scanner.nextLine();
+                            if (newSalary > 0) {
+                                staff.setSalary(newSalary);
+                                System.out.println("Staff salary updated to " + newSalary + ".");
+                            } else {
+                                System.out.println("Salary must be greater than 0. No change made.");
+                            }
+                        }
+                        case 4 -> {
+                            String action = staff.getStatus() ? "disable (resign)" : "enable (employ)";
+                            System.out.print("Are you sure do you want to " + action + " this staff? (yes/no): ");
+                            String confirm = scanner.nextLine().trim();
+                            if (confirm.equalsIgnoreCase("yes")) {
+                                staff.setStatus(!staff.getStatus());
+                                System.out.println("Staff status flipped. Now: " + (staff.getStatus() ? "Employed" : "Resigned"));
+                            } else {
+                                System.out.println("Operation cancelled.");
+                            }
                         }
                         default -> System.out.println("Invalid choice!");
                     }
@@ -290,10 +366,16 @@ public class Garage {
         }
 
         if (staffToRemove != null) {
-            staffs.remove(staffToRemove);
-            staffCount--;
-            System.out.println("Staff with ID " + id + " removed successfully.");
-            System.out.println("staffCount: " + staffCount);
+            System.out.print("Are you sure do you want to remove this staff? (yes/no): ");
+            String confirm = scanner.nextLine().trim();
+            if (confirm.equalsIgnoreCase("yes")) {
+                staffs.remove(staffToRemove);
+                staffCount--;
+                System.out.println("Staff with ID " + id + " removed successfully.");
+                System.out.println("staffCount: " + staffCount);
+            } else {
+                System.out.println("Operation cancelled.");
+            }
         } else {
             System.out.println("Staff with ID " + id + " not found.");
         }
@@ -302,18 +384,24 @@ public class Garage {
     // Vehicle Management
 
     public void generateVehicleToGarage() {
-        String[][] cars = {
-            { "gasoline", "SUV", "Ford", "Escape", "300", "VL-01-AB-1234", "PP-1000" },
-            { "electric", "Sedan", "Tesla", "Model 3", "500", "VL-02-CD-5678", "PP-1001" },
-            { "diesel", "Truck", "Toyota", "Hilux", "400", "VL-03-EF-9012", "PP-1002" },
-            { "hybrid", "Hatchback", "Honda", "Insight", "350", "VL-04-GH-3456", "PP-1003" },
-            { "gasoline", "Coupe", "BMW", "M4", "600", "VL-05-IJ-7890", "PP-1004" },
-            { "gasoline", "sport", "Honda", "CBR600RR", "75", "MOTO-LIC-2026", "ABC-1234"}
+        // type, powerSource, vehicleClass, brand, model, price, licence, licencePlate
+        String[][] vehicles = {
+            { "Car",  "gasoline", "SUV",      "Ford",  "Escape",   "300", "VL-01-AB-1234", "PP-1000" },
+            { "Car",  "electric", "Sedan",    "Tesla", "Model 3",  "500", "VL-02-CD-5678", "PP-1001" },
+            { "Car",  "diesel",   "Truck",    "Toyota","Hilux",    "400", "VL-03-EF-9012", "PP-1002" },
+            { "Car",  "hybrid",   "Hatchback","Honda", "Insight",  "350", "VL-04-GH-3456", "PP-1003" },
+            { "Car",  "gasoline", "Coupe",    "BMW",   "M4",       "600", "VL-05-IJ-7890", "PP-1004" },
+            { "Moto", "gasoline", "Sport",    "Honda", "CBR600RR", "75",  "MOTO-LIC-2026", "ABC-1234" },
         };
-        
-        for (String[] car : cars) { 
-            Car newCar = new Car(car[0], car[1], car[2], car[3], Double.parseDouble(car[4]), car[5], car[6]);
-            garage.add(newCar);
+
+        for (String[] v : vehicles) {
+            String type   = v[0];
+            double price  = Double.parseDouble(v[5]);
+            IVehicle vehicle = switch (type) {
+                case "Moto" -> new Moto(v[1], v[2], v[3], v[4], price, v[6], v[7]);
+                default     -> new Car( v[1], v[2], v[3], v[4], price, v[6], v[7]);
+            };
+            garage.add(vehicle);
             vehicleCount++;
         }
     }
@@ -370,26 +458,17 @@ public class Garage {
     }
 
     public void addCar(Scanner scanner) {
-        String powerSource = getRequiredInput(scanner, "powerSource");
-
-        System.out.print("Enter car class ( SUV, Sedan, Van): ");
-        String vehicleClass = getRequiredInput(scanner, "car class");
-
-        System.out.print("Enter brand: ");
+        String powerSource = getRequiredInput(scanner, "power source (gasoline/diesel/electric/hybrid)");
+        String vehicleClass = getRequiredInput(scanner, "car class (SUV/Sedan/Van/Coupe/Truck)");
         String brand = getRequiredInput(scanner, "brand");
-
-        System.out.print("Enter model: ");
         String model = getRequiredInput(scanner, "model");
 
         System.out.print("Enter price: ");
         double price = scanner.nextDouble();
         scanner.nextLine(); // consume newline
 
-        System.out.print("Enter car licence (e.g., DL-01-AB-1234): ");
-        String vehicleLicence = getRequiredInput(scanner, "car licence");
-
-        System.out.print("Enter licence plate (e.g., PP-1000): ");
-        String licencePlate = getRequiredInput(scanner, "licence plate");
+        String vehicleLicence = getRequiredInput(scanner, "car licence (e.g. VL-01-AB-1234)");
+        String licencePlate = getRequiredInput(scanner, "licence plate (e.g. PP-1000)");
 
         IVehicle newCar = new Car(powerSource, vehicleClass, brand, model, price, vehicleLicence, licencePlate);
 
@@ -400,26 +479,17 @@ public class Garage {
     }
 
     public void addMoto(Scanner scanner) {
-        String powerSource = getRequiredInput(scanner, "powerSource");
-
-        System.out.print("Enter moto class ( Sport, Cruiser, Touring): ");
-        String vehicleClass = getRequiredInput(scanner, "moto class");
-
-        System.out.print("Enter brand: ");
+        String powerSource = getRequiredInput(scanner, "power source (gasoline/diesel/electric/hybrid)");
+        String vehicleClass = getRequiredInput(scanner, "moto class (Sport/Cruiser/Touring)");
         String brand = getRequiredInput(scanner, "brand");
-
-        System.out.print("Enter model: ");
         String model = getRequiredInput(scanner, "model");
 
         System.out.print("Enter price: ");
         double price = scanner.nextDouble();
-        scanner.nextLine(); 
+        scanner.nextLine();
 
-        System.out.print("Enter moto licence (e.g., DL-01-AB-1234): "); // 125 CC up must have moto licence
-        String vehicleLicence = getRequiredInput(scanner, "moto licence");
-
-        System.out.print("Enter licence plate (e.g., PP-1000): "); 
-        String licencePlate = getRequiredInput(scanner, "licence plate");
+        String vehicleLicence = getRequiredInput(scanner, "moto licence (e.g. VL-01-AB-1234)");
+        String licencePlate = getRequiredInput(scanner, "licence plate (e.g. PP-1000)");
 
         IVehicle newMoto = new Moto(powerSource, vehicleClass, brand, model, price, vehicleLicence, licencePlate);
 
@@ -478,27 +548,29 @@ public class Garage {
             return;
         }
 
-        String carID = getRequiredInput(scanner, "car ID");
+        System.out.print("Enter vehicle ID (number): ");
+        int idInput = scanner.nextInt();
+        scanner.nextLine();
+        String codeInput = getRequiredInput(scanner, "vehicle code (e.g. Car-1, Moto-2)");
+
+        IVehicle target = findVehicleByIdAndCode(idInput, codeInput);
+        if (target == null) {
+            System.out.println("Vehicle not found! ID and code must both match the same vehicle.");
+            return;
+        }
 
         for (Rent rent : rents) {
-            if (rent != null && rent.getVehicle() != null && rent.getVehicle().getVehicleId().equals(carID)) {
+            if (rent != null && rent.getVehicle() != null &&
+                    rent.getVehicle().getVehicleId() == target.getVehicleId()) {
                 System.out.println("Vehicle is currently rented and cannot be removed.");
                 return;
             }
         }
 
-        boolean removed = garage.removeIf(v -> v.getVehicleId().equals(carID));
-
-        if (removed) {
-            System.out.println("Vehicle with ID " + carID + " removed successfully.");
-        } else {
-            System.out.println("Vehicle with ID " + carID + " not found.");
-        }
-
+        garage.remove(target);
         vehicleCount--;
-
-        System.out.println("Vehicle with ID " + carID + " removed successfully.");
-        System.out.println("vehicleCount: " + vehicleCount );
+        System.out.println("Vehicle [" + target.getVehicleId() + "] " + target.getVehicleCode() + " removed successfully.");
+        System.out.println("vehicleCount: " + vehicleCount);
     }
 
     public void updateVehicle(Scanner scanner) {
@@ -510,11 +582,18 @@ public class Garage {
             System.out.println("Garage is Empty!");
             return;
         }
-        String carID = getRequiredInput(scanner, "car ID");
+        System.out.print("Enter vehicle ID (number): ");
+        int idInput = scanner.nextInt();
+        scanner.nextLine();
+        String codeInput = getRequiredInput(scanner, "vehicle code (e.g. Car-1, Moto-2)");
 
-        for (IVehicle item:  garage) {
-            if (item.getVehicleId().equals(carID)) {
-                boolean quit = false;
+        IVehicle item = findVehicleByIdAndCode(idInput, codeInput);
+        if (item == null) {
+            System.out.println("Vehicle not found! ID and code must both match the same vehicle.");
+            return;
+        }
+        {
+            boolean quit = false;
                 int choice;
                 do {
                     System.out.println("""
@@ -562,7 +641,8 @@ public class Garage {
                             // Check if car is currently rented
                             boolean isRented = false;
                             for (Rent rent : rents) {
-                                if (rent != null && rent.getVehicle().getVehicleId().equals(carID)) {
+                                if (rent != null && rent.getVehicle() != null &&
+                                        rent.getVehicle().getVehicleId() == item.getVehicleId()) {
                                     isRented = true;
                                     break;
                                 }
@@ -582,10 +662,18 @@ public class Garage {
                     System.out.println();
 
                 } while (!quit);
-                return;
+        }
+    }
+
+    // Matches a vehicle only when BOTH numeric id AND code point to the same entry
+    private IVehicle findVehicleByIdAndCode(int id, String code) {
+        for (IVehicle v : garage) {
+            if (v != null && v.getVehicleId() == id
+                    && v.getVehicleCode().equals(code.trim())) {
+                return v;
             }
         }
-        System.out.println("Vehicle not found!");
+        return null;
     }
 
     //helper function
@@ -602,19 +690,24 @@ public class Garage {
     }
 
     public IVehicle findVehicleByID(Scanner scanner) {
-        String carID = getRequiredInput(scanner, "vehicle ID");
+        String code = getRequiredInput(scanner, "vehicle code (e.g. Car-1, Moto-2)");
+        return getVehicleByCode(code);
+    }
 
+    /** Look up a vehicle by its global numeric ID (1, 2, 3, …). */
+    public IVehicle getVehicleByID(int id) {
         for (IVehicle v : garage) {
-            if (v.getVehicleId().equals(carID)) {
+            if (v.getVehicleId() == id) {
                 return v;
             }
         }
         return null;
     }
 
-    public IVehicle getVehicleByID(String id) {
+    /** Look up a vehicle by its type-based code (e.g. "Car-1", "Moto-2"). */
+    public IVehicle getVehicleByCode(String code) {
         for (IVehicle v : garage) {
-            if (v.getVehicleId().equals(id)) {
+            if (v.getVehicleCode() != null && v.getVehicleCode().equals(code.trim())) {
                 return v;
             }
         }
@@ -852,6 +945,7 @@ public class Garage {
                         3. Update Rent
                         4. Remove Rent
                         5. Return Vehicle
+                        6. Lookup Completed Rent
                     """);
 
             System.out.print("Enter choice: ");
@@ -865,6 +959,7 @@ public class Garage {
                 case 3 -> updateRent(scanner);
                 case 4 -> removeRent(scanner);
                 case 5 -> returnVehicle(scanner);
+                case 6 -> lookupCompletedRent(scanner);
                 default -> System.out.println("Invalid choice!");
             }
             System.out.println();
@@ -1154,7 +1249,7 @@ public class Garage {
                 double total = rent.getPayment().calculateTotal();
                 System.out.println("Payment created. Final total amount: $" + total);
                 System.out.println(
-                        "Vehicle with ID " + rent.getVehicle().getVehicleId() + " has been returned and is now available.");
+                        "Vehicle [" + rent.getVehicle().getVehicleId() + "] " + rent.getVehicle().getVehicleCode() + " has been returned and is now available.");
                 System.out.println();
                 rent.setStatus(false);
                 // --- Snapshot: add immutable record to rental history ---
@@ -1253,6 +1348,60 @@ public class Garage {
 
     // History Management
 
+    public void lookupCompletedRent(Scanner scanner) {
+        if (!requireStaffLogin()) {
+            System.out.println(getLastMessage());
+            return;
+        }
+        if (!loggedInStaff.can(VIEW_RENT)) {
+            System.out.println("Access denied: insufficient permissions.");
+            return;
+        }
+        if (rentalHistory.isEmpty()) {
+            System.out.println("No completed rentals in history yet.");
+            return;
+        }
+
+        System.out.print("Enter rent ID to look up: ");
+        int searchId = scanner.nextInt();
+        scanner.nextLine();
+
+        for (RentRecord record : rentalHistory) {
+            if (record.getRentId() == searchId) {
+                System.out.println("\n----- Completed Rent Record -----");
+                System.out.println("  Rent ID        : " + record.getRentId());
+                System.out.println("  --- Vehicle ---");
+                System.out.println("  ID / Code      : [" + record.getVehicleId() + "] " + record.getVehicleCode());
+                System.out.println("  Type / Vehicle : " + record.getVehicleType() + " — " + record.getVehicleBrand() + " " + record.getVehicleModel() + " (" + record.getLicencePlate() + ")");
+                System.out.println("  Power / Class  : " + record.getVehiclePowerSource() + " / " + record.getVehicleClass());
+                System.out.printf( "  Rate/day       : $%.2f%n", record.getRentalRatePerDay());
+                System.out.println("  --- Customer ---");
+                System.out.println("  ID / Name      : [" + record.getCustomerId() + "] " + record.getCustomerName());
+                System.out.println("  ID Card No.    : " + record.getCustomerIdNum());
+                System.out.println("  Phone          : " + record.getCustomerPhone());
+                System.out.println("  --- Rental ---");
+                System.out.println("  Rent days      : " + record.getRentDays());
+                System.out.println("  Start date     : " + record.getStartDate());
+                System.out.println("  End date       : " + record.getEndDate());
+                System.out.println("  Returned on    : " + record.getReturnDate());
+                System.out.println("  --- Payment ---");
+                System.out.println("  Payment ID     : " + record.getPaymentId());
+                System.out.println("  Method         : " + record.getPaymentMethod());
+                System.out.println("  Pay date       : " + record.getPayDate());
+                System.out.printf( "  Base price/day : $%.2f%n", record.getPrice());
+                System.out.printf( "  Discount       : %.1f%%%n", record.getDiscount());
+                System.out.println("  Extra days     : " + record.getExtraDays());
+                System.out.printf( "  Damage fee     : $%.2f%n", record.getDamageFee());
+                System.out.printf( "  Deposit        : $%.2f%n", record.getDeposit());
+                System.out.printf( "  Total paid     : $%.2f%n", record.getTotalPaid());
+                System.out.println("  Status         : " + record.getPaymentStatus());
+                System.out.println("---------------------------------\n");
+                return;
+            }
+        }
+        System.out.println("No completed rent found with ID " + searchId + ".");
+    }
+
     public void showRentalHistory() {
         if (!requireStaffLogin()) {
             System.out.println(getLastMessage());
@@ -1273,6 +1422,110 @@ public class Garage {
             totalRevenue += record.getTotalPaid();
         }
         System.out.printf("Total revenue from completed rentals: $%.2f%n", totalRevenue);
+    }
+
+    public void generateReport() {
+        if (!requireStaffLogin()) {
+            System.out.println(getLastMessage());
+            return;
+        }
+        if (!loggedInStaff.can(VIEW_REPORTS)) {
+            System.out.println("Access denied: insufficient permissions.");
+            return;
+        }
+
+        System.out.println("\n╔══════════════════════════════════════════╗");
+        System.out.println(  "║         VEHICLE RENTAL MANAGEMENT        ║");
+        System.out.println(  "║              FULL REPORT                 ║");
+        System.out.println(  "╚══════════════════════════════════════════╝");
+
+        // ── 1. Fleet summary ──────────────────────────────────────────
+        System.out.println("\n── 1. Fleet Summary ─────────────────────");
+        int totalCars = 0, totalMotos = 0, availableCars = 0, availableMotos = 0;
+        for (IVehicle v : garage) {
+            if (v.getVehicleType().equals("Car")) {
+                totalCars++;
+                if (v.isAvailable()) availableCars++;
+            } else if (v.getVehicleType().equals("Moto")) {
+                totalMotos++;
+                if (v.isAvailable()) availableMotos++;
+            }
+        }
+        int totalVehicles = totalCars + totalMotos;
+        int available     = availableCars + availableMotos;
+        System.out.println("  Total vehicles   : " + totalVehicles);
+        System.out.println("  Available        : " + available);
+        System.out.println("  Rented out       : " + (totalVehicles - available));
+        System.out.printf( "  Cars  : %d total, %d available, %d rented%n", totalCars,  availableCars,  totalCars  - availableCars);
+        System.out.printf( "  Motos : %d total, %d available, %d rented%n", totalMotos, availableMotos, totalMotos - availableMotos);
+
+        // ── 2. Rental summary ─────────────────────────────────────────
+        System.out.println("\n── 2. Rental Summary ────────────────────");
+        int activeRents = 0;
+        for (Rent r : rents) {
+            if (r.isStatus()) activeRents++;
+        }
+        System.out.println("  Active rents     : " + activeRents);
+        System.out.println("  Completed rents  : " + rentalHistory.size());
+        System.out.println("  Total rents ever : " + (activeRents + rentalHistory.size()));
+
+        // ── 3. Revenue summary ────────────────────────────────────────
+        System.out.println("\n── 3. Revenue Summary ───────────────────");
+        if (rentalHistory.isEmpty()) {
+            System.out.println("  No completed rentals yet.");
+        } else {
+            double totalRevenue = 0;
+            for (RentRecord r : rentalHistory) totalRevenue += r.getTotalPaid();
+            double avgRevenue = totalRevenue / rentalHistory.size();
+            System.out.printf("  Total revenue    : $%.2f%n", totalRevenue);
+            System.out.printf("  Average per rent : $%.2f%n", avgRevenue);
+        }
+
+        // ── 4. Top rented vehicle ─────────────────────────────────────
+        System.out.println("\n── 4. Top Rented Vehicle ────────────────");
+        if (rentalHistory.isEmpty()) {
+            System.out.println("  No data yet.");
+        } else {
+            java.util.HashMap<Integer, Integer> vehicleFreq = new java.util.HashMap<>();
+            java.util.HashMap<Integer, String>  vehicleLabel = new java.util.HashMap<>();
+            for (RentRecord r : rentalHistory) {
+                int vid = r.getVehicleId();
+                vehicleFreq.put(vid, vehicleFreq.getOrDefault(vid, 0) + 1);
+                vehicleLabel.put(vid, r.getVehicleCode() + " " + r.getVehicleBrand() + " " + r.getVehicleModel());
+            }
+            int topVehicleId = -1, topVehicleCount = 0;
+            for (java.util.Map.Entry<Integer, Integer> entry : vehicleFreq.entrySet()) {
+                if (entry.getValue() > topVehicleCount) {
+                    topVehicleCount = entry.getValue();
+                    topVehicleId    = entry.getKey();
+                }
+            }
+            System.out.println("  " + vehicleLabel.get(topVehicleId) + " — rented " + topVehicleCount + " time(s)");
+        }
+
+        // ── 5. Top customer ───────────────────────────────────────────
+        System.out.println("\n── 5. Top Customer ──────────────────────");
+        if (rentalHistory.isEmpty()) {
+            System.out.println("  No data yet.");
+        } else {
+            java.util.HashMap<Integer, Integer> customerFreq  = new java.util.HashMap<>();
+            java.util.HashMap<Integer, String>  customerLabel = new java.util.HashMap<>();
+            for (RentRecord r : rentalHistory) {
+                int cid = r.getCustomerId();
+                customerFreq.put(cid, customerFreq.getOrDefault(cid, 0) + 1);
+                customerLabel.put(cid, r.getCustomerName());
+            }
+            int topCustomerId = -1, topCustomerCount = 0;
+            for (java.util.Map.Entry<Integer, Integer> entry : customerFreq.entrySet()) {
+                if (entry.getValue() > topCustomerCount) {
+                    topCustomerCount = entry.getValue();
+                    topCustomerId    = entry.getKey();
+                }
+            }
+            System.out.println("  " + customerLabel.get(topCustomerId) + " (ID: " + topCustomerId + ") — " + topCustomerCount + " rental(s)");
+        }
+
+        System.out.println("\n══════════════════════════════════════════\n");
     }
 
     // ===== DASHBOARD =====

@@ -14,15 +14,15 @@ public class Payment {
 
     public Payment(int rentDays, double price, double deposit) {
         this.paymentId = countPaymentId++;
-        this.paymentMethod = "TBD";
-        this.price = price;
+        this.setPaymentMethod("TBD");
+        this.setPrice(price);
         this.setDiscount(0);
         this.setExtraDays(0);
         this.setDamageFee(0);
-        this.deposit = deposit > 0 ? deposit : 0.0;
-        this.rentDays = rentDays;
-        this.payDate = "TBD";
-        this.status = "PENDING";
+        this.setDeposit(deposit);
+        this.setRentDays(rentDays);
+        this.setPayDate("TBD");
+        this.setStatus("PENDING");
     }
 
     public double calculateTotal() {
@@ -56,44 +56,69 @@ public class Payment {
     // ===== SETTERS (only for changeable fields) =====
 
     public void setRentDays(int rentDays) { //use this method to update rent days in case of extension or early return
-        this.rentDays = rentDays;
+        this.rentDays = rentDays > 0 ? rentDays : 1;
     }
 
     public String getPaymentMethod() { return paymentMethod; }
+    public int getPaymentId()         { return paymentId; }
+    public double getPrice()          { return price; }
+    public double getDiscount()       { return discount; }
+    public int getExtraDays()         { return extraDays; }
+    public double getDamageFee()      { return damageFee; }
+    public String getPayDate()        { return payDate; }
+    public String getStatus()         { return status; }
+    public double getDeposit()        { return deposit; }
 
     public void setPrice(double price) { // use this method to update price in case of vehicle change  (but not rate change)
-        this.price = price;
+        this.price = price > 0 ? price : 0.0;
     }
 
     public void setDiscount(double discount) {
-            this.discount = discount>0 ? discount : 0.0;
+        this.discount = (discount >= 0 && discount <= 100) ? discount : 0.0;
     }
 
     public void setExtraDays(int extraDays) {
-            this.extraDays = extraDays>0 ? extraDays : 0;
+        this.extraDays = extraDays > 0 ? extraDays : 0;
     }
 
     public void setDamageFee(double damageFee) {
-            this.damageFee = damageFee>0 ? damageFee: 0.0;
+        this.damageFee = damageFee > 0 ? damageFee : 0.0;
     }
 
-    public void processPayment(String method, String payDate) {
+    public void setDeposit(double deposit) {
+        this.deposit = deposit > 0 ? deposit : 0.0;
+    }
 
-        // Validate payment method
+    public void setPaymentMethod(String method) {
         if (method != null &&
                 (method.equalsIgnoreCase("CASH") ||
                         method.equalsIgnoreCase("CARD") ||
                         method.equalsIgnoreCase("ABA") ||
                         method.equalsIgnoreCase("ACLEDA") ||
-                        method.equalsIgnoreCase("WING")))
-                        {
+                        method.equalsIgnoreCase("WING") ||
+                        method.equalsIgnoreCase("TBD"))) {
             this.paymentMethod = method.toUpperCase();
         } else {
             this.paymentMethod = "TBD";
         }
+    }
 
-        this.payDate = payDate;
-        this.status = "PAID";
+    public void setPayDate(String payDate) {
+        this.payDate = (payDate != null && !payDate.trim().isEmpty()) ? payDate : "TBD";
+    }
+
+    public void setStatus(String status) {
+        if (status != null && (status.equalsIgnoreCase("PENDING") || status.equalsIgnoreCase("PAID"))) {
+            this.status = status.toUpperCase();
+        } else {
+            this.status = "PENDING";
+        }
+    }
+
+    public void processPayment(String method, String payDate) {
+        this.setPaymentMethod(method);
+        this.setPayDate(payDate);
+        this.setStatus("PAID");
     }
 
 
