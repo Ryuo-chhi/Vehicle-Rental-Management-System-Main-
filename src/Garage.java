@@ -17,7 +17,7 @@ public class Garage {
     public static final String MANAGE_STAFF = "MANAGE_STAFF";
     public static final String VIEW_REPORTS = "VIEW_REPORTS";
 
-    private ArrayList<IVehicle> garage;
+    private ArrayList<Vehicle> garage;
     private int vehicleCount; // current number of vehicles
 
     private HashSet<Customer> customers;
@@ -398,11 +398,11 @@ public class Garage {
         for (String[] v : vehicles) {
             String type   = v[0];
             double price  = Double.parseDouble(v[5]);
-            IVehicle vehicle = switch (type) {
+            Vehicle vehicle = switch (type) {
                 case "Moto" -> new Moto(v[0],v[1], v[2], v[3], v[4], price, v[6], v[7]);
                 default     -> new Car( v[0],v[1], v[2], v[3], v[4], price, v[6], v[7]);
             };
-            garage.add(vehicle);
+            garage.add((Vehicle) vehicle);
             vehicleCount++;
         }
     }
@@ -471,7 +471,7 @@ public class Garage {
         String vehicleLicence = getRequiredInput(scanner, "car licence (e.g. VL-01-AB-1234)");
         String licencePlate = getRequiredInput(scanner, "licence plate (e.g. PP-1000)");
 
-        IVehicle newCar = new Car("Car",powerSource, vehicleClass, brand, model, price, vehicleLicence, licencePlate);
+        Car newCar = new Car("Car",powerSource, vehicleClass, brand, model, price, vehicleLicence, licencePlate);
 
         garage.add(newCar);
         System.out.println("Add car successfully. Total cars: " + Car.getCountCar());
@@ -492,7 +492,7 @@ public class Garage {
         String vehicleLicence = getRequiredInput(scanner, "Moto licence (e.g. VL-01-AB-1234)");
         String licencePlate = getRequiredInput(scanner, "licence plate (e.g. PP-1000)");
 
-        IVehicle newMoto = new Moto("Moto",powerSource, vehicleClass, brand, model, price, vehicleLicence, licencePlate);
+        Moto newMoto = new Moto("Moto",powerSource, vehicleClass, brand, model, price, vehicleLicence, licencePlate);
 
         garage.add(newMoto);
         System.out.println("Add moto successfully. Total motos: " + Moto.getCountMoto());
@@ -506,20 +506,32 @@ public class Garage {
             System.out.println("Access denied: insufficient permissions.");
             return;
         }
-
-        while (true) {
-            System.out.print("Enter vehicle type (Car or Moto): ");
-            String vehicleType = scanner.nextLine().trim();
-            if (vehicleType.equalsIgnoreCase("Car")) {
-                addCar(scanner);
-                break;
-            } else if (vehicleType.equalsIgnoreCase("Moto")) {
-                addMoto(scanner);
-                break;
-            } else {
-                System.out.println("Invalid vehicle type. Please enter 'Car' or 'Moto'.");
+        boolean quit = false;
+        do {
+            System.out.print(
+                    "0. Quit\n" +
+                    "1. Car\n" +
+                    "2. Moto\n" +
+                    "Choose vehicle type: "
+            );
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+            switch (choice) {
+                case 0:
+                    quit = true;
+                    break;
+                case 1:
+                    addCar(scanner);
+                    break;
+                case 2:
+                    addMoto(scanner);
+                    break;
+                default:
+                    System.out.println("Invalid choice.");
+                    break;
             }
-        }
+
+        }while (!quit);
         
         
     }
@@ -533,7 +545,7 @@ public class Garage {
             System.out.println("Garage is empty!");
             return;
         }
-        for(IVehicle car : garage) {
+        for(Vehicle car : garage) {
             System.out.println(car.toString());
         }
         System.out.println();
@@ -554,7 +566,7 @@ public class Garage {
         scanner.nextLine();
         String codeInput = getRequiredInput(scanner, "vehicle code (e.g. Car-1, Moto-2)");
 
-        IVehicle target = findVehicleByIdAndCode(idInput, codeInput);
+        Vehicle target = findVehicleByIdAndCode(idInput, codeInput);
         if (target == null) {
             System.out.println("Vehicle not found! ID and code must both match the same vehicle.");
             return;
@@ -588,7 +600,7 @@ public class Garage {
         scanner.nextLine();
         String codeInput = getRequiredInput(scanner, "vehicle code (e.g. Car-1, Moto-2)");
 
-        IVehicle item = findVehicleByIdAndCode(idInput, codeInput);
+        Vehicle item = findVehicleByIdAndCode(idInput, codeInput);
         if (item == null) {
             System.out.println("Vehicle not found! ID and code must both match the same vehicle.");
             return;
@@ -667,8 +679,8 @@ public class Garage {
     }
 
     // Matches a vehicle only when BOTH numeric id AND code point to the same entry
-    private IVehicle findVehicleByIdAndCode(int id, String code) {
-        for (IVehicle v : garage) {
+    private Vehicle findVehicleByIdAndCode(int id, String code) {
+        for (Vehicle v : garage) {
             if (v != null && v.getVehicleId() == id
                     && v.getVehicleCode().equals(code.trim())) {
                 return v;
@@ -690,14 +702,14 @@ public class Garage {
         return input;
     }
 
-    public IVehicle findVehicleByID(Scanner scanner) {
+    public Vehicle findVehicleByID(Scanner scanner) {
         String code = getRequiredInput(scanner, "vehicle code (e.g. Car-1, Moto-2)");
         return getVehicleByCode(code);
     }
 
     /** Look up a vehicle by its global numeric ID (1, 2, 3, …). */
-    public IVehicle getVehicleByID(int id) {
-        for (IVehicle v : garage) {
+    public Vehicle getVehicleByID(int id) {
+        for (Vehicle v : garage) {
             if (v.getVehicleId() == id) {
                 return v;
             }
@@ -706,8 +718,8 @@ public class Garage {
     }
 
     /** Look up a vehicle by its type-based code (e.g. "Car-1", "Moto-2"). */
-    public IVehicle getVehicleByCode(String code) {
-        for (IVehicle v : garage) {
+    public Vehicle getVehicleByCode(String code) {
+        for (Vehicle v : garage) {
             if (v.getVehicleCode() != null && v.getVehicleCode().equals(code.trim())) {
                 return v;
             }
@@ -982,7 +994,7 @@ public class Garage {
             }
         }
 
-        IVehicle selectedCar = findVehicleByID(scanner);
+        Vehicle selectedCar = findVehicleByID(scanner);
         Customer selectedCustomer = findCustomerByID(scanner);
 
         if (selectedCar == null) {
@@ -1110,7 +1122,7 @@ public class Garage {
                             rent.setEndDate(newEndDate);
                         }
                         case 2 -> {
-                            IVehicle newCar = findVehicleByID(scanner);
+                            Vehicle newCar = findVehicleByID(scanner);
                             if (newCar == null) {
                                 System.out.println("Vehicle not found!");
                             } else if (!newCar.isAvailable()) {
@@ -1216,7 +1228,7 @@ public class Garage {
                     return;
                 }
                 // original vehicle from garage
-                IVehicle car = getVehicleByID(rent.getVehicle().getVehicleId());
+                Vehicle car = getVehicleByID(rent.getVehicle().getVehicleId());
                 if (!car.equals(rent.getVehicle())) {
                     System.out.println("Vehicle mismatch");
                     return;
@@ -1443,7 +1455,7 @@ public class Garage {
         // ── 1. Fleet summary ──────────────────────────────────────────
         System.out.println("\n── 1. Fleet Summary ─────────────────────");
         int totalCars = 0, totalMotos = 0, availableCars = 0, availableMotos = 0;
-        for (IVehicle v : garage) {
+        for (Vehicle v : garage) {
             if (v.getVehicleType().equals("Car")) {
                 totalCars++;
                 if (v.isAvailable()) availableCars++;
@@ -1533,7 +1545,7 @@ public class Garage {
 
     public void showDashboard() {
         int availableVehicles = 0;
-        for (IVehicle v : garage) {
+        for (Vehicle v : garage) {
             if (v.isAvailable()) availableVehicles++;
         }
 
