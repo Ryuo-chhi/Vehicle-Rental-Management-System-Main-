@@ -72,7 +72,7 @@ public class Garage {
     public void generateStaffToSystem() {
         IStaff s1 = new ManagerStaff("Admin", "Manager", 0, "admin_root", "root123");
         IStaff s2 = new ManagerStaff("Bob", "Manager", 3000, "bob_manager", "manager123");
-        IStaff s3 = new Staff("Chan", "Staff", 1500, "chan_staff", "staff123");
+        IStaff s3 = new RegularStaff("Chan", "Staff", 1500, "chan_staff", "staff123");
         staffs.add(s1);
         staffs.add(s2);
         staffs.add(s3);
@@ -227,7 +227,7 @@ public class Garage {
 
         IStaff newStaff = switch (role.trim().toUpperCase()) {
             case "MANAGER", "ADMIN" -> new ManagerStaff(name, role, salary, username, password);
-            case "STAFF" -> new Staff(name, role, salary, username, password);
+            case "STAFF" -> new RegularStaff(name, role, salary, username, password);
             default -> {
                 yield null;
             }

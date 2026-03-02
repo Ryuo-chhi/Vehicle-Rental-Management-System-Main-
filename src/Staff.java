@@ -14,19 +14,9 @@ public class Staff implements IStaff {
 
     private static int staffCount = 0;
 
-    /*====== Staff Permissions ====== */
+    /*====== Staff Permissions (default: no access — override in subclasses) ====== */
     @Override
     public boolean can(String action) {
-        if (action.equals(Garage.VIEW_VEHICLE) || 
-            action.equals(Garage.VIEW_CUSTOMER) || 
-            action.equals(Garage.MANAGE_CUSTOMER) || 
-            action.equals(Garage.ADD_RENT) || 
-            action.equals(Garage.VIEW_RENT) ||
-            action.equals(Garage.RETURN_VEHICLE) ||
-            action.equals(Garage.SHOW_PAYMENT)) {
-            return true;
-        }
-
         return false;
     }
 
