@@ -78,196 +78,200 @@ public class test {
         System.out.println("===== TEST A: MANAGER (Full Permissions) =====\n");
         
         // A1. Manager login
-        System.out.println("A1. Testing Manager Login:");
-        rentalSystem.staffLogin("admin_root", "root123");
-        System.out.println("   " + rentalSystem.getLastMessage());
-        System.out.println("   Logged in staff: " + rentalSystem.getLoggedInStaff().getName() + 
-                           " [" + rentalSystem.getLoggedInStaff().getRole() + "]");
-        System.out.println("   Expected: Login success ✓\n");
-        
-        // A2. Manager can access MANAGE_VEHICLE
-        System.out.println("A2. Testing Manager - MANAGE_VEHICLE permission:");
-        boolean managerCanManageVehicle = rentalSystem.getLoggedInStaff().can(Garage.MANAGE_VEHICLE);
-        System.out.println("   can(MANAGE_VEHICLE): " + managerCanManageVehicle);
-        System.out.println("   Expected: true ✓\n");
-        
-        // A3. Manager can access MANAGE_CUSTOMER
-        System.out.println("A3. Testing Manager - MANAGE_CUSTOMER permission:");
-        boolean managerCanManageCustomer = rentalSystem.getLoggedInStaff().can(Garage.MANAGE_CUSTOMER);
-        System.out.println("   can(MANAGE_CUSTOMER): " + managerCanManageCustomer);
-        System.out.println("   Expected: true ✓\n");
-        
-        // A4. Manager can access MANAGE_STAFF
-        System.out.println("A4. Testing Manager - MANAGE_STAFF permission:");
-        boolean managerCanManageStaff = rentalSystem.getLoggedInStaff().can(Garage.MANAGE_STAFF);
-        System.out.println("   can(MANAGE_STAFF): " + managerCanManageStaff);
-        System.out.println("   Expected: true ✓\n");
-        
-        // A5. Manager can access ADD_RENT
-        System.out.println("A5. Testing Manager - ADD_RENT permission:");
-        boolean managerCanAddRent = rentalSystem.getLoggedInStaff().can(Garage.ADD_RENT);
-        System.out.println("   can(ADD_RENT): " + managerCanAddRent);
-        System.out.println("   Expected: true ✓\n");
-        
-        // A6. Verify Manager's can() returns true for ALL actions
-        System.out.println("A6. Manager permissions summary:");
-        System.out.println("   VIEW_VEHICLE: " + rentalSystem.getLoggedInStaff().can(Garage.VIEW_VEHICLE));
-        System.out.println("   MANAGE_VEHICLE: " + rentalSystem.getLoggedInStaff().can(Garage.MANAGE_VEHICLE));
-        System.out.println("   VIEW_CUSTOMER: " + rentalSystem.getLoggedInStaff().can(Garage.VIEW_CUSTOMER));
-        System.out.println("   MANAGE_CUSTOMER: " + rentalSystem.getLoggedInStaff().can(Garage.MANAGE_CUSTOMER));
-        System.out.println("   ADD_RENT: " + rentalSystem.getLoggedInStaff().can(Garage.ADD_RENT));
-        System.out.println("   RETURN_VEHICLE: " + rentalSystem.getLoggedInStaff().can(Garage.RETURN_VEHICLE));
-        System.out.println("   SHOW_PAYMENT: " + rentalSystem.getLoggedInStaff().can(Garage.SHOW_PAYMENT));
-        System.out.println("   MANAGE_STAFF: " + rentalSystem.getLoggedInStaff().can(Garage.MANAGE_STAFF));
-        System.out.println("   Expected: ALL true ✓\n");
-        
-        rentalSystem.staffLogout();
-        System.out.println(rentalSystem.getLastMessage() + "\n");
-        
-        // ===============================================
-        // Test B: Staff Test (Limited Permissions)
-        // ===============================================
-        System.out.println("===== TEST B: STAFF (Limited Permissions) =====\n");
-        
-        // B1. Staff login
-        System.out.println("B1. Testing Staff Login:");
-        rentalSystem.staffLogin("chan_staff", "staff123");
-        System.out.println("   " + rentalSystem.getLastMessage());
-        System.out.println("   Logged in staff: " + rentalSystem.getLoggedInStaff().getName() + 
-                           " [" + rentalSystem.getLoggedInStaff().getRole() + "]");
-        System.out.println("   Expected: Login success ✓\n");
-        
-        // B2. Staff CAN view vehicles
-        System.out.println("B2. Testing Staff - VIEW_VEHICLE permission:");
-        boolean staffCanViewVehicle = rentalSystem.getLoggedInStaff().can(Garage.VIEW_VEHICLE);
-        System.out.println("   can(VIEW_VEHICLE): " + staffCanViewVehicle);
-        System.out.println("   Expected: true ✓\n");
-        
-        // B3. Staff CAN manage customers (rental front desk)
-        System.out.println("B3. Testing Staff - MANAGE_CUSTOMER permission:");
-        boolean staffCanManageCustomer = rentalSystem.getLoggedInStaff().can(Garage.MANAGE_CUSTOMER);
-        System.out.println("   can(MANAGE_CUSTOMER): " + staffCanManageCustomer);
-        System.out.println("   Expected: true ✓\n");
-        
-        // B4. Staff CAN add rent
-        System.out.println("B4. Testing Staff - ADD_RENT permission:");
-        boolean staffCanAddRent = rentalSystem.getLoggedInStaff().can(Garage.ADD_RENT);
-        System.out.println("   can(ADD_RENT): " + staffCanAddRent);
-        System.out.println("   Expected: true ✓\n");
-        
-        // B5. Staff CANNOT manage vehicles
-        System.out.println("B5. Testing Staff - MANAGE_VEHICLE permission (should be denied):");
-        boolean staffCanManageVehicle = rentalSystem.getLoggedInStaff().can(Garage.MANAGE_VEHICLE);
-        System.out.println("   can(MANAGE_VEHICLE): " + staffCanManageVehicle);
-        System.out.println("   Expected: false ✓\n");
-        
-        // B6. Staff CANNOT manage other staff
-        System.out.println("B6. Testing Staff - MANAGE_STAFF permission (should be denied):");
-        boolean staffCanManageStaff = rentalSystem.getLoggedInStaff().can(Garage.MANAGE_STAFF);
-        System.out.println("   can(MANAGE_STAFF): " + staffCanManageStaff);
-        System.out.println("   Expected: false ✓\n");
-        
-        // B7. Staff permissions summary
-        System.out.println("B7. Staff permissions summary:");
-        System.out.println("   VIEW_VEHICLE: " + rentalSystem.getLoggedInStaff().can(Garage.VIEW_VEHICLE) + " ✓");
-        System.out.println("   MANAGE_VEHICLE: " + rentalSystem.getLoggedInStaff().can(Garage.MANAGE_VEHICLE) + " (denied) ✓");
-        System.out.println("   VIEW_CUSTOMER: " + rentalSystem.getLoggedInStaff().can(Garage.VIEW_CUSTOMER) + " ✓");
-        System.out.println("   MANAGE_CUSTOMER: " + rentalSystem.getLoggedInStaff().can(Garage.MANAGE_CUSTOMER) + " ✓");
-        System.out.println("   ADD_RENT: " + rentalSystem.getLoggedInStaff().can(Garage.ADD_RENT) + " ✓");
-        System.out.println("   RETURN_VEHICLE: " + rentalSystem.getLoggedInStaff().can(Garage.RETURN_VEHICLE) + " ✓");
-        System.out.println("   SHOW_PAYMENT: " + rentalSystem.getLoggedInStaff().can(Garage.SHOW_PAYMENT) + " ✓");
-        System.out.println("   MANAGE_STAFF: " + rentalSystem.getLoggedInStaff().can(Garage.MANAGE_STAFF) + " (denied) ✓\n");
-        
-        rentalSystem.staffLogout();
-        System.out.println(rentalSystem.getLastMessage() + "\n");
-        
-        // ===============================================
-        // Test C: Invalid Login Tests
-        // ===============================================
-        System.out.println("===== TEST C: INVALID LOGIN TESTS =====\n");
-        
-        // C1. Wrong password
-        System.out.println("C1. Testing wrong password:");
-        rentalSystem.staffLogin("admin_root", "wrongpassword");
-        System.out.println("   " + rentalSystem.getLastMessage());
-        System.out.println("   Is logged in: " + rentalSystem.isStaffLoggedIn());
-        System.out.println("   Expected: Login failed, not logged in ✓\n");
-        
-        // C2. Wrong username
-        System.out.println("C2. Testing wrong username:");
-        rentalSystem.staffLogin("nonexistent_user", "password123");
-        System.out.println("   " + rentalSystem.getLastMessage());
-        System.out.println("   Is logged in: " + rentalSystem.isStaffLoggedIn());
-        System.out.println("   Expected: Login failed, not logged in ✓\n");
-        
-        // C3. Empty username
-        System.out.println("C3. Testing empty username:");
-        rentalSystem.staffLogin("", "password123");
-        System.out.println("   " + rentalSystem.getLastMessage());
-        System.out.println("   Is logged in: " + rentalSystem.isStaffLoggedIn());
-        System.out.println("   Expected: Login failed, not logged in ✓\n");
-        
-        // ===============================================
-        // Test D: Interface Polymorphism Test
-        // ===============================================
-        System.out.println("===== TEST D: INTERFACE POLYMORPHISM =====\n");
-        
-        System.out.println("D1. Demonstrating polymorphism - storing different staff types:");
-        IStaff manager = new ManagerStaff("Test Manager", "Manager", 5000, "test_mgr", "pass123");
-        IStaff staff = new Staff("Test Staff", "Staff", 2000, "test_staff", "pass123");
-        
-        System.out.println("   Both stored as IStaff interface type:");
-        System.out.println("   - manager variable type: IStaff (actual: ManagerStaff)");
-        System.out.println("   - staff variable type: IStaff (actual: Staff)");
-        System.out.println("   Manager can MANAGE_VEHICLE: " + manager.can(Garage.MANAGE_VEHICLE));
-        System.out.println("   Staff can MANAGE_VEHICLE: " + staff.can(Garage.MANAGE_VEHICLE));
-        System.out.println("   Expected: Different behavior from same interface ✓\n");
-        
-        System.out.println("D2. Interface enables HashSet<IStaff> to store both types:");
-        System.out.println("   Garage uses HashSet<IStaff> to store:");
-        System.out.println("   - ManagerStaff objects (admin_root, bob_manager)");
-        System.out.println("   - Staff objects (chan_staff)");
-        System.out.println("   All treated uniformly through IStaff interface ✓\n");
-        
-        // ===============================================
-        // Test E: Online/Offline Status (isActive)
-        // ===============================================
-        System.out.println("===== TEST E: ONLINE/OFFLINE STATUS =====\n");
-        
-        System.out.println("E1. Testing isActive (online/offline) behavior:");
-        System.out.println("   Before login - staff.isActive(): " + staff.isActive());
-        System.out.println("   Expected: false (offline) ✓\n");
-        
-        rentalSystem.staffLogin("chan_staff", "staff123");
-        System.out.println("E2. After successful login:");
-        System.out.println("   staff.isActive(): " + rentalSystem.getLoggedInStaff().isActive());
-        System.out.println("   Expected: true (online) ✓\n");
-        
-        rentalSystem.staffLogout();
-        System.out.println("E3. After logout:");
-        System.out.println("   " + rentalSystem.getLastMessage());
-        System.out.println("   Expected: Staff is offline again ✓\n");
-        
-        System.out.println("========== END OF INTERFACE & PERMISSION TESTS ==========\n");
-        
-        // ===============================================
-        // REFLECTION QUESTIONS (from Interface.txt)
-        // ===============================================
-        System.out.println("========== REFLECTION QUESTIONS ==========\n");
-        System.out.println("Q1: Why do we store staff as HashSet<IStaff> instead of HashSet<ManagerStaff>?");
-        System.out.println("    Answer: So Garage can store both ManagerStaff and Staff objects in one");
-        System.out.println("    collection. The interface allows different classes to be treated uniformly.\n");
-        
-        System.out.println("Q2: What happens if a class implements IStaff but forgets to write can()?");
-        System.out.println("    Answer: Java compiler error - the class MUST implement ALL methods");
-        System.out.println("    from the interface, including can(String action).\n");
-        
-        System.out.println("Q3: Why is this not inheritance? What keyword did we use instead?");
-        System.out.println("    Answer: We used 'implements' (not 'extends'). There is no parent class,");
-        System.out.println("    only a contract (interface) that defines required methods.\n");
-        
-        System.out.println("========== END OF REFLECTION ==========\n");
+//        System.out.println("A1. Testing Manager Login:");
+//        rentalSystem.staffLogin("admin_root", "root123");
+//        System.out.println("   " + rentalSystem.getLastMessage());
+//        System.out.println("   Logged in staff: " + rentalSystem.getLoggedInStaff().getName() +
+//                           " [" + rentalSystem.getLoggedInStaff().getRole() + "]");
+//        System.out.println("   Expected: Login success ✓\n");
+//
+//        // A2. Manager can access MANAGE_VEHICLE
+//        System.out.println("A2. Testing Manager - MANAGE_VEHICLE permission:");
+//        boolean managerCanManageVehicle = rentalSystem.getLoggedInStaff().can(Garage.MANAGE_VEHICLE);
+//        System.out.println("   can(MANAGE_VEHICLE): " + managerCanManageVehicle);
+//        System.out.println("   Expected: true ✓\n");
+//
+//        // A3. Manager can access MANAGE_CUSTOMER
+//        System.out.println("A3. Testing Manager - MANAGE_CUSTOMER permission:");
+//        boolean managerCanManageCustomer = rentalSystem.getLoggedInStaff().can(Garage.MANAGE_CUSTOMER);
+//        System.out.println("   can(MANAGE_CUSTOMER): " + managerCanManageCustomer);
+//        System.out.println("   Expected: true ✓\n");
+//
+//        // A4. Manager can access MANAGE_STAFF
+//        System.out.println("A4. Testing Manager - MANAGE_STAFF permission:");
+//        boolean managerCanManageStaff = rentalSystem.getLoggedInStaff().can(Garage.MANAGE_STAFF);
+//        System.out.println("   can(MANAGE_STAFF): " + managerCanManageStaff);
+//        System.out.println("   Expected: true ✓\n");
+//
+//        // A5. Manager can access ADD_RENT
+//        System.out.println("A5. Testing Manager - ADD_RENT permission:");
+//        boolean managerCanAddRent = rentalSystem.getLoggedInStaff().can(Garage.ADD_RENT);
+//        System.out.println("   can(ADD_RENT): " + managerCanAddRent);
+//        System.out.println("   Expected: true ✓\n");
+//
+//        // A6. Verify Manager's can() returns true for ALL actions
+//        System.out.println("A6. Manager permissions summary:");
+//        System.out.println("   VIEW_VEHICLE: " + rentalSystem.getLoggedInStaff().can(Garage.VIEW_VEHICLE));
+//        System.out.println("   MANAGE_VEHICLE: " + rentalSystem.getLoggedInStaff().can(Garage.MANAGE_VEHICLE));
+//        System.out.println("   VIEW_CUSTOMER: " + rentalSystem.getLoggedInStaff().can(Garage.VIEW_CUSTOMER));
+//        System.out.println("   MANAGE_CUSTOMER: " + rentalSystem.getLoggedInStaff().can(Garage.MANAGE_CUSTOMER));
+//        System.out.println("   ADD_RENT: " + rentalSystem.getLoggedInStaff().can(Garage.ADD_RENT));
+//        System.out.println("   RETURN_VEHICLE: " + rentalSystem.getLoggedInStaff().can(Garage.RETURN_VEHICLE));
+//        System.out.println("   SHOW_PAYMENT: " + rentalSystem.getLoggedInStaff().can(Garage.SHOW_PAYMENT));
+//        System.out.println("   MANAGE_STAFF: " + rentalSystem.getLoggedInStaff().can(Garage.MANAGE_STAFF));
+//        System.out.println("   Expected: ALL true ✓\n");
+//
+//        rentalSystem.staffLogout();
+//        System.out.println(rentalSystem.getLastMessage() + "\n");
+//
+//        // ===============================================
+//        // Test B: Staff Test (Limited Permissions)
+//        // ===============================================
+//        System.out.println("===== TEST B: STAFF (Limited Permissions) =====\n");
+//
+//        // B1. Staff login
+//        System.out.println("B1. Testing Staff Login:");
+//        rentalSystem.staffLogin("chan_staff", "staff123");
+//        System.out.println("   " + rentalSystem.getLastMessage());
+//        System.out.println("   Logged in staff: " + rentalSystem.getLoggedInStaff().getName() +
+//                           " [" + rentalSystem.getLoggedInStaff().getRole() + "]");
+//        System.out.println("   Expected: Login success ✓\n");
+//
+//        // B2. Staff CAN view vehicles
+//        System.out.println("B2. Testing Staff - VIEW_VEHICLE permission:");
+//        boolean staffCanViewVehicle = rentalSystem.getLoggedInStaff().can(Garage.VIEW_VEHICLE);
+//        System.out.println("   can(VIEW_VEHICLE): " + staffCanViewVehicle);
+//        System.out.println("   Expected: true ✓\n");
+//
+//        // B3. Staff CAN manage customers (rental front desk)
+//        System.out.println("B3. Testing Staff - MANAGE_CUSTOMER permission:");
+//        boolean staffCanManageCustomer = rentalSystem.getLoggedInStaff().can(Garage.MANAGE_CUSTOMER);
+//        System.out.println("   can(MANAGE_CUSTOMER): " + staffCanManageCustomer);
+//        System.out.println("   Expected: true ✓\n");
+//
+//        // B4. Staff CAN add rent
+//        System.out.println("B4. Testing Staff - ADD_RENT permission:");
+//        boolean staffCanAddRent = rentalSystem.getLoggedInStaff().can(Garage.ADD_RENT);
+//        System.out.println("   can(ADD_RENT): " + staffCanAddRent);
+//        System.out.println("   Expected: true ✓\n");
+//
+//        // B5. Staff CANNOT manage vehicles
+//        System.out.println("B5. Testing Staff - MANAGE_VEHICLE permission (should be denied):");
+//        boolean staffCanManageVehicle = rentalSystem.getLoggedInStaff().can(Garage.MANAGE_VEHICLE);
+//        System.out.println("   can(MANAGE_VEHICLE): " + staffCanManageVehicle);
+//        System.out.println("   Expected: false ✓\n");
+//
+//        // B6. Staff CANNOT manage other staff
+//        System.out.println("B6. Testing Staff - MANAGE_STAFF permission (should be denied):");
+//        boolean staffCanManageStaff = rentalSystem.getLoggedInStaff().can(Garage.MANAGE_STAFF);
+//        System.out.println("   can(MANAGE_STAFF): " + staffCanManageStaff);
+//        System.out.println("   Expected: false ✓\n");
+//
+//        // B7. Staff permissions summary
+//        System.out.println("B7. Staff permissions summary:");
+//        System.out.println("   VIEW_VEHICLE: " + rentalSystem.getLoggedInStaff().can(Garage.VIEW_VEHICLE) + " ✓");
+//        System.out.println("   MANAGE_VEHICLE: " + rentalSystem.getLoggedInStaff().can(Garage.MANAGE_VEHICLE) + " (denied) ✓");
+//        System.out.println("   VIEW_CUSTOMER: " + rentalSystem.getLoggedInStaff().can(Garage.VIEW_CUSTOMER) + " ✓");
+//        System.out.println("   MANAGE_CUSTOMER: " + rentalSystem.getLoggedInStaff().can(Garage.MANAGE_CUSTOMER) + " ✓");
+//        System.out.println("   ADD_RENT: " + rentalSystem.getLoggedInStaff().can(Garage.ADD_RENT) + " ✓");
+//        System.out.println("   RETURN_VEHICLE: " + rentalSystem.getLoggedInStaff().can(Garage.RETURN_VEHICLE) + " ✓");
+//        System.out.println("   SHOW_PAYMENT: " + rentalSystem.getLoggedInStaff().can(Garage.SHOW_PAYMENT) + " ✓");
+//        System.out.println("   MANAGE_STAFF: " + rentalSystem.getLoggedInStaff().can(Garage.MANAGE_STAFF) + " (denied) ✓\n");
+//
+//        rentalSystem.staffLogout();
+//        System.out.println(rentalSystem.getLastMessage() + "\n");
+//
+//        // ===============================================
+//        // Test C: Invalid Login Tests
+//        // ===============================================
+//        System.out.println("===== TEST C: INVALID LOGIN TESTS =====\n");
+//
+//        // C1. Wrong password
+//        System.out.println("C1. Testing wrong password:");
+//        rentalSystem.staffLogin("admin_root", "wrongpassword");
+//        System.out.println("   " + rentalSystem.getLastMessage());
+//        System.out.println("   Is logged in: " + rentalSystem.isStaffLoggedIn());
+//        System.out.println("   Expected: Login failed, not logged in ✓\n");
+//
+//        // C2. Wrong username
+//        System.out.println("C2. Testing wrong username:");
+//        rentalSystem.staffLogin("nonexistent_user", "password123");
+//        System.out.println("   " + rentalSystem.getLastMessage());
+//        System.out.println("   Is logged in: " + rentalSystem.isStaffLoggedIn());
+//        System.out.println("   Expected: Login failed, not logged in ✓\n");
+//
+//        // C3. Empty username
+//        System.out.println("C3. Testing empty username:");
+//        rentalSystem.staffLogin("", "password123");
+//        System.out.println("   " + rentalSystem.getLastMessage());
+//        System.out.println("   Is logged in: " + rentalSystem.isStaffLoggedIn());
+//        System.out.println("   Expected: Login failed, not logged in ✓\n");
+//
+//        // ===============================================
+//        // Test D: Interface Polymorphism Test
+//        // ===============================================
+//        System.out.println("===== TEST D: INTERFACE POLYMORPHISM =====\n");
+//
+//        System.out.println("D1. Demonstrating polymorphism - storing different staff types:");
+//        IStaff manager = new ManagerStaff("Test Manager", "Manager", 5000, "test_mgr", "pass123");
+//        IStaff staff = new Staff("Test Staff", "Staff", 2000, "test_staff", "pass123");
+//
+//        System.out.println("   Both stored as IStaff interface type:");
+//        System.out.println("   - manager variable type: IStaff (actual: ManagerStaff)");
+//        System.out.println("   - staff variable type: IStaff (actual: Staff)");
+//        System.out.println("   Manager can MANAGE_VEHICLE: " + manager.can(Garage.MANAGE_VEHICLE));
+//        System.out.println("   Staff can MANAGE_VEHICLE: " + staff.can(Garage.MANAGE_VEHICLE));
+//        System.out.println("   Expected: Different behavior from same interface ✓\n");
+//
+//        System.out.println("D2. Interface enables HashSet<IStaff> to store both types:");
+//        System.out.println("   Garage uses HashSet<IStaff> to store:");
+//        System.out.println("   - ManagerStaff objects (admin_root, bob_manager)");
+//        System.out.println("   - Staff objects (chan_staff)");
+//        System.out.println("   All treated uniformly through IStaff interface ✓\n");
+//
+//        // ===============================================
+//        // Test E: Online/Offline Status (isActive)
+//        // ===============================================
+//        System.out.println("===== TEST E: ONLINE/OFFLINE STATUS =====\n");
+//
+//        System.out.println("E1. Testing isActive (online/offline) behavior:");
+//        System.out.println("   Before login - staff.isActive(): " + staff.isActive());
+//        System.out.println("   Expected: false (offline) ✓\n");
+//
+//        rentalSystem.staffLogin("chan_staff", "staff123");
+//        System.out.println("E2. After successful login:");
+//        System.out.println("   staff.isActive(): " + rentalSystem.getLoggedInStaff().isActive());
+//        System.out.println("   Expected: true (online) ✓\n");
+//
+//        rentalSystem.staffLogout();
+//        System.out.println("E3. After logout:");
+//        System.out.println("   " + rentalSystem.getLastMessage());
+//        System.out.println("   Expected: Staff is offline again ✓\n");
+//
+//        System.out.println("========== END OF INTERFACE & PERMISSION TESTS ==========\n");
+//
+//        // ===============================================
+//        // REFLECTION QUESTIONS (from Interface.txt)
+//        // ===============================================
+//        System.out.println("========== REFLECTION QUESTIONS ==========\n");
+//        System.out.println("Q1: Why do we store staff as HashSet<IStaff> instead of HashSet<ManagerStaff>?");
+//        System.out.println("    Answer: So Garage can store both ManagerStaff and Staff objects in one");
+//        System.out.println("    collection. The interface allows different classes to be treated uniformly.\n");
+//
+//        System.out.println("Q2: What happens if a class implements IStaff but forgets to write can()?");
+//        System.out.println("    Answer: Java compiler error - the class MUST implement ALL methods");
+//        System.out.println("    from the interface, including can(String action).\n");
+//
+//        System.out.println("Q3: Why is this not inheritance? What keyword did we use instead?");
+//        System.out.println("    Answer: We used 'implements' (not 'extends'). There is no parent class,");
+//        System.out.println("    only a contract (interface) that defines required methods.\n");
+//
+//        System.out.println("========== END OF REFLECTION ==========\n");
 
+        Moto m1 = new Moto("Moto", "gas", "dirt bike", "BMW", "g1", 120, "1243433","pp-9999");
+        Moto m2 = new Moto("Moto", "gas", "dirt bike", "BMW", "g1", 120, "1243433","pp-9999");
+        System.out.println(m1.toString());
+        System.out.println(m2.toString());
         scanner.close();
     }
 

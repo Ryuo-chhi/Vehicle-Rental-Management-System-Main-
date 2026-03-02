@@ -392,14 +392,15 @@ public class Garage {
             { "Car",  "hybrid",   "Hatchback","Honda", "Insight",  "350", "VL-04-GH-3456", "PP-1003" },
             { "Car",  "gasoline", "Coupe",    "BMW",   "M4",       "600", "VL-05-IJ-7890", "PP-1004" },
             { "Moto", "gasoline", "Sport",    "Honda", "CBR600RR", "75",  "MOTO-LIC-2026", "ABC-1234" },
+            { "Moto", "gasoline", "Sport",    "Honda", "CBR600RR", "75",  "MOTO-LIC-2026", "ABC-1234" },
         };
 
         for (String[] v : vehicles) {
             String type   = v[0];
             double price  = Double.parseDouble(v[5]);
             IVehicle vehicle = switch (type) {
-                case "Moto" -> new Moto(v[1], v[2], v[3], v[4], price, v[6], v[7]);
-                default     -> new Car( v[1], v[2], v[3], v[4], price, v[6], v[7]);
+                case "Moto" -> new Moto(v[0],v[1], v[2], v[3], v[4], price, v[6], v[7]);
+                default     -> new Car( v[0],v[1], v[2], v[3], v[4], price, v[6], v[7]);
             };
             garage.add(vehicle);
             vehicleCount++;
@@ -470,17 +471,17 @@ public class Garage {
         String vehicleLicence = getRequiredInput(scanner, "car licence (e.g. VL-01-AB-1234)");
         String licencePlate = getRequiredInput(scanner, "licence plate (e.g. PP-1000)");
 
-        IVehicle newCar = new Car(powerSource, vehicleClass, brand, model, price, vehicleLicence, licencePlate);
+        IVehicle newCar = new Car("Car",powerSource, vehicleClass, brand, model, price, vehicleLicence, licencePlate);
 
         garage.add(newCar);
-        System.out.println("Add car successfully. Total cars: " + Car.getCountCarId());
+        System.out.println("Add car successfully. Total cars: " + Car.getCountCar());
         vehicleCount++;
         System.out.println("vehicleCount: " + vehicleCount);
     }
 
     public void addMoto(Scanner scanner) {
         String powerSource = getRequiredInput(scanner, "power source (gasoline/diesel/electric/hybrid)");
-        String vehicleClass = getRequiredInput(scanner, "moto class (Sport/Cruiser/Touring)");
+        String vehicleClass = getRequiredInput(scanner, "Moto class (Sport/Cruiser/Touring)");
         String brand = getRequiredInput(scanner, "brand");
         String model = getRequiredInput(scanner, "model");
 
@@ -488,13 +489,13 @@ public class Garage {
         double price = scanner.nextDouble();
         scanner.nextLine();
 
-        String vehicleLicence = getRequiredInput(scanner, "moto licence (e.g. VL-01-AB-1234)");
+        String vehicleLicence = getRequiredInput(scanner, "Moto licence (e.g. VL-01-AB-1234)");
         String licencePlate = getRequiredInput(scanner, "licence plate (e.g. PP-1000)");
 
-        IVehicle newMoto = new Moto(powerSource, vehicleClass, brand, model, price, vehicleLicence, licencePlate);
+        IVehicle newMoto = new Moto("Moto",powerSource, vehicleClass, brand, model, price, vehicleLicence, licencePlate);
 
         garage.add(newMoto);
-        System.out.println("Add moto successfully. Total motos: " + Moto.getCountMotoId());
+        System.out.println("Add moto successfully. Total motos: " + Moto.getCountMoto());
         vehicleCount++;
         System.out.println("vehicleCount: " + vehicleCount);
     }
