@@ -1,13 +1,15 @@
+package model;
+
 public interface IVehicle {
 
     // Getter Methods
     /** Unique sequential integer ID across all vehicles: 1, 2, 3, … */
     public int getVehicleId();
 
-    /** Type-based code, e.g. "Car-1", "Moto-2" */
+    /** Type-based code, e.g. "Model.Car-1", "Model.Moto-2" */
     public String getVehicleCode();
 
-    /** Type of vehicle: "Car" or "Moto" */
+    /** Type of vehicle: "Model.Car" or "Model.Moto" */
     public String getVehicleType();
 
     public String getPowerSource();

@@ -1,3 +1,5 @@
+package model;
+
 public class Payment {
     private int paymentId;
     private String paymentMethod; // e.g., credit card, cash, online transfer, etc.

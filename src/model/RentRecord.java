@@ -1,3 +1,5 @@
+package model;
+
 /**
  * RentRecord — Immutable snapshot of a completed rental.
  *

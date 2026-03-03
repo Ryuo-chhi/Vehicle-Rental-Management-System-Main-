@@ -1,3 +1,5 @@
+package model;
+
 public class Rent {
     private int rentId;
     private int rentDays;

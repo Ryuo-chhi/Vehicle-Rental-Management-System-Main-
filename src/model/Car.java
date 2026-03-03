@@ -1,4 +1,4 @@
-
+package model;
 
 public class Car extends Vehicle {
     private static int carID = 1;

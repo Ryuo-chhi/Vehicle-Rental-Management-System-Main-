@@ -1,3 +1,8 @@
+package controller;
+
+import model.*;
+import user.*;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -57,7 +62,7 @@ public class Garage {
         this.rentalHistory = new ArrayList<>();
 
         loggedInStaff = null;
-        lastMessage = "Garage created successfully!";
+        lastMessage = "Controller.Garage created successfully!";
 
     }
 
@@ -70,12 +75,12 @@ public class Garage {
     // SETTERS
     private void setLastMessage(String msg) { lastMessage = msg; }
 
-    // Staff Management
+    // user.Staff Management
 
     public void generateStaffToSystem() {
         IStaff s1 = new ManagerStaff("Admin", "Manager", 0, "admin_root", "root123");
         IStaff s2 = new ManagerStaff("Bob", "Manager", 3000, "bob_manager", "manager123");
-        IStaff s3 = new RegularStaff("Chan", "Staff", 1500, "chan_staff", "staff123");
+        IStaff s3 = new RegularStaff("Chan", "user.Staff", 1500, "chan_staff", "staff123");
         staffs.add(s1);
         staffs.add(s2);
         staffs.add(s3);
@@ -93,16 +98,16 @@ public class Garage {
             return;
         }
 
-        System.out.println("Staff Management:");
+        System.out.println("user.Staff Management:");
         boolean quit = false;
         int choice;
         do {
             System.out.println("""
                     0. Back to Main Menu
-                    1. Add Staff
+                    1. Add user.Staff
                     2. Show Staffs
-                    3. Update Staff
-                    4. Remove Staff""");
+                    3. Update user.Staff
+                    4. Remove user.Staff""");
 
             System.out.print("Enter choice: ");
             choice = scanner.nextInt();
@@ -188,14 +193,14 @@ public class Garage {
         System.out.print("Enter staff name: ");
         String name = scanner.nextLine().trim();
         if (name.isEmpty()) {
-            System.out.println("Staff name cannot be empty.");
+            System.out.println("user.Staff name cannot be empty.");
             return;
         }
 
         System.out.print("Enter staff role: ");
         String role = scanner.nextLine().trim();
         if (role.isEmpty()) {
-            System.out.println("Staff role cannot be empty.");
+            System.out.println("user.Staff role cannot be empty.");
             return;
         }
 
@@ -237,7 +242,7 @@ public class Garage {
         };
 
         if (newStaff == null) {
-            System.out.println("Invalid role! Staff will not be created.");
+            System.out.println("Invalid role! user.Staff will not be created.");
             return;
         } else if (staffs.add(newStaff)) {
             staffCount++;
@@ -271,7 +276,7 @@ public class Garage {
                 do {
                     System.out.println("""
                             Update staff:
-                            0. Back to Staff Management
+                            0. Back to user.Staff Management
                             1. Name
                             2. Role
                             3. Salary
@@ -290,7 +295,7 @@ public class Garage {
                                 System.out.println("Name cannot be empty. No change made.");
                             } else {
                                 staff.setName(newName);
-                                System.out.println("Staff name updated to " + newName + ".");
+                                System.out.println("user.Staff name updated to " + newName + ".");
                             }
                         }
                         case 2 -> {
@@ -299,27 +304,27 @@ public class Garage {
                             String currentRole = staff.getRole();
                             if (newRole.equalsIgnoreCase(currentRole)) {
                                 System.out.println("Role is already set to " + currentRole + ". No change made.");
-                            } else if (currentRole.equalsIgnoreCase("Manager") && newRole.equalsIgnoreCase("Staff")) {
+                            } else if (currentRole.equalsIgnoreCase("Manager") && newRole.equalsIgnoreCase("user.Staff")) {
                                 System.out.print("Are you sure you want to demote this staff? (yes/no): ");
                                 String confirm = scanner.nextLine().trim();
                                 if (confirm.equalsIgnoreCase("yes")) {
                                     staff.setRole(newRole);
-                                    System.out.println("Staff demoted to " + newRole + ".");
+                                    System.out.println("user.Staff demoted to " + newRole + ".");
                                 } else {
                                     System.out.println("Operation cancelled.");
                                 }
-                            } else if (currentRole.equalsIgnoreCase("Staff") && newRole.equalsIgnoreCase("Manager")) {
+                            } else if (currentRole.equalsIgnoreCase("user.Staff") && newRole.equalsIgnoreCase("Manager")) {
                                 System.out.print("Are you sure you want to promote this staff? (yes/no): ");
                                 String confirm = scanner.nextLine().trim();
                                 if (confirm.equalsIgnoreCase("yes")) {
                                     staff.setRole(newRole);
-                                    System.out.println("Staff promoted to " + newRole + ".");
+                                    System.out.println("user.Staff promoted to " + newRole + ".");
                                 } else {
                                     System.out.println("Operation cancelled.");
                                 }
                             } else {
                                 staff.setRole(newRole);
-                                System.out.println("Staff role changed to " + newRole + ".");
+                                System.out.println("user.Staff role changed to " + newRole + ".");
                             }
                         }
                         case 3 -> {
@@ -328,7 +333,7 @@ public class Garage {
                             scanner.nextLine();
                             if (newSalary > 0) {
                                 staff.setSalary(newSalary);
-                                System.out.println("Staff salary updated to " + newSalary + ".");
+                                System.out.println("user.Staff salary updated to " + newSalary + ".");
                             } else {
                                 System.out.println("Salary must be greater than 0. No change made.");
                             }
@@ -339,7 +344,7 @@ public class Garage {
                             String confirm = scanner.nextLine().trim();
                             if (confirm.equalsIgnoreCase("yes")) {
                                 staff.setStatus(!staff.getStatus());
-                                System.out.println("Staff status flipped. Now: " + (staff.getStatus() ? "Employed" : "Resigned"));
+                                System.out.println("user.Staff status flipped. Now: " + (staff.getStatus() ? "Employed" : "Resigned"));
                             } else {
                                 System.out.println("Operation cancelled.");
                             }
@@ -352,7 +357,7 @@ public class Garage {
                 return;
             }
         }
-        System.out.println("Staff not found!");
+        System.out.println("user.Staff not found!");
     }
 
     public void removeStaff(Scanner scanner) {
@@ -374,13 +379,13 @@ public class Garage {
             if (confirm.equalsIgnoreCase("yes")) {
                 staffs.remove(staffToRemove);
                 staffCount--;
-                System.out.println("Staff with ID " + id + " removed successfully.");
+                System.out.println("user.Staff with ID " + id + " removed successfully.");
                 System.out.println("staffCount: " + staffCount);
             } else {
                 System.out.println("Operation cancelled.");
             }
         } else {
-            System.out.println("Staff with ID " + id + " not found.");
+            System.out.println("user.Staff with ID " + id + " not found.");
         }
     }
 
@@ -559,7 +564,7 @@ public class Garage {
             return;
         }
         if (vehicleCount == 0) {
-            System.out.println("Garage is empty!");
+            System.out.println("Controller.Garage is empty!");
             return;
         }
         for(Vehicle car : garage) {
@@ -604,7 +609,7 @@ public class Garage {
             return;
         }
         if (vehicleCount == 0) {
-            System.out.println("Garage is Empty!");
+            System.out.println("Controller.Garage is Empty!");
             return;
         }
         Vehicle item = findVehicle(scanner);

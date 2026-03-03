@@ -1,4 +1,4 @@
-
+package model;
 
 public class Moto extends Vehicle {
     private static int motoID= 1;

@@ -1,3 +1,5 @@
+package controller;
+
 import java.util.Scanner;
 
 class Main {
@@ -5,7 +7,7 @@ class Main {
         Scanner scanner = new Scanner(System.in);
         Garage myGarage = new Garage(10);
 
-        System.out.println("\nWelcome to the Vehicle Rental Management System!\n");
+        System.out.println("\nWelcome to the Model.Vehicle Rental Management System!\n");
 
         System.out.println("Please login to continue...");
         System.out.print("Enter username: ");
@@ -32,7 +34,7 @@ class Main {
                       0.  Quit & Logout
                     ----------------------------------------
                     -- OPERATIONS --
-                      1.  Vehicle Management
+                      1.  Model.Vehicle Management
                       2.  Customer Management
                       3.  Rent Management
                       4.  Payment Management

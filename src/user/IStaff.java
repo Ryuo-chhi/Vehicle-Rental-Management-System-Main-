@@ -1,3 +1,4 @@
+package user;
 
 public interface IStaff {
 
