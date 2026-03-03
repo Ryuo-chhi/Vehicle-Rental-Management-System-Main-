@@ -561,12 +561,7 @@ public class Garage {
             return;
         }
 
-        System.out.print("Enter vehicle ID (number): ");
-        int idInput = scanner.nextInt();
-        scanner.nextLine();
-        String codeInput = getRequiredInput(scanner, "vehicle code (e.g. Car-1, Moto-2)");
-
-        Vehicle target = findVehicleByIdAndCode(idInput, codeInput);
+        Vehicle target = findVehicle(scanner);
         if (target == null) {
             System.out.println("Vehicle not found! ID and code must both match the same vehicle.");
             return;
@@ -595,12 +590,7 @@ public class Garage {
             System.out.println("Garage is Empty!");
             return;
         }
-        System.out.print("Enter vehicle ID (number): ");
-        int idInput = scanner.nextInt();
-        scanner.nextLine();
-        String codeInput = getRequiredInput(scanner, "vehicle code (e.g. Car-1, Moto-2)");
-
-        Vehicle item = findVehicleByIdAndCode(idInput, codeInput);
+        Vehicle item = findVehicle(scanner);
         if (item == null) {
             System.out.println("Vehicle not found! ID and code must both match the same vehicle.");
             return;
@@ -679,16 +669,6 @@ public class Garage {
     }
 
     // Matches a vehicle only when BOTH numeric id AND code point to the same entry
-    private Vehicle findVehicleByIdAndCode(int id, String code) {
-        for (Vehicle v : garage) {
-            if (v != null && v.getVehicleId() == id
-                    && v.getVehicleCode().equals(code.trim())) {
-                return v;
-            }
-        }
-        return null;
-    }
-
     //helper function
     public String getRequiredInput(Scanner scanner, String fieldName) {
         String input = "";
@@ -702,9 +682,15 @@ public class Garage {
         return input;
     }
 
-    public Vehicle findVehicleByID(Scanner scanner) {
-        String code = getRequiredInput(scanner, "vehicle code (e.g. Car-1, Moto-2)");
-        return getVehicleByCode(code);
+    public Vehicle findVehicle(Scanner scanner) {
+        System.out.print("Enter Vehicle ID (number): ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+        String code = getRequiredInput(scanner, "Enter Vehicle Code (e.g. Car-1, Moto-2)");
+        Vehicle byId = getVehicleByID(id);
+        Vehicle byCode = getVehicleByCode(code);
+        if (byId != null && byId == byCode) return byId;
+        return null;
     }
 
     /** Look up a vehicle by its global numeric ID (1, 2, 3, …). */
@@ -994,7 +980,7 @@ public class Garage {
             }
         }
 
-        Vehicle selectedCar = findVehicleByID(scanner);
+        Vehicle selectedCar = findVehicle(scanner);
         Customer selectedCustomer = findCustomerByID(scanner);
 
         if (selectedCar == null) {
@@ -1122,7 +1108,7 @@ public class Garage {
                             rent.setEndDate(newEndDate);
                         }
                         case 2 -> {
-                            Vehicle newCar = findVehicleByID(scanner);
+                            Vehicle newCar = findVehicle(scanner);
                             if (newCar == null) {
                                 System.out.println("Vehicle not found!");
                             } else if (!newCar.isAvailable()) {
@@ -1227,10 +1213,10 @@ public class Garage {
                     System.out.println("Error: No car associated with this rent!");
                     return;
                 }
-                // original vehicle from garage
-                Vehicle car = getVehicleByID(rent.getVehicle().getVehicleId());
-                if (!car.equals(rent.getVehicle())) {
-                    System.out.println("Vehicle mismatch");
+                // prompt staff to verify vehicle by both ID and code
+                Vehicle vehicle = findVehicle(scanner);
+                if (vehicle == null || vehicle != rent.getVehicle()) {
+                    System.out.println("Vehicle mismatch! ID and code must match the vehicle on this rent.");
                     return;
                 }
 

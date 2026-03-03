@@ -1,4 +1,4 @@
-import java.util.Objects;
+
 
 public class Moto extends Vehicle {
     private static int countMoto= 1;    // per-type counter for Car code
