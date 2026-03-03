@@ -268,10 +268,10 @@ public class test {
 //
 //        System.out.println("========== END OF REFLECTION ==========\n");
 
-        Moto m1 = new Moto("Moto", "gas", "dirt bike", "BMW", "g1", 120, "1243433","pp-9999");
-        Moto m2 = new Moto("Moto", "gas", "dirt bike", "BMW", "g1", 120, "1243433","pp-9999");
-        System.out.println(m1.toString());
-        System.out.println(m2.toString());
+        // Moto m1 = new Moto("Moto", "gas", "dirt bike", "BMW", "g1", 120, "1243433","pp-9999");
+        // Moto m2 = new Moto("Moto", "gas", "dirt bike", "BMW", "g1", 120, "1243433","pp-9999");
+        // System.out.println(m1.toString());
+        // System.out.println(m2.toString());
         scanner.close();
     }
 

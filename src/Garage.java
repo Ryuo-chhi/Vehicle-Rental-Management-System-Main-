@@ -18,7 +18,9 @@ public class Garage {
     public static final String VIEW_REPORTS = "VIEW_REPORTS";
 
     private ArrayList<Vehicle> garage;
-    private int vehicleCount; // current number of vehicles
+    private static int vehicleCount; // current number of vehicles
+    private int carCount;
+    private int motoCount;
 
     private HashSet<Customer> customers;
     private int customerCount;
@@ -63,6 +65,7 @@ public class Garage {
     public String getLastMessage() { return lastMessage; }
     public boolean isStaffLoggedIn() { return loggedInStaff != null; }
     public IStaff getLoggedInStaff() { return loggedInStaff; }
+    public static int getVehicleCount() { return vehicleCount; }
     
     // SETTERS
     private void setLastMessage(String msg) { lastMessage = msg; }
@@ -399,8 +402,8 @@ public class Garage {
             String type   = v[0];
             double price  = Double.parseDouble(v[5]);
             Vehicle vehicle = switch (type) {
-                case "Moto" -> new Moto(v[0],v[1], v[2], v[3], v[4], price, v[6], v[7]);
-                default     -> new Car( v[0],v[1], v[2], v[3], v[4], price, v[6], v[7]);
+                case "Moto" -> new Moto(new Vehicle(v[0], v[1], v[2], v[3], v[4], price, v[6], v[7]), true);
+                default     -> new Car( new Vehicle(v[0], v[1], v[2], v[3], v[4], price, v[6], v[7]), 4);
             };
             garage.add((Vehicle) vehicle);
             vehicleCount++;
@@ -471,10 +474,17 @@ public class Garage {
         String vehicleLicence = getRequiredInput(scanner, "car licence (e.g. VL-01-AB-1234)");
         String licencePlate = getRequiredInput(scanner, "licence plate (e.g. PP-1000)");
 
-        Car newCar = new Car("Car",powerSource, vehicleClass, brand, model, price, vehicleLicence, licencePlate);
+        Vehicle vehicle = new Vehicle(vehicleLicence, powerSource, vehicleClass, brand, model, price, vehicleLicence, licencePlate);
+        System.out.print("Enter number of doors: ");
+        int doorOfCar = scanner.nextInt();
+        scanner.nextLine(); 
+
+        Car newCar = new Car(vehicle, doorOfCar);
 
         garage.add(newCar);
-        System.out.println("Add car successfully. Total cars: " + Car.getCountCar());
+        carCount++;
+        System.out.println("Add car successfully. Total cars: " + this.carCount);
+        
         vehicleCount++;
         System.out.println("vehicleCount: " + vehicleCount);
     }
@@ -492,10 +502,17 @@ public class Garage {
         String vehicleLicence = getRequiredInput(scanner, "Moto licence (e.g. VL-01-AB-1234)");
         String licencePlate = getRequiredInput(scanner, "licence plate (e.g. PP-1000)");
 
-        Moto newMoto = new Moto("Moto",powerSource, vehicleClass, brand, model, price, vehicleLicence, licencePlate);
+        System.out.print("Enter helmet included (true/false): ");
+        boolean helmetIncluded = scanner.nextBoolean();
+        scanner.nextLine(); // consume newline
+
+        Moto newMoto = new Moto(new Vehicle("Moto", powerSource, vehicleClass, brand, model, price, vehicleLicence, licencePlate), helmetIncluded);
+        
 
         garage.add(newMoto);
-        System.out.println("Add moto successfully. Total motos: " + Moto.getCountMoto());
+        motoCount++;
+        System.out.println("Add moto successfully. Total motos: " + this.motoCount);
+        
         vehicleCount++;
         System.out.println("vehicleCount: " + vehicleCount);
     }
@@ -725,7 +742,7 @@ public class Garage {
             { "Bona Johnson", "D2345678", "0122345680", "IDCard.jpg", "DriverLicense.jpg" },
             { "Champa Brown", "D3456789", "0172345681", "IDCard.jpg", "DriverLicense.jpg" },
             { "Diana Prince", "D4567890", "0882345682", "IDCard.jpg", "DriverLicense.jpg" },
-            { "Eno Gonzalez", "D5678901", "0972345683", "IDCard.jpg", "DriverLicense.jpg" }
+            { "Eno Gonzalez", "D5678901", "0972345683", "IDCard.jpg", "" }
         };
     
         for (String[] cust : custs) {
@@ -967,7 +984,6 @@ public class Garage {
     }
 
     public void addRent(Scanner scanner) {
-
         int rentDays;
         while (true) {
             System.out.print("Enter number of days(int): ");
@@ -980,18 +996,24 @@ public class Garage {
             }
         }
 
-        Vehicle selectedCar = findVehicle(scanner);
+        Vehicle selectedvVehicle = findVehicle(scanner);
         Customer selectedCustomer = findCustomerByID(scanner);
 
-        if (selectedCar == null) {
+        if (selectedvVehicle == null) {
             System.out.println("Vehicle not found!");
             return;
         }
+
+        if(!selectedvVehicle.canBeRented(selectedCustomer)) {
+            System.out.println("Vehicle cannot be rented to this customer! Please check the requirements and try again.");
+            return;
+        }
+
         if (selectedCustomer == null) {
             System.out.println("Customer not found!");
             return;
         }
-        if (!selectedCar.isAvailable()) {
+        if (!selectedvVehicle.isAvailable()) {
             System.out.println("Vehicle is not available for rent!");
             return;
         }
@@ -1008,8 +1030,8 @@ public class Garage {
             endDate = getRequiredInput(scanner, "end date");
         }
 
-        double vehiclePrice = selectedCar.getRentalRatePerDay(); // snapshot car price
-        Rent newRent = new Rent(selectedCar, selectedCustomer, rentDays, startDate, endDate); // create rent without payment first
+        double vehiclePrice = selectedvVehicle.getRentalRatePerDay(); // snapshot vehicle price
+        Rent newRent = new Rent(selectedvVehicle, selectedCustomer, rentDays, startDate, endDate); // create rent without payment first
 
         System.out.print("Enter deposit amount: ");
         double deposit = scanner.nextDouble();
@@ -1018,7 +1040,7 @@ public class Garage {
 
         newRent.setPayment(payment); // add payment to rent
 
-        selectedCar.setAvailable(false); // mark car as unavailable
+        selectedvVehicle.setAvailable(false); // mark vehicle as unavailable
 
         // add rent to list
         rents.add(newRent);

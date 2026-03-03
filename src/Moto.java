@@ -1,13 +1,13 @@
 
 
 public class Moto extends Vehicle {
-    private static int countMoto= 0;    // per-type counter for Car code
-    private static int motoID= 1;    // per-type counter for Car code
+    private static int motoID= 1;
 
+    private boolean helmetIncluded;
 
-    public Moto(String vehicleType, String powerSource, String vehicleClass, String vehicleBrand, String vehicleModel, double rentalRatePerDay, String vehicleLicence, String licencePlate) {
-        super(vehicleType, powerSource, vehicleClass, vehicleBrand, vehicleModel, rentalRatePerDay, vehicleLicence, licencePlate);
-        countMoto++;
+    public Moto(Vehicle vehicle, boolean helmetIncluded) {
+        super(vehicle.getVehicleType(), vehicle.getPowerSource(), vehicle.getVehicleClass(), vehicle.getVehicleBrand(), vehicle.getVehicleModel(), vehicle.getRentalRatePerDay(), vehicle.getVehicleLicence(), vehicle.getLicencePlate());
+        this.helmetIncluded = helmetIncluded;
         motoID++;
     }
 
@@ -28,9 +28,6 @@ public class Moto extends Vehicle {
         return true;
     }
 
-    public static int getCountMoto() {
-        return countMoto;
-    }
     public static int getMotoID() {
         return motoID;
     }

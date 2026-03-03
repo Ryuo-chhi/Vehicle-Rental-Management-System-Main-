@@ -6,14 +6,14 @@ public class Rent {
     private String returnDate;
     private boolean status;
     
-    private IVehicle vehicle;
+    private Vehicle vehicle;
     private Customer customer;
     private Payment payment;
 
     private static int countRentId = 0;
 
     // create
-    public Rent(IVehicle vehicle, Customer customer, int rentDays, String startDate, String endDate) {
+    public Rent(Vehicle vehicle, Customer customer, int rentDays, String startDate, String endDate) {
         this.rentId = ++countRentId;
         this.setVehicle(vehicle);
         this.setCustomer(customer);
@@ -56,7 +56,7 @@ public class Rent {
         return returnDate;
     }
 
-    public IVehicle getVehicle() {
+    public Vehicle getVehicle() {
         return vehicle;
     }
 
@@ -85,7 +85,7 @@ public class Rent {
         }
     }
 
-    public void setVehicle(IVehicle vehicle) {
+    public void setVehicle(Vehicle vehicle) {
         if (vehicle != null) {
             this.vehicle = vehicle;
         } else {

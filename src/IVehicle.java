@@ -16,9 +16,11 @@ public interface IVehicle {
 
     public String getVehicleBrand();
 
-    public String getVehicleModel() ;
+    public String getVehicleModel();
 
-    public double getRentalRatePerDay() ;
+    public double getRentalRatePerDay();
+
+    public String getVehicleLicence();
 
     public String getLicencePlate();
 

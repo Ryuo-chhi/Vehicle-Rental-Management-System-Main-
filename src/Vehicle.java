@@ -13,10 +13,9 @@ public class Vehicle implements IVehicle{
     private String licencePlate;
     private boolean isAvailable;
 
-    static int globalVehicleIdCounter = 1; // shared global counter across all vehicle types
 
     public Vehicle(String vehicleType,String powerSource, String vehicleClass, String vehicleBrand, String vehicleModel, double rentalRatePerDay, String vehicleLicence, String licencePlate) {
-        this.vehicleId = Vehicle.globalVehicleIdCounter++;
+        this.vehicleId = Garage.getVehicleCount() + 1; // assign current count + 1 as ID
         this.vehicleCode = vehicleType.equals("Moto") ?  vehicleType + "-" + Moto.getMotoID() : vehicleType + "-" + Car.getCarID();
         this.vehicleType = vehicleType;
         this.setPowerSource(powerSource);
@@ -67,6 +66,10 @@ public class Vehicle implements IVehicle{
         return rentalRatePerDay;
     }
 
+    public String getVehicleLicence() {
+        return vehicleLicence;
+    }
+
     public String getLicencePlate() {
         return licencePlate;
     }
@@ -75,9 +78,6 @@ public class Vehicle implements IVehicle{
         return isAvailable;
     }
 
-    public static int getGlobalVehicleIdCounter() {
-        return globalVehicleIdCounter;
-    }
     //setter
 
     public void setPowerSource(String powerSource) {
