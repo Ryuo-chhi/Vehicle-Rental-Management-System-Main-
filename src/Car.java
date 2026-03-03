@@ -1,11 +1,13 @@
 import java.util.Objects;
 
 public class Car extends Vehicle {
-    private static int countCar = 1;    // per-type counter for Car code
+    private static int countCar = 0;    // per-type counter for Car code
+    private static int carID = 1;
 
     public Car(String vehicleType, String powerSource, String vehicleClass, String vehicleBrand, String vehicleModel, double rentalRatePerDay, String vehicleLicence, String licencePlate) {
         super(vehicleType, powerSource, vehicleClass, vehicleBrand, vehicleModel, rentalRatePerDay, vehicleLicence, licencePlate);
         countCar++;
+        carID++;
     }
 
     @Override
@@ -24,5 +26,6 @@ public class Car extends Vehicle {
     public static int getCountCar() {
         return countCar;
     }
+    public static int getCarID() {return carID;}
 
 }
