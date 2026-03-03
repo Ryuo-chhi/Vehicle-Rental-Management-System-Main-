@@ -3,27 +3,29 @@ package model;
 public class Car extends Vehicle {
     private static int carID = 1;
 
-    private int doorOfCar;
+    private int numberOfSeats;
 
 
-    public Car(Vehicle vehicle, int doorOfCar) {
+    public Car(Vehicle vehicle, int numberOfSeats) {
         super(vehicle.getVehicleType(), vehicle.getPowerSource(), vehicle.getVehicleClass(), vehicle.getVehicleBrand(), vehicle.getVehicleModel(), vehicle.getRentalRatePerDay(), vehicle.getVehicleLicence(), vehicle.getLicencePlate());
-        this.setDoorOfCar(doorOfCar);
+        this.setNumberOfSeats(numberOfSeats);
         carID++;
 
     }
 
-    public int getDoorOfCar() {
-        return doorOfCar;
+    public static int getCarID() {return carID;}
+
+    public int getNumberOfSeats() {
+        return numberOfSeats;
     }
 
-    public void setDoorOfCar(int doorOfCar) {
-        if(doorOfCar <= 0){
-            System.out.println("Number of doors must be greater than 0. Set to default value 4.");
-            this.doorOfCar = 4; // default value
+    public void setNumberOfSeats(int numberOfSeats) {
+        if(numberOfSeats <= 0){
+            System.out.println("Number of seats must be greater than 0. Set to default value 4.");
+            this.numberOfSeats = 4; // default value
             return;
         }
-        this.doorOfCar = doorOfCar;
+        this.numberOfSeats = numberOfSeats;
     }
 
     @Override
@@ -39,8 +41,6 @@ public class Car extends Vehicle {
         return true;
     }
 
-
-
-    public static int getCarID() {return carID;}
+    
 
 }

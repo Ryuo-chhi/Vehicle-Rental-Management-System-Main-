@@ -1,7 +1,6 @@
 package model;
 
 import controller.Garage;
-
 import java.util.Objects;
 
 public class Vehicle implements IVehicle {
