@@ -31,10 +31,6 @@ public class Vehicle implements IVehicle {
         this.setLicencePlate(licencePlate);
     }
 
-    @Override
-    public boolean canBeRented(Customer customer) {
-        return false;
-    }
     
     //getter
     public int getVehicleId() {

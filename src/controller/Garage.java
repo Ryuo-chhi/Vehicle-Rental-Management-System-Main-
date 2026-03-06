@@ -692,6 +692,41 @@ public class Garage {
 
     // Matches a vehicle only when BOTH numeric id AND code point to the same entry
     //helper function
+
+    private boolean canBeRented(Customer customer, Vehicle vehicle) {
+        String[] parts = vehicle.getVehicleCode().split("-");
+        String vehicleType = parts[0];
+
+        switch (vehicleType) {
+            case "Car":
+                if (!vehicle.isAvailable()) {
+                    System.out.println("Vehicle Not Available");
+                    return false;
+                }
+                if(customer.getDriverLicensePhoto() == null || customer.getDriverLicensePhoto().isEmpty()) {
+                    System.out.println("Customer does not have Driver Licence");
+                    System.out.println("This " + vehicleType + " cannot be rented to this customer! Please check the requirements and try again.");
+                    return false;
+                }
+                System.out.println("Customer is valid");
+                return true;
+            case "Moto":
+                if (!vehicle.isAvailable()) {
+                    System.out.println("Vehicle Not Available");
+                    return false;
+                }
+                if (customer.getIDCardPhoto() == null || customer.getIDCardPhoto().isEmpty()) {
+                    System.out.println("Customer does not have ID Card");
+                    System.out.println("This " + vehicleType + " cannot be rented to this customer! Please check the requirements and try again.");
+                    return false;
+                }
+                System.out.println("Customer is valid");
+                return true;
+            default:
+                System.out.println("Invalid vehicle type!");
+        }
+        return false;
+    }
     public String getRequiredInput(Scanner scanner, String fieldName) {
         String input = "";
         while (input.trim().isEmpty()) {
@@ -1004,8 +1039,7 @@ public class Garage {
             return;
         }
 
-        if(!selectedvVehicle.canBeRented(selectedCustomer)) {
-            System.out.println("Vehicle cannot be rented to this customer! Please check the requirements and try again.");
+        if(!canBeRented(selectedCustomer, selectedvVehicle)) {
             return;
         }
 
@@ -1038,7 +1072,7 @@ public class Garage {
         double vehiclePrice = selectedvVehicle.getRentalRatePerDay(); // snapshot vehicle price
         Rent newRent = new Rent(selectedvVehicle, selectedCustomer, rentDays, startDate, endDate); // create rent without payment first
 
-        System.out.print("Enter deposit amount: ");
+        System.out.print("Enter deposit amount($): ");
         double deposit = scanner.nextDouble();
         scanner.nextLine();
         Payment payment = new Payment(newRent.getRentDays(), vehiclePrice, deposit); // create payment with deposit and base price

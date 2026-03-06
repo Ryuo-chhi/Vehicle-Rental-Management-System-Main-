@@ -30,18 +30,6 @@ public class Car extends Vehicle {
         this.numberOfSeats = numberOfSeats;
     }
 
-    @Override
-    public boolean canBeRented(Customer customer) {
-        if (!this.isAvailable()) {
-            System.out.println("Vehicle Not Available");
-            return false;
-        }
-        if(customer.getDriverLicensePhoto() == null || customer.getDriverLicensePhoto().isEmpty()) {
-            System.out.println("Customer does not have Driver Licence");
-            return false;
-        }
-        return true;
-    }
 
     @Override
     public boolean equals(Object o) {

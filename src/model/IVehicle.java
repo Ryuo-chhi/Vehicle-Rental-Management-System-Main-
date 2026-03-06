@@ -46,6 +46,4 @@ public interface IVehicle {
 
     public void setLicencePlate(String licencePlate);
 
-    //other method
-    boolean canBeRented(Customer customer);
 }
