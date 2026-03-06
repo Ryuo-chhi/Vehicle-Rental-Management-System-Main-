@@ -1,5 +1,7 @@
 package model;
 
+import java.util.Objects;
+
 public class Car extends Vehicle {
     private static int carID = 1;
 
@@ -41,6 +43,19 @@ public class Car extends Vehicle {
         return true;
     }
 
-    
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Car car = (Car) o;
+        return this.getVehicleCode().equals(car.getVehicleCode()) && Objects.equals(this.getLicencePlate(), car.getLicencePlate());
 
+    }
+
+    @Override
+    public String toString() {
+        return "Car{" +
+                super.toString() + ", numberOfSeats=" + numberOfSeats +
+                '}';
+    }
 }

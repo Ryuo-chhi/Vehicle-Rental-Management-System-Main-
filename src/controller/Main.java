@@ -34,7 +34,7 @@ class Main {
                       0.  Quit & Logout
                     ----------------------------------------
                     -- OPERATIONS --
-                      1.  Model.Vehicle Management
+                      1.  Vehicle Management
                       2.  Customer Management
                       3.  Rent Management
                       4.  Payment Management

@@ -990,16 +990,7 @@ public class Garage {
 
     public void addRent(Scanner scanner) {
         int rentDays;
-        while (true) {
-            System.out.print("Enter number of days(int): ");
-            rentDays = scanner.nextInt();
-            scanner.nextLine(); 
-            if (rentDays > 0) {
-                break;
-            } else {
-                System.out.println("Rent days must be greater than 0. Please try again.");
-            }
-        }
+
 
         Vehicle selectedvVehicle = findVehicle(scanner);
         Customer selectedCustomer = findCustomerByID(scanner);
@@ -1008,21 +999,30 @@ public class Garage {
             System.out.println("Vehicle not found!");
             return;
         }
+        if (selectedCustomer == null) {
+            System.out.println("Customer not found!");
+            return;
+        }
 
         if(!selectedvVehicle.canBeRented(selectedCustomer)) {
             System.out.println("Vehicle cannot be rented to this customer! Please check the requirements and try again.");
             return;
         }
 
-        if (selectedCustomer == null) {
-            System.out.println("Customer not found!");
-            return;
-        }
         if (!selectedvVehicle.isAvailable()) {
             System.out.println("Vehicle is not available for rent!");
             return;
         }
-
+        while (true) {
+            System.out.print("Enter number of days(int): ");
+            rentDays = scanner.nextInt();
+            scanner.nextLine();
+            if (rentDays > 0) {
+                break;
+            } else {
+                System.out.println("Rent days must be greater than 0. Please try again.");
+            }
+        }
         String startDate = getRequiredInput(scanner, "start date");
         while (!isValidDateFormat(startDate)) {
             System.out.println("Invalid date format! Please enter date in dd-MM-yyyy format.");

@@ -118,15 +118,6 @@ public class Vehicle implements IVehicle {
     }
 
 
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Vehicle car = (Vehicle) o;
-        return vehicleId == car.vehicleId && Objects.equals(getLicencePlate(), car.getLicencePlate());
-    }
-
     @Override
     public int hashCode() {
         return Objects.hash(vehicleId, licencePlate);
@@ -134,7 +125,7 @@ public class Vehicle implements IVehicle {
 
     @Override
     public String toString() {
-        return "Vehicle{" +
+        return " " +
                 "vehicleId=" + vehicleId +
                 ", vehicleType='" + vehicleType + '\'' +
                 ", vehicleCode='" + vehicleCode + '\'' +
@@ -146,6 +137,6 @@ public class Vehicle implements IVehicle {
                 ", vehicleLicence='" + vehicleLicence + '\'' +
                 ", licencePlate='" + licencePlate + '\'' +
                 ", isAvailable=" + isAvailable +
-                '}';
+                ' ';
     }
 }
