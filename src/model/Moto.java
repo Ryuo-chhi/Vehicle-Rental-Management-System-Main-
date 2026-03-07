@@ -9,7 +9,22 @@ public class Moto extends Vehicle {
 
     public Moto(Vehicle vehicle, boolean helmetIncluded) {
         super(vehicle.getVehicleType(), vehicle.getPowerSource(), vehicle.getVehicleClass(), vehicle.getVehicleBrand(), vehicle.getVehicleModel(), vehicle.getRentalRatePerDay(), vehicle.getVehicleLicence(), vehicle.getLicencePlate());
-        this.helmetIncluded = helmetIncluded;
+        this.setHelmetIncluded(helmetIncluded);
+        motoID++;
+    }
+
+    public Moto(String vehicleType,
+                String powerSource,
+                String vehicleClass,
+                String vehicleBrand,
+                String vehicleModel,
+                double rentalRatePerDay,
+                String vehicleLicence,
+                String licencePlate,
+                boolean helmetIncluded) {
+        super(vehicleType, powerSource, vehicleClass, vehicleBrand,
+              vehicleModel, rentalRatePerDay, vehicleLicence, licencePlate);
+        this.setHelmetIncluded(helmetIncluded);
         motoID++;
     }
 
@@ -17,6 +32,13 @@ public class Moto extends Vehicle {
     public static int getMotoID() {
         return motoID;
     }
+
+    
+    public void setHelmetIncluded(boolean helmetIncluded) {
+        this.helmetIncluded = helmetIncluded;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

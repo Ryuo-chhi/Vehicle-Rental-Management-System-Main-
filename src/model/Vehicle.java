@@ -3,7 +3,7 @@ package model;
 import controller.Garage;
 import java.util.Objects;
 
-public class Vehicle implements IVehicle {
+public abstract class Vehicle implements IVehicle {
     private int vehicleId;        // global sequential ID: 1, 2, 3, …
     private String vehicleCode;   // type-based code: Car-1, Car-2, …
     private String vehicleType; // fixed type label for DB / display

@@ -15,6 +15,21 @@ public class Car extends Vehicle {
 
     }
 
+    public Car(String vehicleType,
+               String powerSource,
+               String vehicleClass,
+               String vehicleBrand,
+               String vehicleModel,
+               double rentalRatePerDay,
+               String vehicleLicence,
+               String licencePlate,
+               int numberOfSeats) {
+        super(vehicleType, powerSource, vehicleClass, vehicleBrand,
+              vehicleModel, rentalRatePerDay, vehicleLicence, licencePlate);
+        this.setNumberOfSeats(numberOfSeats);
+        carID++;
+    }
+
     public static int getCarID() {return carID;}
 
     public int getNumberOfSeats() {
