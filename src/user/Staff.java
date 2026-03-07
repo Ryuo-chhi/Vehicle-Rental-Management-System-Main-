@@ -2,7 +2,7 @@ package user;
 
 import java.util.Objects;
 
-public class Staff implements IStaff {
+public abstract class Staff implements IStaff {
     /* ====== Fields (Encapsulation) ====== */
     private int staffId;
     private String name;
@@ -16,11 +16,8 @@ public class Staff implements IStaff {
 
     private static int staffCount = 0;
 
-    /*====== user.Staff Permissions (default: no access — override in subclasses) ====== */
-    @Override
-    public boolean can(String action) {
-        return false;
-    }
+    /*====== user.Staff Permissions (must be defined by each role) ====== */
+    public abstract boolean can(String action);
 
     /*====== Register ====== */
     public Staff(String name, String role, double salary, String username, String password) {
