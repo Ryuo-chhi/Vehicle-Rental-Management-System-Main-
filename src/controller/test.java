@@ -1,5 +1,8 @@
 package controller;
 
+import model.Moto;
+import model.Vehicle;
+
 import java.util.Scanner;
 
 public class test {
@@ -274,6 +277,8 @@ public class test {
         // Model.Moto m2 = new Model.Moto("Model.Moto", "gas", "dirt bike", "BMW", "g1", 120, "1243433","pp-9999");
         // System.out.println(m1.toString());
         // System.out.println(m2.toString());
+        Moto m1 = new Moto(new Vehicle("Moto", "gas", "dirt bike", "BMW", "g1", 120, "1243433","pp-9999"), true);
+        System.out.println(m1.getClass().getSimpleName());
         scanner.close();
     }
 

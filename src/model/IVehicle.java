@@ -10,7 +10,7 @@ public interface IVehicle {
     public String getVehicleCode();
 
     /** Type of vehicle: "Model.Car" or "Model.Moto" */
-    public String getVehicleType();
+//    public String getVehicleType();
 
     public String getPowerSource();
 

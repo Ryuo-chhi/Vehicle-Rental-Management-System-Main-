@@ -9,7 +9,7 @@ public class Car extends Vehicle {
 
 
     public Car(Vehicle vehicle, int numberOfSeats) {
-        super(vehicle.getVehicleType(), vehicle.getPowerSource(), vehicle.getVehicleClass(), vehicle.getVehicleBrand(), vehicle.getVehicleModel(), vehicle.getRentalRatePerDay(), vehicle.getVehicleLicence(), vehicle.getLicencePlate());
+        super("Car", vehicle.getPowerSource(), vehicle.getVehicleClass(), vehicle.getVehicleBrand(), vehicle.getVehicleModel(), vehicle.getRentalRatePerDay(), vehicle.getVehicleLicence(), vehicle.getLicencePlate());
         this.setNumberOfSeats(numberOfSeats);
         carID++;
 

@@ -6,7 +6,6 @@ import java.util.Objects;
 public class Vehicle implements IVehicle {
     private int vehicleId;        // global sequential ID: 1, 2, 3, …
     private String vehicleCode;   // type-based code: Car-1, Car-2, …
-    private String vehicleType; // fixed type label for DB / display
     private String powerSource; // "gasoline", "diesel", "electric", "hybrid"
     private String vehicleClass; // "sedan", "SUV", "truck", etc.
     private String vehicleBrand;
@@ -20,7 +19,6 @@ public class Vehicle implements IVehicle {
     public Vehicle(String vehicleType,String powerSource, String vehicleClass, String vehicleBrand, String vehicleModel, double rentalRatePerDay, String vehicleLicence, String licencePlate) {
         this.vehicleId = Garage.getVehicleCount() + 1; // assign current count + 1 as ID
         this.vehicleCode = vehicleType.equals("Moto") ?  vehicleType + "-" + Moto.getMotoID() : vehicleType + "-" + Car.getCarID();
-        this.vehicleType = vehicleType;
         this.setPowerSource(powerSource);
         this.setVehicleClass(vehicleClass);
         this.setVehicleBrand(vehicleBrand);
@@ -41,9 +39,6 @@ public class Vehicle implements IVehicle {
         return vehicleCode;
     }
 
-    public String getVehicleType() {
-        return vehicleType;
-    }
 
     public String getPowerSource() {
         return powerSource;
@@ -123,7 +118,6 @@ public class Vehicle implements IVehicle {
     public String toString() {
         return " " +
                 "vehicleId=" + vehicleId +
-                ", vehicleType='" + vehicleType + '\'' +
                 ", vehicleCode='" + vehicleCode + '\'' +
                 ", powerSource='" + powerSource + '\'' +
                 ", vehicleClass='" + vehicleClass + '\'' +

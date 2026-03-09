@@ -8,7 +8,7 @@ public class Moto extends Vehicle {
     private boolean helmetIncluded;
 
     public Moto(Vehicle vehicle, boolean helmetIncluded) {
-        super(vehicle.getVehicleType(), vehicle.getPowerSource(), vehicle.getVehicleClass(), vehicle.getVehicleBrand(), vehicle.getVehicleModel(), vehicle.getRentalRatePerDay(), vehicle.getVehicleLicence(), vehicle.getLicencePlate());
+        super("Moto", vehicle.getPowerSource(), vehicle.getVehicleClass(), vehicle.getVehicleBrand(), vehicle.getVehicleModel(), vehicle.getRentalRatePerDay(), vehicle.getVehicleLicence(), vehicle.getLicencePlate());
         this.setHelmetIncluded(helmetIncluded);
         motoID++;
     }

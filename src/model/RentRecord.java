@@ -54,7 +54,7 @@ public final class RentRecord {
         this.rentId = rent.getRentId();
 
         this.vehicleId          = rent.getVehicle().getVehicleId();
-        this.vehicleType        = rent.getVehicle().getVehicleType();
+        this.vehicleType        = rent.getVehicle().getClass().getSimpleName();
         this.vehicleCode        = rent.getVehicle().getVehicleCode();
         this.vehiclePowerSource = rent.getVehicle().getPowerSource();
         this.vehicleClass       = rent.getVehicle().getVehicleClass();

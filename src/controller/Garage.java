@@ -486,8 +486,8 @@ public class Garage {
         int doorOfCar = scanner.nextInt();
         scanner.nextLine(); 
 
-        Car newCar = new Car("Car", powerSource, vehicleClass, brand, model,
-                              price, vehicleLicence, licencePlate, doorOfCar);
+        Car newCar = new Car(new Vehicle("Car", powerSource, vehicleClass, brand, model,
+                              price, vehicleLicence, licencePlate), doorOfCar);
 
         garage.add(newCar);
         carCount++;
@@ -514,8 +514,8 @@ public class Garage {
         boolean helmetIncluded = scanner.nextBoolean();
         scanner.nextLine(); // consume newline
 
-        Moto newMoto = new Moto("Moto", powerSource, vehicleClass, brand, model,
-                                price, vehicleLicence, licencePlate, helmetIncluded);
+        Moto newMoto = new Moto(new Vehicle("Moto", powerSource, vehicleClass, brand, model,
+                                price, vehicleLicence, licencePlate), helmetIncluded);
 
         garage.add(newMoto);
         motoCount++;
@@ -705,8 +705,7 @@ public class Garage {
         return false;
     }
     private boolean canBeRented(Customer customer, Vehicle vehicle) {
-        String[] parts = vehicle.getVehicleCode().split("-");
-        String vehicleType = parts[0];
+        String vehicleType =  vehicle.getClass().getSimpleName();
 
         switch (vehicleType) {
             case "Car":
@@ -1527,10 +1526,10 @@ public class Garage {
         System.out.println("\n── 1. Fleet Summary ─────────────────────");
         int totalCars = 0, totalMotos = 0, availableCars = 0, availableMotos = 0;
         for (Vehicle v : garage) {
-            if (v.getVehicleType().equals("Car")) {
+            if (v instanceof Car) {
                 totalCars++;
                 if (v.isAvailable()) availableCars++;
-            } else if (v.getVehicleType().equals("Moto")) {
+            } else if (v instanceof Moto) {
                 totalMotos++;
                 if (v.isAvailable()) availableMotos++;
             }
