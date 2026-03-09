@@ -2,11 +2,15 @@ package user;
 
 import controller.Garage;
 
+import java.util.Objects;
+
 public class RegularStaff extends Staff {
+
+    double salary;
 
     /*====== Register ====== */
     public RegularStaff(String name, String role, double salary, String username, String password) {
-        super(name, role, salary, username, password); // parent (user.Staff) runs first
+        super(name, role, username, password); // parent (user.Staff) runs first
     }
 
     /*====== Regular user.Staff Permissions ====== */
@@ -20,9 +24,31 @@ public class RegularStaff extends Staff {
                action.equals(Garage.RETURN_VEHICLE)  ||
                action.equals(Garage.SHOW_PAYMENT);
     }
-    @Override
+
+
     public void setSalary (double salary){
-        System.out.println("Error: user.RegularStaff can not modify salary");
-        return;
+        this.salary = salary;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        RegularStaff that = (RegularStaff) o;
+        return this.getUsername().equals(that.getUsername()) && this.getId() == that.getId();
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), salary);
+    }
+
+    @Override
+    public String toString() {
+        return "RegularStaff{" +
+                super.toString() +
+                ", salary=" + salary +
+                "$}";
     }
 }

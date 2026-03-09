@@ -21,6 +21,8 @@ public class Garage {
     public static final String SHOW_PAYMENT = "SHOW_PAYMENT";
     public static final String MANAGE_STAFF = "MANAGE_STAFF";
     public static final String VIEW_REPORTS = "VIEW_REPORTS";
+    public static final String SET_MANAGER_SALARY= "SET_MANAGER_SALARY";
+
 
     private ArrayList<Vehicle> garage;
     private static int vehicleCount; // current number of vehicles
@@ -265,12 +267,9 @@ public class Garage {
     }
 
     public void updateStaff(Scanner scanner) {
-        System.out.print("Enter staff ID(int): ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); // consume newline
-
+        Staff targetStaff = findStaff(scanner);
         for (Staff staff : staffs) {
-            if (staff.getId() == id) {
+            if (staff.equals(targetStaff)) {
                 boolean quit = false;
                 int choice;
                 do {
@@ -328,11 +327,18 @@ public class Garage {
                             }
                         }
                         case 3 -> {
+                            if(!getLoggedInStaff().can(MANAGE_STAFF)) {return;}
+
                             System.out.print("New Salary: ");
                             double newSalary = scanner.nextDouble();
                             scanner.nextLine();
                             if (newSalary > 0) {
-                                staff.setSalary(newSalary);
+                                if(setSalaryRegularStaff(staff, newSalary)){
+                                    System.out.println("Change salary of staff successfully!");
+                                }else {
+                                    System.out.println("Cannot change salary regular staff!");
+                                    return;
+                                }
                                 System.out.println("Staff salary updated to " + newSalary + ".");
                             } else {
                                 System.out.println("Salary must be greater than 0. No change made.");
@@ -361,17 +367,14 @@ public class Garage {
     }
 
     public void removeStaff(Scanner scanner) {
-        System.out.print("Enter staff ID(int): ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); // consume newline
 
-        Staff staffToRemove = null;
-        for (Staff staff : staffs) {
-            if (staff.getId() == id) {
-                staffToRemove = staff;
-                break;
-            }
-        }
+        Staff staffToRemove = findStaff(scanner);
+//        for (Staff staff : staffs) {
+//            if (staff.equals(staffToRemove)) {
+//                staffToRemove = staff;
+//                break;
+//            }
+//        }
 
         if (staffToRemove != null) {
             System.out.print("Are you sure do you want to remove this staff? (yes/no): ");
@@ -379,13 +382,13 @@ public class Garage {
             if (confirm.equalsIgnoreCase("yes")) {
                 staffs.remove(staffToRemove);
                 staffCount--;
-                System.out.println("Staff with ID " + id + " removed successfully.");
+                System.out.println("Staff with ID " + staffToRemove.getId() + " removed successfully.");
                 System.out.println("staffCount: " + staffCount);
             } else {
                 System.out.println("Operation cancelled.");
             }
         } else {
-            System.out.println("Staff with ID " + id + " not found.");
+            System.out.println("Staff with ID " + staffToRemove.getId() + " not found.");
         }
     }
 
@@ -407,8 +410,8 @@ public class Garage {
             String type   = v[0];
             double price  = Double.parseDouble(v[5]);
             Vehicle vehicle = switch (type) {
-                case "Moto" -> new Moto("Moto", v[1], v[2], v[3], v[4], price, v[6], v[7], true);
-                default     -> new Car("Car",  v[1], v[2], v[3], v[4], price, v[6], v[7], 4);
+                case "Moto" -> new Moto(new Vehicle("Moto", v[1], v[2], v[3], v[4], price, v[6], v[7]), true);
+                default     -> new Car(new Vehicle("Car",  v[1], v[2], v[3], v[4], price, v[6], v[7]), 4);
             };
             garage.add(vehicle);
             vehicleCount++;
@@ -692,7 +695,15 @@ public class Garage {
 
     // Matches a vehicle only when BOTH numeric id AND code point to the same entry
     //helper function
-
+    private boolean setSalaryRegularStaff(Staff regularStaff, double salary) {
+        if(regularStaff == null) {return false;}
+        if(regularStaff instanceof RegularStaff){
+            RegularStaff regularStaff2 = (RegularStaff) regularStaff;
+            regularStaff2.setSalary(salary);
+            return true;
+        }
+        return false;
+    }
     private boolean canBeRented(Customer customer, Vehicle vehicle) {
         String[] parts = vehicle.getVehicleCode().split("-");
         String vehicleType = parts[0];
@@ -747,6 +758,19 @@ public class Garage {
         Vehicle byId = getVehicleByID(id);
         Vehicle byCode = getVehicleByCode(code);
         if (byId != null && byId == byCode) return byId;
+        return null;
+    }
+
+    private Staff findStaff(Scanner scanner) {
+        System.out.print("Enter Staff ID (number): ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+        String username = getRequiredInput(scanner, "Enter Staff Username: ");
+        for(Staff staff : staffs){
+            if(staff.getId() == id && staff.getUsername().equals(username)){
+                return staff;
+            }
+        }
         return null;
     }
 

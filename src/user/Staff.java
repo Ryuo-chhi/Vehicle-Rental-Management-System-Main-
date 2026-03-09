@@ -2,12 +2,11 @@ package user;
 
 import java.util.Objects;
 
-public abstract class Staff implements IStaff {
+public  class Staff implements IStaff {
     /* ====== Fields (Encapsulation) ====== */
     private int staffId;
     private String name;
     private String role;
-    private double salary;
     private String username;
     private String password;
     private boolean status;
@@ -17,17 +16,17 @@ public abstract class Staff implements IStaff {
     private static int staffCount = 0;
 
     /*====== user.Staff Permissions (must be defined by each role) ====== */
-    public abstract boolean can(String action);
+    public boolean can(String action){
+        return false;
+    }
 
     /*====== Register ====== */
-    public Staff(String name, String role, double salary, String username, String password) {
+    public Staff(String name, String role, String username, String password) {
         this.staffId = ++staffCount;
         this.setName(name);
         this.setRole(role);
-        this.setSalary(salary);
         this.setUsername(username);
         this.setPassword(password);
-
         this.status = true;
         this.active = false; // Offline by default, becomes true when login
     }
@@ -50,10 +49,6 @@ public abstract class Staff implements IStaff {
     @Override
     public String getRole() {
         return role;
-    }
-    @Override
-    public double getSalary() {
-        return salary;
     }
     @Override
     public String getUsername() {
@@ -92,15 +87,6 @@ public abstract class Staff implements IStaff {
     }
 
     @Override
-    public void setSalary(double salary) {
-        if (salary < 0) {
-            System.out.println("Salary cannot be negative.");
-            return;
-        }
-        this.salary = salary;
-    }
-
-    @Override
     public void setUsername(String username) {
         if (username == null || username.trim().isEmpty()) {
             System.out.println("Username cannot be null or empty.");
@@ -130,7 +116,7 @@ public abstract class Staff implements IStaff {
 
     @Override
     public String toString() {
-        return "user.Staff [staffId=" + staffId + ", name=" + name + ", role=" + role + ", username=" + username + ", salary=" + salary + ", status=" + status + ", active=" + active + "]";
+        return "staffId=" + staffId + ", name=" + name + ", role=" + role + ", username=" + username +  ", status=" + status + ", active=" + active ;
     }
 
     @Override
