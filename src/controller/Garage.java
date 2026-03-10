@@ -25,6 +25,7 @@ public class Garage {
 
 
     private ArrayList<Vehicle> garage;
+    private static int vehicleID = 0;
     private static int vehicleCount; // current number of vehicles
     private int carCount;
     private int motoCount;
@@ -73,6 +74,7 @@ public class Garage {
     public boolean isStaffLoggedIn() { return loggedInStaff != null; }
     public Staff getLoggedInStaff() { return loggedInStaff; }
     public static int getVehicleCount() { return vehicleCount; }
+    public static int getVehicleID() { return vehicleID; }
     
     // SETTERS
     private void setLastMessage(String msg) { lastMessage = msg; }
@@ -80,12 +82,13 @@ public class Garage {
     // Staff Management
 
     public void generateStaffToSystem() {
-        Staff s1 = new ManagerStaff("Admin", "Manager", 0, "admin_root", "root123");
-        Staff s2 = new ManagerStaff("Bob", "Manager", 3000, "bob_manager", "manager123");
-        Staff s3 = new RegularStaff("Chan", "Staff", 1500, "chan_staff", "staff123");
+        Staff s1 = new ManagerStaff("Admin",   "admin_root", "root123",0);
+        Staff s2 = new ManagerStaff("Bob",  "bob_manager", "manager123", 0);
+        Staff s3 = new RegularStaff("Chan", "chan_staff", "staff123",1500);
         staffs.add(s1);
         staffs.add(s2);
         staffs.add(s3);
+//        Staff m = new ManagerStaff(s3,1500);
         staffCount += 3;
     }
 
@@ -192,19 +195,34 @@ public class Garage {
     }
 
     public void addStaff(Scanner scanner) {
-        System.out.print("Enter staff name: ");
-        String name = scanner.nextLine().trim();
-        if (name.isEmpty()) {
-            System.out.println("Staff name cannot be empty.");
-            return;
-        }
+        boolean quit = false;
+        int choice;
+        do{
+            System.out.print(
+                    "\n" +
+                    "0. Quit\n" +
+                    "1. Manager\n" +
+                    "2. Regular staff\n" +
+                    "Choose position: "
+            );
+            choice = scanner.nextInt();
+            scanner.nextLine();
+            switch (choice) {
+                case 0,1,2 -> quit = true;
+                default -> System.out.println("Invalid choice!");
 
-        System.out.print("Enter staff role: ");
-        String role = scanner.nextLine().trim();
-        if (role.isEmpty()) {
-            System.out.println("Staff role cannot be empty.");
-            return;
-        }
+            }
+        }while (!quit);
+        if(choice == 0){return;}
+
+//        System.out.print("Enter staff name: ");
+//        String name = scanner.nextLine().trim();
+//        if (name.isEmpty()) {
+//            System.out.println("Staff name cannot be empty.");
+//            return;
+//        }
+
+        String name = getRequiredInput(scanner,"staff name");
 
         System.out.print("Enter staff salary: ");
         double salary = scanner.nextDouble();
@@ -214,12 +232,8 @@ public class Garage {
             return;
         }
 
-        System.out.print("Enter staff username: ");
-        String username = scanner.nextLine().trim();
-        if (username.isEmpty()) {
-            System.out.println("Username cannot be empty.");
-            return;
-        }
+        String username = getRequiredInput(scanner, "staff username");
+
         // Check username uniqueness
         for (Staff s : staffs) {
             if (s.getUsername().equalsIgnoreCase(username)) {
@@ -228,31 +242,21 @@ public class Garage {
             }
         }
 
-        System.out.print("Enter staff password: ");
-        String password = scanner.nextLine();
+        String password = getRequiredInput(scanner, "staff password");
         if (password == null || password.trim().length() < 4) {
             System.out.println("Password must be at least 4 characters.");
             return;
         }
 
-        Staff newStaff = switch (role.trim().toUpperCase()) {
-            case "MANAGER", "ADMIN" -> new ManagerStaff(name, role, salary, username, password);
-            case "STAFF" -> new RegularStaff(name, role, salary, username, password);
-            default -> {
-                yield null;
-            }
-        };
 
-        if (newStaff == null) {
-            System.out.println("Invalid role! Staff will not be created.");
-            return;
-        } else if (staffs.add(newStaff)) {
-            staffCount++;
-            System.out.println("Add staff successfully.");
-            System.out.println("staffCount: " + staffCount);
-        } else {
-            System.out.println("Failed to add staff. A staff with the same ID already exists.");
+        switch (choice) {
+            case 1 -> staffs.add(new ManagerStaff(name, username, password, salary));
+            case 2 -> staffs.add(new RegularStaff(name, username, password, salary));
+            default -> {
+                System.out.println("Can't create new staff.");
+            }
         }
+
     }
 
     public void showStaffs() {
@@ -277,9 +281,8 @@ public class Garage {
                             Update staff:
                             0. Back to Staff Management
                             1. Name
-                            2. Role
-                            3. Salary
-                            4. Enable/Disable Status""");
+                            2. Salary
+                            3. Enable/Disable Status""");
 
                     System.out.print("Enter choice: ");
                     choice = scanner.nextInt();
@@ -298,35 +301,6 @@ public class Garage {
                             }
                         }
                         case 2 -> {
-                            System.out.print("New Role: ");
-                            String newRole = scanner.nextLine().trim();
-                            String currentRole = staff.getRole();
-                            if (newRole.equalsIgnoreCase(currentRole)) {
-                                System.out.println("Role is already set to " + currentRole + ". No change made.");
-                            } else if (currentRole.equalsIgnoreCase("Manager") && newRole.equalsIgnoreCase("Staff")) {
-                                System.out.print("Are you sure you want to demote this staff? (yes/no): ");
-                                String confirm = scanner.nextLine().trim();
-                                if (confirm.equalsIgnoreCase("yes")) {
-                                    staff.setRole(newRole);
-                                    System.out.println("Staff demoted to " + newRole + ".");
-                                } else {
-                                    System.out.println("Operation cancelled.");
-                                }
-                            } else if (currentRole.equalsIgnoreCase("Staff") && newRole.equalsIgnoreCase("Manager")) {
-                                System.out.print("Are you sure you want to promote this staff? (yes/no): ");
-                                String confirm = scanner.nextLine().trim();
-                                if (confirm.equalsIgnoreCase("yes")) {
-                                    staff.setRole(newRole);
-                                    System.out.println("Staff promoted to " + newRole + ".");
-                                } else {
-                                    System.out.println("Operation cancelled.");
-                                }
-                            } else {
-                                staff.setRole(newRole);
-                                System.out.println("Staff role changed to " + newRole + ".");
-                            }
-                        }
-                        case 3 -> {
                             if(!getLoggedInStaff().can(MANAGE_STAFF)) {return;}
 
                             System.out.print("New Salary: ");
@@ -344,7 +318,7 @@ public class Garage {
                                 System.out.println("Salary must be greater than 0. No change made.");
                             }
                         }
-                        case 4 -> {
+                        case 3 -> {
                             String action = staff.getStatus() ? "disable (resign)" : "enable (employ)";
                             System.out.print("Are you sure do you want to " + action + " this staff? (yes/no): ");
                             String confirm = scanner.nextLine().trim();
@@ -410,11 +384,12 @@ public class Garage {
             String type   = v[0];
             double price  = Double.parseDouble(v[5]);
             Vehicle vehicle = switch (type) {
-                case "Moto" -> new Moto(new Vehicle("Moto", v[1], v[2], v[3], v[4], price, v[6], v[7]), true);
-                default     -> new Car(new Vehicle("Car",  v[1], v[2], v[3], v[4], price, v[6], v[7]), 4);
+                case "Moto" -> new Moto("Moto", v[1], v[2], v[3], v[4], price, v[6], v[7], true);
+                default     -> new Car("Car",  v[1], v[2], v[3], v[4], price, v[6], v[7], 4);
             };
             garage.add(vehicle);
             vehicleCount++;
+            vehicleID ++;
         }
     }
 
@@ -482,18 +457,19 @@ public class Garage {
         String vehicleLicence = getRequiredInput(scanner, "car licence (e.g. VL-01-AB-1234)");
         String licencePlate = getRequiredInput(scanner, "licence plate (e.g. PP-1000)");
 
-        System.out.print("Enter number of doors: ");
+        System.out.print("Enter number of seats: ");
         int doorOfCar = scanner.nextInt();
         scanner.nextLine(); 
 
-        Car newCar = new Car(new Vehicle("Car", powerSource, vehicleClass, brand, model,
-                              price, vehicleLicence, licencePlate), doorOfCar);
+        Car newCar = new Car("Car", powerSource, vehicleClass, brand, model,
+                              price, vehicleLicence, licencePlate, doorOfCar);
 
         garage.add(newCar);
         carCount++;
         System.out.println("Add car successfully. Total cars: " + this.carCount);
         
         vehicleCount++;
+        vehicleID ++;
         System.out.println("vehicleCount: " + vehicleCount);
     }
 
@@ -514,14 +490,15 @@ public class Garage {
         boolean helmetIncluded = scanner.nextBoolean();
         scanner.nextLine(); // consume newline
 
-        Moto newMoto = new Moto(new Vehicle("Moto", powerSource, vehicleClass, brand, model,
-                                price, vehicleLicence, licencePlate), helmetIncluded);
+        Moto newMoto = new Moto("Moto", powerSource, vehicleClass, brand, model,
+                                price, vehicleLicence, licencePlate, helmetIncluded);
 
         garage.add(newMoto);
         motoCount++;
         System.out.println("Add moto successfully. Total motos: " + this.motoCount);
         
         vehicleCount++;
+        vehicleID ++;
         System.out.println("vehicleCount: " + vehicleCount);
     }
 
@@ -1625,7 +1602,7 @@ public class Garage {
         }
 
         System.out.println("\n========== GARAGE DASHBOARD ==========");
-        System.out.println("Logged in as : " + (loggedInStaff != null ? loggedInStaff.getName() + " (" + loggedInStaff.getRole() + ")" : "N/A"));
+        System.out.println("Logged in as : " + (loggedInStaff != null ? loggedInStaff.getName() + " (" + loggedInStaff.getClass().getSimpleName() + ")" : "N/A"));
         System.out.println("--------------------------------------");
         System.out.println("Total vehicles   : " + vehicleCount);
         System.out.println("Available now    : " + availableVehicles);

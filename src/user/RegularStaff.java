@@ -6,11 +6,17 @@ import java.util.Objects;
 
 public class RegularStaff extends Staff {
 
-    double salary;
+    private double salary;
 
     /*====== Register ====== */
-    public RegularStaff(String name, String role, double salary, String username, String password) {
-        super(name, role, username, password); // parent (user.Staff) runs first
+    public RegularStaff(String name,  String username, String password,double salary) {
+        super(name, username, password); // parent (user.Staff) runs first
+        this.setSalary(salary);
+    }
+
+    public RegularStaff(Staff staff, double salary) {
+        super(staff.getName(), staff.getUsername(), staff.getPassword());
+        this.setSalary(salary);
     }
 
     /*====== Regular user.Staff Permissions ====== */

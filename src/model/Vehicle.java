@@ -17,7 +17,7 @@ public class Vehicle implements IVehicle {
 
 
     public Vehicle(String vehicleType,String powerSource, String vehicleClass, String vehicleBrand, String vehicleModel, double rentalRatePerDay, String vehicleLicence, String licencePlate) {
-        this.vehicleId = Garage.getVehicleCount() + 1; // assign current count + 1 as ID
+        this.vehicleId = Garage.getVehicleID() + 1; // assign current count + 1 as ID
         this.vehicleCode = vehicleType.equals("Moto") ?  vehicleType + "-" + Moto.getMotoID() : vehicleType + "-" + Car.getCarID();
         this.setPowerSource(powerSource);
         this.setVehicleClass(vehicleClass);

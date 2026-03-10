@@ -5,13 +5,11 @@ public interface IStaff {
     // Getter Methods
     int getId();
     String getName();
-    String getRole();
     String getUsername();
     boolean getStatus();
 
     // Setter Methods
     void setName(String name);
-    void setRole(String role);
     void setUsername(String username);
     void setPassword(String password);
     void setStatus(boolean status);

@@ -6,7 +6,6 @@ public  class Staff implements IStaff {
     /* ====== Fields (Encapsulation) ====== */
     private int staffId;
     private String name;
-    private String role;
     private String username;
     private String password;
     private boolean status;
@@ -21,10 +20,9 @@ public  class Staff implements IStaff {
     }
 
     /*====== Register ====== */
-    public Staff(String name, String role, String username, String password) {
+    public Staff(String name, String username, String password) {
         this.staffId = ++staffCount;
         this.setName(name);
-        this.setRole(role);
         this.setUsername(username);
         this.setPassword(password);
         this.status = true;
@@ -47,10 +45,6 @@ public  class Staff implements IStaff {
         return name;
     }
     @Override
-    public String getRole() {
-        return role;
-    }
-    @Override
     public String getUsername() {
         return username;
     }
@@ -60,7 +54,9 @@ public  class Staff implements IStaff {
     }
     @Override
     public boolean isActive() { return active; }
-
+    protected String getPassword(){
+        return password;
+    }
 
     /*====== For login check ======*/
     public boolean checkPassword(String input) {
@@ -77,14 +73,7 @@ public  class Staff implements IStaff {
         this.name = name.trim();
     }
 
-    @Override
-    public void setRole(String role) {
-        if (role == null || role.trim().isEmpty()) {
-            System.out.println("user.Staff role cannot be null or empty.");
-            return;
-        }
-        this.role = role.trim();
-    }
+
 
     @Override
     public void setUsername(String username) {
@@ -116,7 +105,7 @@ public  class Staff implements IStaff {
 
     @Override
     public String toString() {
-        return "staffId=" + staffId + ", name=" + name + ", role=" + role + ", username=" + username +  ", status=" + status + ", active=" + active ;
+        return "staffId=" + staffId + ", name=" + name + ", username=" + username +  ", status=" + status + ", active=" + active ;
     }
 
     @Override
