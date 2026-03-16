@@ -8,8 +8,12 @@ import java.util.HashSet;
 import java.util.Scanner;
 
 @FunctionalInterface
-interface VehicleFilter{
-    public boolean search(Vehicle v);
+interface VehicleFilter {
+    boolean search(Vehicle v);
+}
+@FunctionalInterface
+interface StaffFilter {
+    boolean test(Staff staff);
 }
 
 public class Garage {
@@ -125,7 +129,7 @@ public class Garage {
             switch (choice) {
                 case 0 -> quit = true;
                 case 1 -> addStaff(scanner);
-                case 2 -> showStaffs();
+                case 2 -> showStaffs(scanner);
                 case 3 -> updateStaff(scanner);   
                 case 4 -> removeStaff(scanner);
                 default -> System.out.println("Invalid choice!");
@@ -263,15 +267,70 @@ public class Garage {
 
     }
 
-    public void showStaffs() {
+    public void showStaffs(Scanner scanner) {
         if (staffCount == 0) {
             System.out.println("No staffs!");
             return;
         }
+        boolean quit = false;
+        int choice;
+        do {
+            System.out.print(
+                    "How would you like to show the staff?\n" +
+                            "0. Back to Staff Management\n" +
+                            "1. All Staffs\n" +
+                            "2. Regular Staffs\n" +
+                            "3. Manager Staffs\n" +
+                            "Choose option: "
+            );
+            choice = scanner.nextInt();
+            scanner.nextLine();
+            switch (choice) {
+                case 0 -> quit = true;
+                case 1 -> {
+                    StaffFilter allStaff = new StaffFilter() {
+                        public boolean test(Staff staff){
+                            return true;
+                        }
+                    };
+                    showFilteredStaffs(allStaff);
+                }
+                case 2 -> {
+                    StaffFilter regularOnly = new StaffFilter() {
+                        @Override
+                        public boolean test(Staff staff) {
+                            return staff instanceof RegularStaff;
+                        }
+                    };
+                    showFilteredStaffs(regularOnly);
+                }
+                case 3 -> {
+                    StaffFilter managerOnly = new StaffFilter() {
+                        @Override
+                        public boolean test(Staff staff) {
+                            return staff instanceof ManagerStaff;
+                        }
+                    };
+                    showFilteredStaffs(managerOnly);
+                }
+                default -> System.out.println("Invalid choice!");
+            }
+        } while(!quit);
+    }
+
+    private void showFilteredStaffs(StaffFilter filter) {
+        boolean found = false;
+
         for (Staff staff : staffs) {
-            System.out.println(staff.toString());
+            if (filter.test(staff)) {
+                System.out.println(staff);
+                found = true;
+            }
         }
-        System.out.println();
+
+        if (!found) {
+            System.out.println("No matching staff found.");
+        }
     }
 
     public void updateStaff(Scanner scanner) {
@@ -1660,7 +1719,8 @@ public class Garage {
                 customerFreq.put(cid, customerFreq.getOrDefault(cid, 0) + 1);
                 customerLabel.put(cid, r.getCustomerName());
             }
-            int topCustomerId = -1, topCustomerCount = 0;
+            int topCustomerId = -1;
+            int topCustomerCount = 0;
             for (java.util.Map.Entry<Integer, Integer> entry : customerFreq.entrySet()) {
                 if (entry.getValue() > topCustomerCount) {
                     topCustomerCount = entry.getValue();
