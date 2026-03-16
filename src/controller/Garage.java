@@ -7,6 +7,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Scanner;
 
+@FunctionalInterface
+interface VehicleFilter{
+    public boolean search(Vehicle v);
+}
 
 public class Garage {
 
@@ -368,6 +372,7 @@ public class Garage {
 
     // Vehicle Management
 
+
     public void generateVehicleToGarage() {
         // type, powerSource, vehicleClass, brand, model, price, licence, licencePlate
         String[][] vehicles = {
@@ -413,7 +418,8 @@ public class Garage {
                     1. Add Vehicle
                     2. Show Vehicles
                     3. Update Vehicle
-                    4. Remove Vehicle""");
+                    4. Remove Vehicle
+                    5. Search Vehicles""");
 
             System.out.print("Enter choice: ");
             choice = scanner.nextInt();
@@ -436,6 +442,85 @@ public class Garage {
                 case 4:
                     removeVehicle(scanner);
                     break;
+                case 5:
+                    printVehiclesByFilter(scanner);
+                    break;
+                default:
+                    System.out.println("Invalid choice!");
+            }
+            System.out.println();
+
+        } while (!quit);
+    }
+
+    //************* Helper in Vehicle operation **************//
+
+    private void filterVehicle(VehicleFilter filter) {
+        for (Vehicle vehicle : garage) {
+            if(filter.search(vehicle)) {
+                System.out.println(vehicle.toString());
+            }
+
+        }
+    }
+
+    //************* Vehicle operation **************//
+
+    public void printVehiclesByFilter(Scanner scanner) {
+        boolean quit = false;
+        int choice;
+        do {
+            System.out.println("""
+                    
+                    0. Back to Vehicle Management
+                    1. Vehicle model
+                    2. Vehicles price
+                    3. Vehicle powerSource
+                    4. Vehicle Class
+                    5. Vehicle type
+                    """);
+            System.out.print("Enter choice: ");
+            choice = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+
+            switch (choice) {
+                case 0:
+                    quit = true;
+                    break;
+                case 1:
+                    String input = getRequiredInput(scanner, "Vehicle model");
+                    filterVehicle(v -> v.getVehicleModel().equalsIgnoreCase(input));
+                    break;
+                case 2:
+                    input = getRequiredInput(scanner, "Vehicle price");
+                    filterVehicle(v -> String.format("%.1f", v.getRentalRatePerDay()).equals(input) );
+                    break;
+                case 3:
+                    input = getRequiredInput(scanner, "Vehicle powerSource");
+                    filterVehicle(v -> v.getPowerSource().equalsIgnoreCase(input));
+                    break;
+                case 4:
+                    input = getRequiredInput(scanner, "Vehicle Class");
+                    filterVehicle(v -> v.getVehicleClass().equalsIgnoreCase(input));
+                    break;
+                case 5:
+                    System.out.print("""
+                            1. Car
+                            2. Moto
+                            """);
+                    System.out.print("Enter choice: ");
+
+                    choice = scanner.nextInt();
+                    if ( choice == 1){
+                        filterVehicle(v -> v instanceof Car);
+                        break;
+                    }else if (choice == 2){
+                        filterVehicle(v -> v instanceof Moto);
+                        break;
+                    }else{
+                        System.out.println("Invalid choice!");
+                        break;
+                    }
                 default:
                     System.out.println("Invalid choice!");
             }
