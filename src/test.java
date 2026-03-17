@@ -1,8 +1,7 @@
 import controller.Garage;
+import java.util.Scanner;
 import user.ManagerStaff;
 import user.Staff;
-
-import java.util.Scanner;
 @FunctionalInterface
 interface StaffFilter{
     public int test(int a, int b);
@@ -13,7 +12,7 @@ public class test {
     public static void main(String[] args){
         Scanner scanner = new Scanner(System.in);
 
-
+        
         // ===============================================
         // INTERFACE & PERMISSION TESTS
         // Based on Interface.txt lesson - adapted for Model.Vehicle Rental System
@@ -37,6 +36,7 @@ public class test {
         System.out.println(m.getSalary());
 //        System.out.println(staff instanceof ManagerStaff);
 //        System.out.println(m instanceof ManagerStaff);
+        rentalSystem.addAdmin();
 
         scanner.close();
     }

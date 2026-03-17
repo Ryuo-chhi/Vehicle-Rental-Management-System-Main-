@@ -15,6 +15,7 @@ public abstract class Staff implements IStaff {
     private static int staffCount = 0;
 
     /*====== user.Staff Permissions (must be defined by each role) ====== */
+    @Override
     public abstract boolean can(String action);
 
     /*====== Register ====== */

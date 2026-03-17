@@ -1,11 +1,10 @@
 package controller;
 
-import model.*;
-import user.*;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Scanner;
+import model.*;
+import user.*;
 
 @FunctionalInterface
 interface VehicleFilter {
@@ -77,6 +76,22 @@ public class Garage {
 
     }
 
+    public void addAdmin(String name, String username, String password){
+        Staff admin = new ManagerStaff(name, username, password, 0){
+            @Override
+            public boolean can(String action) {
+                // TODO Auto-generated method stub
+                return true;
+            }
+        };
+        staffs.add(admin);
+        System.out.println(admin);
+
+
+
+    }
+    
+
     // GETTERS 
     public String getLastMessage() { return lastMessage; }
     public boolean isStaffLoggedIn() { return loggedInStaff != null; }
@@ -90,10 +105,10 @@ public class Garage {
     // Staff Management
 
     public void generateStaffToSystem() {
-        Staff s1 = new ManagerStaff("Admin",   "admin_root", "root123",0);
+        // Staff s1 = new ManagerStaff("Admin",   "admin_root", "root123",0);
         Staff s2 = new ManagerStaff("Bob",  "bob_manager", "manager123", 0);
         Staff s3 = new RegularStaff("Chan", "chan_staff", "staff123",1500);
-        staffs.add(s1);
+        addAdmin("Admin",   "admin_root", "root123");
         staffs.add(s2);
         staffs.add(s3);
 //        Staff m = new ManagerStaff(s3,1500);
@@ -334,6 +349,9 @@ public class Garage {
     }
 
     public void updateStaff(Scanner scanner) {
+        if(!getLoggedInStaff().can(MANAGE_STAFF)) {
+            System.out.println("Manager section Only!");
+            return;}
         Staff targetStaff = findStaff(scanner);
         for (Staff staff : staffs) {
             if (staff.equals(targetStaff)) {
@@ -354,6 +372,7 @@ public class Garage {
                     switch (choice) {
                         case 0 -> quit = true;
                         case 1 -> {
+
                             System.out.print("New Name: ");
                             String newName = scanner.nextLine().trim();
                             if (newName.isEmpty()) {
@@ -364,8 +383,8 @@ public class Garage {
                             }
                         }
                         case 2 -> {
-                            if(!getLoggedInStaff().can(MANAGE_STAFF)) {return;}
-
+                           if( !getLoggedInStaff().can(SET_MANAGER_SALARY)) return;
+                           
                             System.out.print("New Salary: ");
                             double newSalary = scanner.nextDouble();
                             scanner.nextLine();
@@ -382,6 +401,10 @@ public class Garage {
                             }
                         }
                         case 3 -> {
+                            if( targetStaff instanceof ManagerStaff){
+                                System.out.println("You cannot Enable/Disable Manager Status!");
+                                return;
+                            }
                             String action = staff.getStatus() ? "disable (resign)" : "enable (employ)";
                             System.out.print("Are you sure do you want to " + action + " this staff? (yes/no): ");
                             String confirm = scanner.nextLine().trim();

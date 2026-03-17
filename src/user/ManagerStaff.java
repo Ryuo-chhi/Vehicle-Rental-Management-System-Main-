@@ -1,5 +1,7 @@
 package user;
 
+import controller.Garage;
+
 public class ManagerStaff extends Staff {
 
     private double salary;
@@ -21,7 +23,7 @@ public class ManagerStaff extends Staff {
     /*====== Manager Permissions — full access ====== */
     @Override
     public boolean can(String action) {
-        return true;
+        return !action.equals(Garage.SET_MANAGER_SALARY);
     }
 
     public double getSalary() {
