@@ -515,11 +515,16 @@ public class Garage {
     //************* Helper in Vehicle operation **************//
 
     private void filterVehicle(VehicleFilter filter) {
+        boolean found = false;
         for (Vehicle vehicle : garage) {
             if(filter.search(vehicle)) {
                 System.out.println(vehicle.toString());
+                found = true;
             }
 
+        }
+        if (!found) {
+            System.out.println("Vehicle Not Found!");
         }
     }
 
