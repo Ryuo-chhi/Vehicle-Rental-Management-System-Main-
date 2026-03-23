@@ -107,7 +107,7 @@ public class Garage {
     public void generateStaffToSystem() {
         // Staff s1 = new ManagerStaff("Admin",   "admin_root", "root123",0);
         Staff s2 = new ManagerStaff("Bob",  "bob_manager", "manager123", 0);
-        Staff s3 = new RegularStaff("Chan", "chan_staff", "staff123",1500);
+        Staff s3 = new RegularStaff("Chan", "chan_staff", "staff123",1500,"Station-Moto");
         addAdmin("Admin",   "admin_root", "root123");
         staffs.add(s2);
         staffs.add(s3);
@@ -238,13 +238,6 @@ public class Garage {
         }while (!quit);
         if(choice == 0){return;}
 
-//        System.out.print("Enter staff name: ");
-//        String name = scanner.nextLine().trim();
-//        if (name.isEmpty()) {
-//            System.out.println("Staff name cannot be empty.");
-//            return;
-//        }
-
         String name = getRequiredInput(scanner,"staff name");
 
         System.out.print("Enter staff salary: ");
@@ -270,11 +263,11 @@ public class Garage {
             System.out.println("Password must be at least 4 characters.");
             return;
         }
-
+        String workStation = getRequiredInput(scanner, "staff work station(Moto or Car)");
 
         switch (choice) {
             case 1 -> staffs.add(new ManagerStaff(name, username, password, salary));
-            case 2 -> staffs.add(new RegularStaff(name, username, password, salary));
+            case 2 -> staffs.add(new RegularStaff(name, username, password, salary,workStation));
             default -> {
                 System.out.println("Can't create new staff.");
             }
@@ -383,13 +376,16 @@ public class Garage {
                             }
                         }
                         case 2 -> {
-                           if( !getLoggedInStaff().can(SET_MANAGER_SALARY)) return;
+                           if( !getLoggedInStaff().can(SET_MANAGER_SALARY)) {
+                               System.out.println("Only admin can set salary to manager!");
+                               return;
+                           }
                            
                             System.out.print("New Salary: ");
                             double newSalary = scanner.nextDouble();
                             scanner.nextLine();
                             if (newSalary > 0) {
-                                if(setSalaryRegularStaff(staff, newSalary)){
+                                if(setSalaryStaff(staff, newSalary)){
                                     System.out.println("Change salary of staff successfully!");
                                 }else {
                                     System.out.println("Cannot change salary regular staff!");
@@ -844,14 +840,13 @@ public class Garage {
 
     // Matches a vehicle only when BOTH numeric id AND code point to the same entry
     //helper function
-    private boolean setSalaryRegularStaff(Staff regularStaff, double salary) {
-        if(regularStaff == null) {return false;}
-        if(regularStaff instanceof RegularStaff){
-            RegularStaff regularStaff2 = (RegularStaff) regularStaff;
-            regularStaff2.setSalary(salary);
-            return true;
+    private boolean setSalaryStaff(Staff staff, double salary) {
+        if(staff == null) {
+            System.out.println("Invalid staff!");
+            return false;
         }
-        return false;
+        staff.setSalary(salary);
+        return true;
     }
     private boolean canBeRented(Customer customer, Vehicle vehicle) {
         String vehicleType =  vehicle.getClass().getSimpleName();
@@ -913,7 +908,7 @@ public class Garage {
         System.out.print("Enter Staff ID (number): ");
         int id = scanner.nextInt();
         scanner.nextLine();
-        String username = getRequiredInput(scanner, "Enter Staff Username: ");
+        String username = getRequiredInput(scanner, "Staff Username ");
         for(Staff staff : staffs){
             if(staff.getId() == id && staff.getUsername().equals(username)){
                 return staff;

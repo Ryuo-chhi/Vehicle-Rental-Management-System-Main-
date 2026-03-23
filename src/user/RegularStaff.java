@@ -6,18 +6,13 @@ import java.util.Objects;
 
 public class RegularStaff extends Staff {
 
-    private double salary;
-
+    private String workStation;
     /*====== Register ====== */
-    public RegularStaff(String name,  String username, String password,double salary) {
-        super(name, username, password); // parent (user.Staff) runs first
-        this.setSalary(salary);
+    public RegularStaff(String name,  String username, String password, double salary, String workStation) {
+        super(name, username, password, salary); // parent (user.Staff) runs first
+        this.setWorkStation(workStation);
     }
 
-    public RegularStaff(Staff staff, double salary) {
-        super(staff.getName(), staff.getUsername(), staff.getPassword());
-        this.setSalary(salary);
-    }
 
     /*====== Regular user.Staff Permissions ====== */
     @Override
@@ -31,9 +26,12 @@ public class RegularStaff extends Staff {
                action.equals(Garage.SHOW_PAYMENT);
     }
 
+    public String getWorkStation() {
+        return workStation;
+    }
 
-    public void setSalary (double salary){
-        this.salary = salary;
+    public void setWorkStation(String workStation) {
+        this.workStation = workStation;
     }
 
     @Override
@@ -46,15 +44,10 @@ public class RegularStaff extends Staff {
 
 
     @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), salary);
-    }
-
-    @Override
     public String toString() {
         return "RegularStaff{" +
                 super.toString() +
-                ", salary=" + salary +
-                "$}";
+                "workStation='" + workStation + '\'' +
+                '}';
     }
 }

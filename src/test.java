@@ -36,7 +36,7 @@ public class test {
         System.out.println(m.getSalary());
 //        System.out.println(staff instanceof ManagerStaff);
 //        System.out.println(m instanceof ManagerStaff);
-        rentalSystem.addAdmin();
+//        rentalSystem.addAdmin();
 
         scanner.close();
     }

@@ -10,6 +10,7 @@ public abstract class Staff implements IStaff {
     private String password;
     private boolean status;
     private boolean active;
+    private double salary;
 
 
     private static int staffCount = 0;
@@ -19,11 +20,12 @@ public abstract class Staff implements IStaff {
     public abstract boolean can(String action);
 
     /*====== Register ====== */
-    public Staff(String name, String username, String password) {
+    public Staff(String name, String username, String password, double salary) {
         this.staffId = ++staffCount;
         this.setName(name);
         this.setUsername(username);
         this.setPassword(password);
+        this.setSalary(salary);
         this.status = true;
         this.active = false; // Offline by default, becomes true when login
     }
@@ -55,6 +57,9 @@ public abstract class Staff implements IStaff {
     public boolean isActive() { return active; }
     protected String getPassword(){
         return password;
+    }
+    public double getSalary() {
+        return salary;
     }
 
     /*====== For login check ======*/
@@ -96,7 +101,9 @@ public abstract class Staff implements IStaff {
     public void setStatus(boolean status) {this.status = status;}
     @Override
     public void setActive(boolean active) {this.active = active;}
-
+    public void setSalary (double salary){
+        this.salary = salary >0 ? salary: 0;
+    }
     // Additional Methods
     public static int getStaffCount() {
         return staffCount;
@@ -104,7 +111,15 @@ public abstract class Staff implements IStaff {
 
     @Override
     public String toString() {
-        return "staffId=" + staffId + ", name=" + name + ", username=" + username +  ", status=" + status + ", active=" + active ;
+        return "Staff{" +
+                "staffId=" + staffId +
+                ", name='" + name + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", status=" + status +
+                ", active=" + active +
+                ", salary=" + salary +
+                "$";
     }
 
     @Override
