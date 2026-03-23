@@ -72,7 +72,7 @@ public class Garage {
         this.rentalHistory = new ArrayList<>();
 
         loggedInStaff = null;
-        lastMessage = "Garage created successfully!";
+        lastMessage = "Controller.Garage created successfully!";
 
     }
 
@@ -85,16 +85,20 @@ public class Garage {
             }
         };
         staffs.add(admin);
-    }
-    
+        System.out.println(admin);
 
-    // GETTERS 
+
+
+    }
+
+
+    // GETTERS
     public String getLastMessage() { return lastMessage; }
     public boolean isStaffLoggedIn() { return loggedInStaff != null; }
     public Staff getLoggedInStaff() { return loggedInStaff; }
     public static int getVehicleCount() { return vehicleCount; }
     public static int getVehicleID() { return vehicleID; }
-    
+
     // SETTERS
     private void setLastMessage(String msg) { lastMessage = msg; }
 
@@ -122,9 +126,8 @@ public class Garage {
 
         System.out.println("Staff Management:");
         boolean quit = false;
-        int choice = -1;
+        int choice;
         do {
-            try {
             System.out.println("""
                     0. Back to Main Menu
                     1. Add Staff
@@ -138,20 +141,12 @@ public class Garage {
                 case 0 -> quit = true;
                 case 1 -> addStaff(scanner);
                 case 2 -> showStaffs(scanner);
-                case 3 -> updateStaff(scanner);   
+                case 3 -> updateStaff(scanner);
                 case 4 -> removeStaff(scanner);
                 default -> System.out.println("Invalid choice!");
             }
             System.out.println();
 
-        } catch (Exception e) {
-            System.out.println("Invalid input or error occurred! Please check and try again.");
-            if (e instanceof java.util.InputMismatchException) {
-                scanner.nextLine();
-            }
-        } finally {
-            // Execution attempt finished
-        }
         } while (!quit);
     }
     // =========================
@@ -220,14 +215,13 @@ public class Garage {
 
     public void addStaff(Scanner scanner) {
         boolean quit = false;
-        int choice = -1;
+        int choice;
         do{
-            try {
             System.out.print(
                     "\n" +
                     "0. Quit\n" +
                     "1. Manager\n" +
-                    "2. Regular staff\n" 
+                    "2. Regular staff\n"
             );
             choice = Integer.parseInt(getRequiredInput(scanner,"position"));
             scanner.nextLine();
@@ -236,22 +230,12 @@ public class Garage {
                 default -> System.out.println("Invalid choice!");
 
             }
-        } catch (Exception e) {
-            System.out.println("Invalid input or error occurred! Please check and try again.");
-            if (e instanceof java.util.InputMismatchException) {
-                scanner.nextLine();
-            }
-        } finally {
-            // Execution attempt finished
-        }
         }while (!quit);
         if(choice == 0){return;}
 
         String name = getRequiredInput(scanner,"staff name");
 
-        System.out.print("Enter staff salary: ");
-        double salary = scanner.nextDouble();
-        scanner.nextLine(); 
+        double salary = Double.parseDouble(getRequiredInput(scanner, "staff salary"));
         if (salary <= 0) {
             System.out.println("Salary must be greater than 0.");
             return;
@@ -290,9 +274,8 @@ public class Garage {
             return;
         }
         boolean quit = false;
-        int choice = -1;
+        int choice;
         do {
-            try {
             System.out.print(
                     "How would you like to show the staff?\n" +
                             "0. Back to Staff Management\n" +
@@ -331,14 +314,6 @@ public class Garage {
                 }
                 default -> System.out.println("Invalid choice!");
             }
-        } catch (Exception e) {
-            System.out.println("Invalid input or error occurred! Please check and try again.");
-            if (e instanceof java.util.InputMismatchException) {
-                scanner.nextLine();
-            }
-        } finally {
-            // Execution attempt finished
-        }
         } while(!quit);
     }
 
@@ -365,9 +340,8 @@ public class Garage {
         for (Staff staff : staffs) {
             if (staff.equals(targetStaff)) {
                 boolean quit = false;
-                int choice = -1;
+                int choice;
                 do {
-                    try {
                     System.out.println("""
                             Update staff:
                             0. Back to Staff Management
@@ -381,8 +355,7 @@ public class Garage {
                         case 0 -> quit = true;
                         case 1 -> {
 
-                            System.out.print("New Name: ");
-                            String newName = scanner.nextLine().trim();
+                            String newName = getRequiredInput(scanner, "new Name").trim();
                             if (newName.isEmpty()) {
                                 System.out.println("Name cannot be empty. No change made.");
                             } else {
@@ -395,10 +368,8 @@ public class Garage {
                                System.out.println("Only admin can set salary to manager!");
                                return;
                            }
-                           
-                            System.out.print("New Salary: ");
-                            double newSalary = scanner.nextDouble();
-                            scanner.nextLine();
+
+                            double newSalary = Double.parseDouble(getRequiredInput(scanner, "new Salary"));
                             if (newSalary > 0) {
                                 if(setSalaryStaff(staff, newSalary)){
                                     System.out.println("Change salary of staff successfully!");
@@ -430,14 +401,6 @@ public class Garage {
                     }
                     System.out.println();
 
-                } catch (Exception e) {
-                    System.out.println("Invalid input or error occurred! Please check and try again.");
-                    if (e instanceof java.util.InputMismatchException) {
-                        scanner.nextLine();
-                    }
-                } finally {
-                    // Execution attempt finished
-                }
                 } while (!quit);
                 return;
             }
@@ -512,9 +475,8 @@ public class Garage {
 
         System.out.println("Vehicle Management:");
         boolean quit = false;
-        int choice = -1;
+        int choice;
         do {
-            try {
             System.out.println("""
                     0. Back to Main Menu
                     1. Add Vehicle
@@ -550,14 +512,6 @@ public class Garage {
             }
             System.out.println();
 
-        } catch (Exception e) {
-            System.out.println("Invalid input or error occurred! Please check and try again.");
-            if (e instanceof java.util.InputMismatchException) {
-                scanner.nextLine();
-            }
-        } finally {
-            // Execution attempt finished
-        }
         } while (!quit);
     }
 
@@ -581,9 +535,8 @@ public class Garage {
 
     public void printVehiclesByFilter(Scanner scanner) {
         boolean quit = false;
-        int choice = -1;
+        int choice;
         do {
-            try {
             System.out.println("""
                     
                     0. Back to Vehicle Management
@@ -638,14 +591,6 @@ public class Garage {
             }
             System.out.println();
 
-        } catch (Exception e) {
-            System.out.println("Invalid input or error occurred! Please check and try again.");
-            if (e instanceof java.util.InputMismatchException) {
-                scanner.nextLine();
-            }
-        } finally {
-            // Execution attempt finished
-        }
         } while (!quit);
     }
 
@@ -655,28 +600,12 @@ public class Garage {
         String brand = getRequiredInput(scanner, "brand");
         String model = getRequiredInput(scanner, "model");
 
-        double price;
-        while (true) {
-            try {
-                price = Double.parseDouble(getRequiredInput(scanner,"price"));
-                break;
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid format. Please enter a valid number.");
-            }
-        }
+        double price = Double.parseDouble(getRequiredInput(scanner,"price"));
 
         String vehicleLicence = getRequiredInput(scanner, "car licence (e.g. VL-01-AB-1234)");
         String licencePlate = getRequiredInput(scanner, "licence plate (e.g. PP-1000)");
 
-        int doorOfCar;
-        while (true) {
-            try {
-                doorOfCar = Integer.parseInt(getRequiredInput(scanner,"number of seats"));
-                break;
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid format. Please enter a valid integer.");
-            }
-        }
+        int doorOfCar = Integer.parseInt(getRequiredInput(scanner,"number of seats"));
 
         Car newCar = new Car("Car", powerSource, vehicleClass, brand, model,
                               price, vehicleLicence, licencePlate, doorOfCar);
@@ -684,7 +613,7 @@ public class Garage {
         garage.add(newCar);
         carCount++;
         System.out.println("Add car successfully. Total cars: " + this.carCount);
-        
+
         vehicleCount++;
         vehicleID ++;
         System.out.println("vehicleCount: " + vehicleCount);
@@ -696,31 +625,12 @@ public class Garage {
         String brand = getRequiredInput(scanner, "brand");
         String model = getRequiredInput(scanner, "model");
 
-        double price;
-        while (true) {
-            try {
-                price = Double.parseDouble(getRequiredInput(scanner,"price"));
-                break;
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid format. Please enter a valid number.");
-            }
-        }
+        double price = Double.parseDouble(getRequiredInput(scanner,"price"));
 
         String vehicleLicence = getRequiredInput(scanner, "Moto licence (e.g. VL-01-AB-1234)");
         String licencePlate = getRequiredInput(scanner, "licence plate (e.g. PP-1000)");
 
-        boolean helmetIncluded;
-        while (true) {
-            System.out.print("Enter helmet included (true/false): ");
-            try {
-                helmetIncluded = scanner.nextBoolean();
-                scanner.nextLine(); // consume newline
-                break;
-            } catch (java.util.InputMismatchException e) {
-                System.out.println("Invalid format. Please enter true or false.");
-                scanner.nextLine(); // consume bad token
-            }
-        }
+        boolean helmetIncluded = Boolean.parseBoolean(getRequiredInput(scanner, "helmet included (true/false)"));
 
         Moto newMoto = new Moto("Moto", powerSource, vehicleClass, brand, model,
                                 price, vehicleLicence, licencePlate, helmetIncluded);
@@ -728,7 +638,7 @@ public class Garage {
         garage.add(newMoto);
         motoCount++;
         System.out.println("Add moto successfully. Total motos: " + this.motoCount);
-        
+
         vehicleCount++;
         vehicleID ++;
         System.out.println("vehicleCount: " + vehicleCount);
@@ -742,7 +652,6 @@ public class Garage {
         }
         boolean quit = false;
         do {
-            try {
             System.out.print(
                     "0. Quit\n" +
                     "1. Car\n" +
@@ -764,17 +673,9 @@ public class Garage {
                     break;
             }
 
-        } catch (Exception e) {
-            System.out.println("Invalid input or error occurred! Please check and try again.");
-            if (e instanceof java.util.InputMismatchException) {
-                scanner.nextLine();
-            }
-        } finally {
-            // Execution attempt finished
-        }
         }while (!quit);
-        
-        
+
+
     }
 
     public void showVehicle() {
@@ -783,7 +684,7 @@ public class Garage {
             return;
         }
         if (vehicleCount == 0) {
-            System.out.println("Garage is empty!");
+            System.out.println("Controller.Garage is empty!");
             return;
         }
         for(Vehicle car : garage) {
@@ -828,7 +729,7 @@ public class Garage {
             return;
         }
         if (vehicleCount == 0) {
-            System.out.println("Garage is Empty!");
+            System.out.println("Controller.Garage is Empty!");
             return;
         }
         Vehicle item = findVehicle(scanner);
@@ -838,9 +739,8 @@ public class Garage {
         }
         {
             boolean quit = false;
-                int choice = -1;
+                int choice;
                 do {
-                    try {
                     System.out.println("""
                             Update car:
                             0. Back to Vehicle Management
@@ -876,10 +776,8 @@ public class Garage {
                             item.setVehicleModel(vehicleModel);
                             break;
                         case 5:
-                            System.out.print("New Price: ");
-                            double rentalRatePerDay = scanner.nextDouble();
+                            double rentalRatePerDay = Double.parseDouble(getRequiredInput(scanner, "New Price"));
                             item.setRentalRatePerDay(rentalRatePerDay);
-                            scanner.nextLine();
                             break;
                         case 6:
                             // Check if car is currently rented
@@ -894,10 +792,8 @@ public class Garage {
                             if (isRented) {
                                 System.out.println("Cannot change status - car is currently rented!");
                             } else {
-                                System.out.print("Update status(true/false): ");
-                                boolean status = scanner.nextBoolean();
+                                boolean status = Boolean.parseBoolean(getRequiredInput(scanner, "status (true/false)"));
                                 item.setAvailable(status);
-                                scanner.nextLine();
                             }
                             break;
                         default:
@@ -905,14 +801,6 @@ public class Garage {
                     }
                     System.out.println();
 
-                } catch (Exception e) {
-                    System.out.println("Invalid input or error occurred! Please check and try again.");
-                    if (e instanceof java.util.InputMismatchException) {
-                        scanner.nextLine();
-                    }
-                } finally {
-                    // Execution attempt finished
-                }
                 } while (!quit);
         }
     }
@@ -1026,7 +914,7 @@ public class Garage {
             { "Diana Prince", "D4567890", "0882345682", "IDCard.jpg", "DriverLicense.jpg" },
             { "Eno Gonzalez", "D5678901", "0972345683", "IDCard.jpg", "" }
         };
-    
+
         for (String[] cust : custs) {
             Customer newCustomer = new Customer(cust[0], cust[1], cust[2], cust[3], cust[4]);
             customers.add(newCustomer);
@@ -1047,9 +935,8 @@ public class Garage {
 
         System.out.println("Customer Management:");
         boolean quit = false;
-        int choice = -1;
+        int choice;
         do {
-            try {
             System.out.println("""
                     0. Back to Main Menu
                     1. Add Customer
@@ -1057,7 +944,7 @@ public class Garage {
                     3. Update Customer
                     4. Remove Customer""");
 
-            System.out.print("Enter choice: ");
+            // System.out.print("Enter choice: ");
             choice = Integer.parseInt(getRequiredInput(scanner, "choice"));
 
             switch (choice) {
@@ -1082,27 +969,16 @@ public class Garage {
             }
             System.out.println();
 
-        } catch (Exception e) {
-            System.out.println("Invalid input or error occurred! Please check and try again.");
-            if (e instanceof java.util.InputMismatchException) {
-                scanner.nextLine();
-            }
-        } finally {
-            // Execution attempt finished
-        }
         } while (!quit);
     }
 
     public void addCustomer(Scanner scanner) {
         // Take inputs
-        System.out.print("Enter customer Name: ");
-        String customerName = scanner.nextLine();
+        String customerName = getRequiredInput(scanner, "customer Name");
 
-        System.out.print("Enter customer ID Number: ");
-        String customerIdNum = scanner.nextLine();
+        String customerIdNum = getRequiredInput(scanner, "customer ID Number");
 
-        System.out.print("Enter customer Phone: ");
-        String customerPhone = scanner.nextLine();
+        String customerPhone = getRequiredInput(scanner, "customer Phone");
 
         Customer newCustomer = new Customer(customerName, customerIdNum, customerPhone);
 
@@ -1133,9 +1009,8 @@ public class Garage {
 
             if (item.getCustomerId() == id) {
                 boolean quit = false;
-                int choice = -1;
+                int choice;
                 do {
-                    try {
                     System.out.println("""
                                 Update customer:
                                 0. Back to Customer Management
@@ -1154,39 +1029,26 @@ public class Garage {
                             quit = true;
                             break;
                         case 1:
-                            System.out.print("New ID Card: ");
-                            item.setcustomerIdNum(scanner.nextLine());
+                            item.setcustomerIdNum(getRequiredInput(scanner, "new ID Card"));
                             break;
 
                         case 2:
-                            System.out.print("New Name: ");
-                            item.setCustomerName(scanner.nextLine());
+                            item.setCustomerName(getRequiredInput(scanner, "new Name"));
                             break;
                         case 3:
-                            System.out.print("New Phone: ");
-                            item.setCustomerPhone(scanner.nextLine(), customers);
+                            item.setCustomerPhone(getRequiredInput(scanner, "new Phone"), customers);
                             break;
                         case 4:
-                            System.out.print("New ID Card Photo: ");
-                            item.setIDCardPhoto(scanner.nextLine());
+                            item.setIDCardPhoto(getRequiredInput(scanner, "new ID Card Photo"));
                             break;
                         case 5:
-                            System.out.print("New Driver License Photo: ");
-                            item.setDriverLicensePhoto(scanner.nextLine());
+                            item.setDriverLicensePhoto(getRequiredInput(scanner, "new Driver License Photo"));
                             break;
                         default:
                             System.out.println("Invalid choice!");
                     }
                     System.out.println();
 
-                } catch (Exception e) {
-                    System.out.println("Invalid input or error occurred! Please check and try again.");
-                    if (e instanceof java.util.InputMismatchException) {
-                        scanner.nextLine();
-                    }
-                } finally {
-                    // Execution attempt finished
-                }
                 } while (!quit);
                 return;
             }
@@ -1217,7 +1079,7 @@ public class Garage {
                 customerCount--;
                 break;
             }
-        } 
+        }
 
         System.out.println("Customer with ID " + id + " removed successfully.");
         System.out.println("customerCount: " + customerCount);
@@ -1244,9 +1106,8 @@ public class Garage {
 
         System.out.println("Rent Management:");
         boolean quit = false;
-        int choice = -1;
+        int choice;
         do {
-            try {
             System.out.println("""
                         0. Back to Main Menu
                         1. Add Rent
@@ -1272,14 +1133,6 @@ public class Garage {
             }
             System.out.println();
 
-        } catch (Exception e) {
-            System.out.println("Invalid input or error occurred! Please check and try again.");
-            if (e instanceof java.util.InputMismatchException) {
-                scanner.nextLine();
-            }
-        } finally {
-            // Execution attempt finished
-        }
         } while (!quit);
     }
 
@@ -1330,9 +1183,7 @@ public class Garage {
         double vehiclePrice = selectedvVehicle.getRentalRatePerDay(); // snapshot vehicle price
         Rent newRent = new Rent(selectedvVehicle, selectedCustomer, rentDays, startDate, endDate); // create rent without payment first
 
-        System.out.print("Enter deposit amount($): ");
-        double deposit = scanner.nextDouble();
-        scanner.nextLine();
+        double deposit = Double.parseDouble(getRequiredInput(scanner, "deposit amount($)"));
         Payment payment = new Payment(newRent.getRentDays(), vehiclePrice, deposit); // create payment with deposit and base price
 
         newRent.setPayment(payment); // add payment to rent
@@ -1367,9 +1218,8 @@ public class Garage {
         for (Rent rent : rents) {
             if (rent.getRentId() == id) {
                 boolean quit = false;
-                int choice = -1;
+                int choice;
                 do {
-                    try {
                     System.out.println("""
                             Update rent:
                             0. Back to Rent Management
@@ -1454,14 +1304,6 @@ public class Garage {
                     }
                     System.out.println();
 
-                } catch (Exception e) {
-                    System.out.println("Invalid input or error occurred! Please check and try again.");
-                    if (e instanceof java.util.InputMismatchException) {
-                        scanner.nextLine();
-                    }
-                } finally {
-                    // Execution attempt finished
-                }
                 } while (!quit);
                 return;
             }
@@ -1641,7 +1483,6 @@ public class Garage {
 
         boolean quit = false;
         do {
-            try {
             System.out.println("""
                     Payment Management:\s
                     0. Back to Main Menu
@@ -1657,14 +1498,6 @@ public class Garage {
                 default -> System.out.println("Invalid choice!");
             }
             System.out.println();
-        } catch (Exception e) {
-            System.out.println("Invalid input or error occurred! Please check and try again.");
-            if (e instanceof java.util.InputMismatchException) {
-                scanner.nextLine();
-            }
-        } finally {
-            // Execution attempt finished
-        }
         } while (!quit);
     }
 
