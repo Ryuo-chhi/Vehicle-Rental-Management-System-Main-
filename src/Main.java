@@ -7,7 +7,7 @@ class Main {
         Scanner scanner = new Scanner(System.in);
         Garage myGarage = new Garage(10);
 
-        System.out.println("\nWelcome to the Model.Vehicle Rental Management System!\n");
+        System.out.println("\nWelcome to the Vehicle Rental Management System!\n");
 
         System.out.println("Please login to continue...");
         System.out.print("Enter username: ");
@@ -26,6 +26,7 @@ class Main {
 
         boolean quit = false;
         while (!quit) {
+            try {
             System.out.println("""
                     ========================================
                          VEHICLE RENTAL MANAGEMENT SYSTEM
@@ -63,6 +64,12 @@ class Main {
                 default -> System.out.println("Invalid choice!");
             }
             System.out.println();
+            } catch (Exception e) {
+                System.out.println("Invalid input! Please enter a valid number.");
+                if (e instanceof java.util.InputMismatchException) {
+                    scanner.nextLine();
+                }
+            }
         }
         scanner.close();
 

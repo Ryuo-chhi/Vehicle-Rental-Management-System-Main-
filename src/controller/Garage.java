@@ -72,7 +72,7 @@ public class Garage {
         this.rentalHistory = new ArrayList<>();
 
         loggedInStaff = null;
-        lastMessage = "Controller.Garage created successfully!";
+        lastMessage = "Garage created successfully!";
 
     }
 
@@ -85,10 +85,6 @@ public class Garage {
             }
         };
         staffs.add(admin);
-        System.out.println(admin);
-
-
-
     }
     
 
@@ -126,8 +122,9 @@ public class Garage {
 
         System.out.println("Staff Management:");
         boolean quit = false;
-        int choice;
+        int choice = -1;
         do {
+            try {
             System.out.println("""
                     0. Back to Main Menu
                     1. Add Staff
@@ -147,6 +144,14 @@ public class Garage {
             }
             System.out.println();
 
+        } catch (Exception e) {
+            System.out.println("Invalid input or error occurred! Please check and try again.");
+            if (e instanceof java.util.InputMismatchException) {
+                scanner.nextLine();
+            }
+        } finally {
+            // Execution attempt finished
+        }
         } while (!quit);
     }
     // =========================
@@ -215,8 +220,9 @@ public class Garage {
 
     public void addStaff(Scanner scanner) {
         boolean quit = false;
-        int choice;
+        int choice = -1;
         do{
+            try {
             System.out.print(
                     "\n" +
                     "0. Quit\n" +
@@ -230,6 +236,14 @@ public class Garage {
                 default -> System.out.println("Invalid choice!");
 
             }
+        } catch (Exception e) {
+            System.out.println("Invalid input or error occurred! Please check and try again.");
+            if (e instanceof java.util.InputMismatchException) {
+                scanner.nextLine();
+            }
+        } finally {
+            // Execution attempt finished
+        }
         }while (!quit);
         if(choice == 0){return;}
 
@@ -276,8 +290,9 @@ public class Garage {
             return;
         }
         boolean quit = false;
-        int choice;
+        int choice = -1;
         do {
+            try {
             System.out.print(
                     "How would you like to show the staff?\n" +
                             "0. Back to Staff Management\n" +
@@ -316,6 +331,14 @@ public class Garage {
                 }
                 default -> System.out.println("Invalid choice!");
             }
+        } catch (Exception e) {
+            System.out.println("Invalid input or error occurred! Please check and try again.");
+            if (e instanceof java.util.InputMismatchException) {
+                scanner.nextLine();
+            }
+        } finally {
+            // Execution attempt finished
+        }
         } while(!quit);
     }
 
@@ -342,8 +365,9 @@ public class Garage {
         for (Staff staff : staffs) {
             if (staff.equals(targetStaff)) {
                 boolean quit = false;
-                int choice;
+                int choice = -1;
                 do {
+                    try {
                     System.out.println("""
                             Update staff:
                             0. Back to Staff Management
@@ -406,6 +430,14 @@ public class Garage {
                     }
                     System.out.println();
 
+                } catch (Exception e) {
+                    System.out.println("Invalid input or error occurred! Please check and try again.");
+                    if (e instanceof java.util.InputMismatchException) {
+                        scanner.nextLine();
+                    }
+                } finally {
+                    // Execution attempt finished
+                }
                 } while (!quit);
                 return;
             }
@@ -480,8 +512,9 @@ public class Garage {
 
         System.out.println("Vehicle Management:");
         boolean quit = false;
-        int choice;
+        int choice = -1;
         do {
+            try {
             System.out.println("""
                     0. Back to Main Menu
                     1. Add Vehicle
@@ -517,6 +550,14 @@ public class Garage {
             }
             System.out.println();
 
+        } catch (Exception e) {
+            System.out.println("Invalid input or error occurred! Please check and try again.");
+            if (e instanceof java.util.InputMismatchException) {
+                scanner.nextLine();
+            }
+        } finally {
+            // Execution attempt finished
+        }
         } while (!quit);
     }
 
@@ -540,8 +581,9 @@ public class Garage {
 
     public void printVehiclesByFilter(Scanner scanner) {
         boolean quit = false;
-        int choice;
+        int choice = -1;
         do {
+            try {
             System.out.println("""
                     
                     0. Back to Vehicle Management
@@ -596,6 +638,14 @@ public class Garage {
             }
             System.out.println();
 
+        } catch (Exception e) {
+            System.out.println("Invalid input or error occurred! Please check and try again.");
+            if (e instanceof java.util.InputMismatchException) {
+                scanner.nextLine();
+            }
+        } finally {
+            // Execution attempt finished
+        }
         } while (!quit);
     }
 
@@ -605,12 +655,28 @@ public class Garage {
         String brand = getRequiredInput(scanner, "brand");
         String model = getRequiredInput(scanner, "model");
 
-        double price = Double.parseDouble(getRequiredInput(scanner,"price"));
+        double price;
+        while (true) {
+            try {
+                price = Double.parseDouble(getRequiredInput(scanner,"price"));
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid format. Please enter a valid number.");
+            }
+        }
 
         String vehicleLicence = getRequiredInput(scanner, "car licence (e.g. VL-01-AB-1234)");
         String licencePlate = getRequiredInput(scanner, "licence plate (e.g. PP-1000)");
 
-        int doorOfCar = Integer.parseInt(getRequiredInput(scanner,"number of seats"));
+        int doorOfCar;
+        while (true) {
+            try {
+                doorOfCar = Integer.parseInt(getRequiredInput(scanner,"number of seats"));
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid format. Please enter a valid integer.");
+            }
+        }
 
         Car newCar = new Car("Car", powerSource, vehicleClass, brand, model,
                               price, vehicleLicence, licencePlate, doorOfCar);
@@ -630,14 +696,31 @@ public class Garage {
         String brand = getRequiredInput(scanner, "brand");
         String model = getRequiredInput(scanner, "model");
 
-        double price = Double.parseDouble(getRequiredInput(scanner,"price"));
+        double price;
+        while (true) {
+            try {
+                price = Double.parseDouble(getRequiredInput(scanner,"price"));
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid format. Please enter a valid number.");
+            }
+        }
 
         String vehicleLicence = getRequiredInput(scanner, "Moto licence (e.g. VL-01-AB-1234)");
         String licencePlate = getRequiredInput(scanner, "licence plate (e.g. PP-1000)");
 
-        System.out.print("Enter helmet included (true/false): ");
-        boolean helmetIncluded = scanner.nextBoolean();
-        scanner.nextLine(); // consume newline
+        boolean helmetIncluded;
+        while (true) {
+            System.out.print("Enter helmet included (true/false): ");
+            try {
+                helmetIncluded = scanner.nextBoolean();
+                scanner.nextLine(); // consume newline
+                break;
+            } catch (java.util.InputMismatchException e) {
+                System.out.println("Invalid format. Please enter true or false.");
+                scanner.nextLine(); // consume bad token
+            }
+        }
 
         Moto newMoto = new Moto("Moto", powerSource, vehicleClass, brand, model,
                                 price, vehicleLicence, licencePlate, helmetIncluded);
@@ -659,6 +742,7 @@ public class Garage {
         }
         boolean quit = false;
         do {
+            try {
             System.out.print(
                     "0. Quit\n" +
                     "1. Car\n" +
@@ -680,6 +764,14 @@ public class Garage {
                     break;
             }
 
+        } catch (Exception e) {
+            System.out.println("Invalid input or error occurred! Please check and try again.");
+            if (e instanceof java.util.InputMismatchException) {
+                scanner.nextLine();
+            }
+        } finally {
+            // Execution attempt finished
+        }
         }while (!quit);
         
         
@@ -691,7 +783,7 @@ public class Garage {
             return;
         }
         if (vehicleCount == 0) {
-            System.out.println("Controller.Garage is empty!");
+            System.out.println("Garage is empty!");
             return;
         }
         for(Vehicle car : garage) {
@@ -736,7 +828,7 @@ public class Garage {
             return;
         }
         if (vehicleCount == 0) {
-            System.out.println("Controller.Garage is Empty!");
+            System.out.println("Garage is Empty!");
             return;
         }
         Vehicle item = findVehicle(scanner);
@@ -746,8 +838,9 @@ public class Garage {
         }
         {
             boolean quit = false;
-                int choice;
+                int choice = -1;
                 do {
+                    try {
                     System.out.println("""
                             Update car:
                             0. Back to Vehicle Management
@@ -812,6 +905,14 @@ public class Garage {
                     }
                     System.out.println();
 
+                } catch (Exception e) {
+                    System.out.println("Invalid input or error occurred! Please check and try again.");
+                    if (e instanceof java.util.InputMismatchException) {
+                        scanner.nextLine();
+                    }
+                } finally {
+                    // Execution attempt finished
+                }
                 } while (!quit);
         }
     }
@@ -946,8 +1047,9 @@ public class Garage {
 
         System.out.println("Customer Management:");
         boolean quit = false;
-        int choice;
+        int choice = -1;
         do {
+            try {
             System.out.println("""
                     0. Back to Main Menu
                     1. Add Customer
@@ -980,6 +1082,14 @@ public class Garage {
             }
             System.out.println();
 
+        } catch (Exception e) {
+            System.out.println("Invalid input or error occurred! Please check and try again.");
+            if (e instanceof java.util.InputMismatchException) {
+                scanner.nextLine();
+            }
+        } finally {
+            // Execution attempt finished
+        }
         } while (!quit);
     }
 
@@ -1023,8 +1133,9 @@ public class Garage {
 
             if (item.getCustomerId() == id) {
                 boolean quit = false;
-                int choice;
+                int choice = -1;
                 do {
+                    try {
                     System.out.println("""
                                 Update customer:
                                 0. Back to Customer Management
@@ -1068,6 +1179,14 @@ public class Garage {
                     }
                     System.out.println();
 
+                } catch (Exception e) {
+                    System.out.println("Invalid input or error occurred! Please check and try again.");
+                    if (e instanceof java.util.InputMismatchException) {
+                        scanner.nextLine();
+                    }
+                } finally {
+                    // Execution attempt finished
+                }
                 } while (!quit);
                 return;
             }
@@ -1125,8 +1244,9 @@ public class Garage {
 
         System.out.println("Rent Management:");
         boolean quit = false;
-        int choice;
+        int choice = -1;
         do {
+            try {
             System.out.println("""
                         0. Back to Main Menu
                         1. Add Rent
@@ -1152,6 +1272,14 @@ public class Garage {
             }
             System.out.println();
 
+        } catch (Exception e) {
+            System.out.println("Invalid input or error occurred! Please check and try again.");
+            if (e instanceof java.util.InputMismatchException) {
+                scanner.nextLine();
+            }
+        } finally {
+            // Execution attempt finished
+        }
         } while (!quit);
     }
 
@@ -1239,8 +1367,9 @@ public class Garage {
         for (Rent rent : rents) {
             if (rent.getRentId() == id) {
                 boolean quit = false;
-                int choice;
+                int choice = -1;
                 do {
+                    try {
                     System.out.println("""
                             Update rent:
                             0. Back to Rent Management
@@ -1325,6 +1454,14 @@ public class Garage {
                     }
                     System.out.println();
 
+                } catch (Exception e) {
+                    System.out.println("Invalid input or error occurred! Please check and try again.");
+                    if (e instanceof java.util.InputMismatchException) {
+                        scanner.nextLine();
+                    }
+                } finally {
+                    // Execution attempt finished
+                }
                 } while (!quit);
                 return;
             }
@@ -1504,6 +1641,7 @@ public class Garage {
 
         boolean quit = false;
         do {
+            try {
             System.out.println("""
                     Payment Management:\s
                     0. Back to Main Menu
@@ -1519,6 +1657,14 @@ public class Garage {
                 default -> System.out.println("Invalid choice!");
             }
             System.out.println();
+        } catch (Exception e) {
+            System.out.println("Invalid input or error occurred! Please check and try again.");
+            if (e instanceof java.util.InputMismatchException) {
+                scanner.nextLine();
+            }
+        } finally {
+            // Execution attempt finished
+        }
         } while (!quit);
     }
 
