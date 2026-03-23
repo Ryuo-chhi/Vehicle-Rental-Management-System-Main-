@@ -45,9 +45,7 @@ class Main {
                       7.  Other Management       [ soon ]
                     ========================================
                     """);
-            System.out.print("Enter choice: ");
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            int choice = Integer.parseInt(myGarage.getRequiredInput(scanner,"choice"));
 
             switch (choice) {
                 case 0 -> {

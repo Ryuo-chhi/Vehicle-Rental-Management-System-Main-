@@ -47,7 +47,7 @@ public class RegularStaff extends Staff {
     public String toString() {
         return "RegularStaff{" +
                 super.toString() +
-                "workStation='" + workStation + '\'' +
+                ", workStation='" + workStation + '\'' +
                 '}';
     }
 }

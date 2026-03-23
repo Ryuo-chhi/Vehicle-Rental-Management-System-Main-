@@ -105,13 +105,11 @@ public class Garage {
     // Staff Management
 
     public void generateStaffToSystem() {
-        // Staff s1 = new ManagerStaff("Admin",   "admin_root", "root123",0);
+        addAdmin("Admin",   "admin_root", "root123");
         Staff s2 = new ManagerStaff("Bob",  "bob_manager", "manager123", 0);
         Staff s3 = new RegularStaff("Chan", "chan_staff", "staff123",1500,"Station-Moto");
-        addAdmin("Admin",   "admin_root", "root123");
-        staffs.add(s2);
         staffs.add(s3);
-//        Staff m = new ManagerStaff(s3,1500);
+        staffs.add(s2);
         staffCount += 3;
     }
 
@@ -137,9 +135,7 @@ public class Garage {
                     3. Update Staff
                     4. Remove Staff""");
 
-            System.out.print("Enter choice: ");
-            choice = scanner.nextInt();
-            scanner.nextLine();
+                    choice = Integer.parseInt(getRequiredInput(scanner, "choice"));
 
             switch (choice) {
                 case 0 -> quit = true;
@@ -225,10 +221,9 @@ public class Garage {
                     "\n" +
                     "0. Quit\n" +
                     "1. Manager\n" +
-                    "2. Regular staff\n" +
-                    "Choose position: "
+                    "2. Regular staff\n" 
             );
-            choice = scanner.nextInt();
+            choice = Integer.parseInt(getRequiredInput(scanner,"position"));
             scanner.nextLine();
             switch (choice) {
                 case 0,1,2 -> quit = true;
@@ -288,11 +283,9 @@ public class Garage {
                             "0. Back to Staff Management\n" +
                             "1. All Staffs\n" +
                             "2. Regular Staffs\n" +
-                            "3. Manager Staffs\n" +
-                            "Choose option: "
+                            "3. Manager Staffs\n"
             );
-            choice = scanner.nextInt();
-            scanner.nextLine();
+            choice = Integer.parseInt(getRequiredInput(scanner,"option"));
             switch (choice) {
                 case 0 -> quit = true;
                 case 1 -> {
@@ -358,9 +351,7 @@ public class Garage {
                             2. Salary
                             3. Enable/Disable Status""");
 
-                    System.out.print("Enter choice: ");
-                    choice = scanner.nextInt();
-                    scanner.nextLine(); // consume newline
+                    choice = Integer.parseInt(getRequiredInput(scanner, "choice"));
 
                     switch (choice) {
                         case 0 -> quit = true;
@@ -499,9 +490,7 @@ public class Garage {
                     4. Remove Vehicle
                     5. Search Vehicles""");
 
-            System.out.print("Enter choice: ");
-            choice = scanner.nextInt();
-            scanner.nextLine(); // consume newline
+            choice = Integer.parseInt(getRequiredInput(scanner,"choice"));
 
             switch (choice) {
                 case 0:
@@ -562,9 +551,7 @@ public class Garage {
                     4. Vehicle Class
                     5. Vehicle type
                     """);
-            System.out.print("Enter choice: ");
-            choice = scanner.nextInt();
-            scanner.nextLine(); // consume newline
+            choice = Integer.parseInt(getRequiredInput(scanner, "choice"));
 
             switch (choice) {
                 case 0:
@@ -593,7 +580,7 @@ public class Garage {
                             """);
                     System.out.print("Enter choice: ");
 
-                    choice = scanner.nextInt();
+                    choice = Integer.parseInt(getRequiredInput(scanner, "choice"));
                     if ( choice == 1){
                         filterVehicle(v -> v instanceof Car);
                         break;
@@ -618,16 +605,12 @@ public class Garage {
         String brand = getRequiredInput(scanner, "brand");
         String model = getRequiredInput(scanner, "model");
 
-        System.out.print("Enter price: ");
-        double price = scanner.nextDouble();
-        scanner.nextLine(); // consume newline
+        double price = Double.parseDouble(getRequiredInput(scanner,"price"));
 
         String vehicleLicence = getRequiredInput(scanner, "car licence (e.g. VL-01-AB-1234)");
         String licencePlate = getRequiredInput(scanner, "licence plate (e.g. PP-1000)");
 
-        System.out.print("Enter number of seats: ");
-        int doorOfCar = scanner.nextInt();
-        scanner.nextLine(); 
+        int doorOfCar = Integer.parseInt(getRequiredInput(scanner,"number of seats"));
 
         Car newCar = new Car("Car", powerSource, vehicleClass, brand, model,
                               price, vehicleLicence, licencePlate, doorOfCar);
@@ -647,9 +630,7 @@ public class Garage {
         String brand = getRequiredInput(scanner, "brand");
         String model = getRequiredInput(scanner, "model");
 
-        System.out.print("Enter price: ");
-        double price = scanner.nextDouble();
-        scanner.nextLine();
+        double price = Double.parseDouble(getRequiredInput(scanner,"price"));
 
         String vehicleLicence = getRequiredInput(scanner, "Moto licence (e.g. VL-01-AB-1234)");
         String licencePlate = getRequiredInput(scanner, "licence plate (e.g. PP-1000)");
@@ -681,11 +662,9 @@ public class Garage {
             System.out.print(
                     "0. Quit\n" +
                     "1. Car\n" +
-                    "2. Moto\n" +
-                    "Choose vehicle type: "
+                    "2. Moto\n"
             );
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            int choice = Integer.parseInt(getRequiredInput(scanner, "choice"));
             switch (choice) {
                 case 0:
                     quit = true;
@@ -780,8 +759,7 @@ public class Garage {
                             6. Status""");
 
                     System.out.print("Enter choice: ");
-                    choice = scanner.nextInt();
-                    scanner.nextLine(); // consume newline
+                    choice = Integer.parseInt(getRequiredInput(scanner, "choice"));
 
                     switch (choice) {
                         case 0:
@@ -894,9 +872,7 @@ public class Garage {
     }
 
     public Vehicle findVehicle(Scanner scanner) {
-        System.out.print("Enter Vehicle ID (number): ");
-        int id = scanner.nextInt();
-        scanner.nextLine();
+        int id = Integer.parseInt(getRequiredInput(scanner,"Vehicle ID (number)"));
         String code = getRequiredInput(scanner, "Enter Vehicle Code (e.g. Car-1, Moto-2)");
         Vehicle byId = getVehicleByID(id);
         Vehicle byCode = getVehicleByCode(code);
@@ -905,9 +881,7 @@ public class Garage {
     }
 
     private Staff findStaff(Scanner scanner) {
-        System.out.print("Enter Staff ID (number): ");
-        int id = scanner.nextInt();
-        scanner.nextLine();
+        int id = Integer.parseInt(getRequiredInput(scanner, "Staff ID (number)"));
         String username = getRequiredInput(scanner, "Staff Username ");
         for(Staff staff : staffs){
             if(staff.getId() == id && staff.getUsername().equals(username)){
@@ -982,8 +956,7 @@ public class Garage {
                     4. Remove Customer""");
 
             System.out.print("Enter choice: ");
-            choice = scanner.nextInt();
-            scanner.nextLine(); // consume newline
+            choice = Integer.parseInt(getRequiredInput(scanner, "choice"));
 
             switch (choice) {
                 case 0:
@@ -1045,9 +1018,7 @@ public class Garage {
             System.out.println("No customers!");
             return;
         }
-        System.out.print("Enter customer ID(int): ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+        int id = Integer.parseInt(getRequiredInput(scanner,"customer ID(int)"));
         for (Customer item : customers) {
 
             if (item.getCustomerId() == id) {
@@ -1065,8 +1036,7 @@ public class Garage {
                             """);
 
                     System.out.print("Enter choice: ");
-                    choice = scanner.nextInt();
-                    scanner.nextLine(); // consume newline
+                    choice = Integer.parseInt(getRequiredInput(scanner, "choice"));
 
                     switch (choice) {
                         case 0:
@@ -1111,9 +1081,7 @@ public class Garage {
             return;
         }
 
-        System.out.print("Enter customer ID(int): ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+        int id = Integer.parseInt(getRequiredInput(scanner, "customer ID(int)"));
 
         if (rentCount > 0) {
              for (Rent rent : rents) {
@@ -1137,9 +1105,7 @@ public class Garage {
     }
 
     public Customer findCustomerByID(Scanner scanner) {
-        System.out.print("Enter customer ID(int): ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+        int id = Integer.parseInt(getRequiredInput(scanner, "customer ID(int)"));
 
         for (Customer customer : customers) {
             if (customer.getCustomerId() == id)
@@ -1172,8 +1138,7 @@ public class Garage {
                     """);
 
             System.out.print("Enter choice: ");
-            choice = scanner.nextInt();
-            scanner.nextLine(); 
+            choice = Integer.parseInt(getRequiredInput(scanner, "choice"));
 
             switch (choice) {
                 case 0 -> quit = true;
@@ -1215,9 +1180,7 @@ public class Garage {
             return;
         }
         while (true) {
-            System.out.print("Enter number of days(int): ");
-            rentDays = scanner.nextInt();
-            scanner.nextLine();
+            rentDays = Integer.parseInt(getRequiredInput(scanner, "number of days(int)"));
             if (rentDays > 0) {
                 break;
             } else {
@@ -1271,9 +1234,7 @@ public class Garage {
             System.out.println("No rents!");
             return;
         }
-        System.out.print("Enter rent ID(int): ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); 
+        int id = Integer.parseInt(getRequiredInput(scanner, "rent ID(int)"));
 
         for (Rent rent : rents) {
             if (rent.getRentId() == id) {
@@ -1288,15 +1249,12 @@ public class Garage {
                             3. Customer
                             """);
                     System.out.print("Enter choice: ");
-                    choice = scanner.nextInt();
-                    scanner.nextLine(); 
+                    choice = Integer.parseInt(getRequiredInput(scanner, "choice"));
 
                     switch (choice) {
                         case 0 -> quit = true;
                         case 1 -> {
-                            System.out.print("New Rent Days: ");
-                            int newRentDays = scanner.nextInt();
-                            scanner.nextLine();
+                            int newRentDays = Integer.parseInt(getRequiredInput(scanner, "New Rent Days"));
 
                             if (newRentDays <= 0) {
                                 System.out.println("Rent days must be greater than 0.");
@@ -1378,9 +1336,7 @@ public class Garage {
             System.out.println("No rent to remove!");
             return;
         }
-        System.out.print("Enter rent ID(int): ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+        int id = Integer.parseInt(getRequiredInput(scanner, "rent ID(int)"));
 
         int index = -1;
         for (int i = 0; i < rents.size(); i++) {
@@ -1426,9 +1382,7 @@ public class Garage {
             System.out.println("No rents! Nothing to return.");
             return;
         }
-        System.out.print("Enter rent ID(int): ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+        int id = Integer.parseInt(getRequiredInput(scanner, "rent ID(int)"));
 
         for (Rent rent : rents) {
             if (rent.getRentId() == id) {
@@ -1488,9 +1442,7 @@ public class Garage {
     }
 
     public Rent findRentByID(Scanner scanner) {
-        System.out.print("Enter rent ID(int): ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+        int id = Integer.parseInt(getRequiredInput(scanner,"rent ID(int)"));
 
         for (Rent rent : rents) {
             if (rent.getRentId() == id)
@@ -1527,9 +1479,7 @@ public class Garage {
         scanner.nextLine();
         payment.setDiscount(discount);
 
-        System.out.print("Enter extra days (0 if none): ");
-        int extraDays = scanner.nextInt();
-        scanner.nextLine();
+        int extraDays = Integer.parseInt(getRequiredInput(scanner,"extra days (0 if none)"));
         payment.setExtraDays(extraDays);
 
         System.out.print("Enter damage fee (0 if none): ");
@@ -1561,8 +1511,7 @@ public class Garage {
                     2. Update payment
                     """);
             System.out.print("Enter your choice(int): ");
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // consume newline
+            int choice = Integer.parseInt(getRequiredInput(scanner, "choice"));
             switch (choice) {
                 case 0 -> quit = true;
                 case 1 -> showPayment(scanner);
@@ -1589,9 +1538,7 @@ public class Garage {
             return;
         }
 
-        System.out.print("Enter rent ID to look up: ");
-        int searchId = scanner.nextInt();
-        scanner.nextLine();
+        int searchId = Integer.parseInt(getRequiredInput(scanner,"rent ID to look up"));
 
         for (RentRecord record : rentalHistory) {
             if (record.getRentId() == searchId) {
