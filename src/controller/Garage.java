@@ -1,5 +1,6 @@
 package controller;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -29,6 +30,45 @@ public class Garage {
     public static final String MANAGE_STAFF = "MANAGE_STAFF";
     public static final String VIEW_REPORTS = "VIEW_REPORTS";
     public static final String SET_MANAGER_SALARY= "SET_MANAGER_SALARY";
+    private ArrayList<String> carClasses = new ArrayList<>(){{
+        add("SUV");
+        add("Sedan");
+        add("Van");
+        add("Coupe");
+        add("Truck");
+    }};
+
+    private ArrayList<String> powerSources = new ArrayList<>(){{
+        add("gasoline");
+        add("diesel");
+        add("electric");
+        add("hybrid");
+    }};
+
+    // Brand 
+    private ArrayList<String> carBrands = new ArrayList<>(){{
+        add("Ford");
+        add("Tesla");
+        add("Toyota");
+        add("Honda");
+        add("BMW");
+    }};
+
+    private ArrayList<String> motoClasses = new ArrayList<>(){{
+        add("Sport");
+        add("Cruiser");
+        add("Touring");
+    }};
+
+    // Moto brand
+        private ArrayList<String> motoBrands = new ArrayList<>(){{
+            add("Honda");
+            add("Yamaha");
+            add("Suzuki");
+            add("Kawasaki");
+            add("Ducati");
+        }};
+
 
 
     private ArrayList<Vehicle> garage;
@@ -455,6 +495,8 @@ public class Garage {
                 case "Moto" -> new Moto("Moto", v[1], v[2], v[3], v[4], price, v[6], v[7], true);
                 default     -> new Car("Car",  v[1], v[2], v[3], v[4], price, v[6], v[7], 4);
             };
+            if("Moto".equals(type)) motoCount++;
+            else carCount++;
             garage.add(vehicle);
             vehicleCount++;
             vehicleID ++;
@@ -592,9 +634,9 @@ public class Garage {
     }
 
     public void addCar(Scanner scanner) {
-        String powerSource = getRequiredInput(scanner, "power source (gasoline/diesel/electric/hybrid)");
-        String vehicleClass = getRequiredInput(scanner, "car class (SUV/Sedan/Van/Coupe/Truck)");
-        String brand = getRequiredInput(scanner, "brand");
+        String powerSource = selectInput(scanner, powerSources, "power source");
+        String vehicleClass = selectInput(scanner, carClasses, "car class");
+        String brand = selectInput(scanner, carBrands, "brand");
         String model = getRequiredInput(scanner, "model");
 
         double price = getRequiredDoubleInput(scanner, "price");
@@ -617,9 +659,9 @@ public class Garage {
     }
 
     public void addMoto(Scanner scanner) {
-        String powerSource = getRequiredInput(scanner, "power source (gasoline/diesel/electric/hybrid)");
-        String vehicleClass = getRequiredInput(scanner, "Moto class (Sport/Cruiser/Touring)");
-        String brand = getRequiredInput(scanner, "brand");
+        String powerSource = selectInput(scanner, powerSources, "power source");
+        String vehicleClass = selectInput(scanner, motoClasses, "moto class");
+        String brand = selectInput(scanner, motoBrands, "brand");
         String model = getRequiredInput(scanner, "model");
 
         double price = getRequiredDoubleInput(scanner, "price");
@@ -857,6 +899,32 @@ public class Garage {
             }
         }
         return input;
+    }
+
+    // Validate Name input
+    public String validateNameInput(Scanner scanner, String fieldName) {
+        String name;
+        while (true) {
+            name = getRequiredInput(scanner, fieldName);
+            if (name.matches("^[a-zA-Z ]+$")) {
+                return name;
+            } else {
+                System.out.println("Invalid input. " + fieldName + " should only contain letters, spaces and must not be empty.");
+            }
+        }
+    }
+    // Handle user input for a list of options
+    public String selectInput(Scanner scanner, ArrayList<String> options, String fieldName) {
+        for (int i = 0; i < options.size(); i++) {
+            System.out.println((i + 1) + ". " + options.get(i));
+        }
+
+        int choice = getRequiredIntInput(scanner, fieldName);
+        if (choice < 1 || choice > options.size()) {
+            System.out.println("Invalid choice. Please select a valid option.");
+            return selectInput(scanner, options, fieldName);
+        }
+        return options.get(choice - 1);
     }
 
     public int getRequiredIntInput(Scanner scanner, String fieldName) {
