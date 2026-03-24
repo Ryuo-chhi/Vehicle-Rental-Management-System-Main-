@@ -387,8 +387,8 @@ public class Garage {
                                 return;
                             }
                             String action = staff.getStatus() ? "disable (resign)" : "enable (employ)";
-                            System.out.print("Are you sure do you want to " + action + " this staff? (yes/no): ");
-                            String confirm = scanner.nextLine().trim();
+                            System.out.print("Are you sure do you want to " + action + " this staff? ");
+                            String confirm = getRequiredInput(scanner, "confirm(yes/no)").trim();
                             if (confirm.equalsIgnoreCase("yes")) {
                                 staff.setStatus(!staff.getStatus());
                                 System.out.println("Staff status flipped. Now: " + (staff.getStatus() ? "Employed" : "Resigned"));
@@ -418,8 +418,8 @@ public class Garage {
 //        }
 
         if (staffToRemove != null) {
-            System.out.print("Are you sure do you want to remove this staff? (yes/no): ");
-            String confirm = scanner.nextLine().trim();
+            System.out.print("Are you sure do you want to remove this staff? ");
+            String confirm = getRequiredInput(scanner, "confirm(yes/no)").trim();
             if (confirm.equalsIgnoreCase("yes")) {
                 staffs.remove(staffToRemove);
                 staffCount--;
@@ -741,7 +741,7 @@ public class Garage {
                 int choice;
                 do {
                     System.out.println("""
-                            Update car:
+                            Update vehicle:
                             0. Back to Vehicle Management
                             1. powerSource
                             2. Vehicle Class
@@ -750,7 +750,6 @@ public class Garage {
                             5. Price
                             6. Status""");
 
-                    System.out.print("Enter choice: ");
                     choice = getRequiredIntInput(scanner, "choice");
 
                     switch (choice) {
@@ -1062,7 +1061,6 @@ public class Garage {
                                 5. Driver License Photo
                             """);
 
-                    System.out.print("Enter choice: ");
                     choice = getRequiredIntInput(scanner, "choice");
 
                     switch (choice) {
@@ -1284,8 +1282,8 @@ public class Garage {
                                 break;
                             }
 
-                            System.out.print("Warning: Changing rent days may affect the total price. Confirm (yes/no): ");
-                            String confirm = scanner.nextLine();
+                            System.out.println("Warning: Changing rent days may affect the total price.");
+                            String confirm = getRequiredInput(scanner, "Confirm (yes/no)").trim();
                             if (!confirm.equalsIgnoreCase("yes")) {
                                 System.out.println("Rent days update cancelled.");
                                 break;
@@ -1373,9 +1371,9 @@ public class Garage {
                             * This action cannot be undone, once it is removed.
                             * Removing a rent will also remove its associated payment.
                              
-                            Are you sure you want to remove this rent? (yes/no): 
+                            Are you sure you want to remove this rent?
                             """);
-        String confirm = scanner.nextLine();
+        String confirm = getRequiredInput(scanner, "Confirm (yes/no)").trim();
         if (!confirm.equalsIgnoreCase("yes")) {
             System.out.println("Removal cancelled.");
             return;
