@@ -1,6 +1,5 @@
 package controller;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -11,6 +10,7 @@ import user.*;
 interface VehicleFilter {
     boolean search(Vehicle v);
 }
+
 @FunctionalInterface
 interface StaffFilter {
     boolean test(Staff staff);
@@ -18,7 +18,7 @@ interface StaffFilter {
 
 public class Garage {
 
-    /*====== Action Constants ====== */
+    /* ====== Action Constants ====== */
     public static final String VIEW_VEHICLE = "VIEW_VEHICLE";
     public static final String MANAGE_VEHICLE = "MANAGE_VEHICLE";
     public static final String VIEW_CUSTOMER = "VIEW_CUSTOMER";
@@ -29,47 +29,55 @@ public class Garage {
     public static final String SHOW_PAYMENT = "SHOW_PAYMENT";
     public static final String MANAGE_STAFF = "MANAGE_STAFF";
     public static final String VIEW_REPORTS = "VIEW_REPORTS";
-    public static final String SET_MANAGER_SALARY= "SET_MANAGER_SALARY";
-    private ArrayList<String> carClasses = new ArrayList<>(){{
-        add("SUV");
-        add("Sedan");
-        add("Van");
-        add("Coupe");
-        add("Truck");
-    }};
+    public static final String SET_MANAGER_SALARY = "SET_MANAGER_SALARY";
+    private ArrayList<String> carClasses = new ArrayList<>() {
+        {
+            add("SUV");
+            add("Sedan");
+            add("Van");
+            add("Coupe");
+            add("Truck");
+        }
+    };
 
-    private ArrayList<String> powerSources = new ArrayList<>(){{
-        add("gasoline");
-        add("diesel");
-        add("electric");
-        add("hybrid");
-    }};
+    private ArrayList<String> powerSources = new ArrayList<>() {
+        {
+            add("gasoline");
+            add("diesel");
+            add("electric");
+            add("hybrid");
+        }
+    };
 
-    // Brand 
-    private ArrayList<String> carBrands = new ArrayList<>(){{
-        add("Ford");
-        add("Tesla");
-        add("Toyota");
-        add("Honda");
-        add("BMW");
-    }};
+    // Brand
+    private ArrayList<String> carBrands = new ArrayList<>() {
+        {
+            add("Ford");
+            add("Tesla");
+            add("Toyota");
+            add("Honda");
+            add("BMW");
+        }
+    };
 
-    private ArrayList<String> motoClasses = new ArrayList<>(){{
-        add("Sport");
-        add("Cruiser");
-        add("Touring");
-    }};
+    private ArrayList<String> motoClasses = new ArrayList<>() {
+        {
+            add("Sport");
+            add("Cruiser");
+            add("Touring");
+        }
+    };
 
     // Moto brand
-        private ArrayList<String> motoBrands = new ArrayList<>(){{
+    private ArrayList<String> motoBrands = new ArrayList<>() {
+        {
             add("Honda");
             add("Yamaha");
             add("Suzuki");
             add("Kawasaki");
             add("Ducati");
-        }};
-
-
+        }
+    };
 
     private ArrayList<Vehicle> garage;
     private static int vehicleID = 0;
@@ -88,26 +96,26 @@ public class Garage {
 
     private ArrayList<RentRecord> rentalHistory;
 
-    //  LOGIN DEPENDENCY & FEEDBACK MESSAGE
-    private Staff loggedInStaff;   // null = no staff login
+    // LOGIN DEPENDENCY & FEEDBACK MESSAGE
+    private Staff loggedInStaff; // null = no staff login
     private String lastMessage;
 
     public Garage(int maxSize) {
         // Initialize garage
         this.garage = new ArrayList<>(maxSize);
         this.vehicleCount = 0;
-        generateVehicleToGarage();
+        loadVehiclesFromDatabase();
         // Initialize customer list
         this.customers = new HashSet<>();
         this.customerCount = 0;
-        generateCustomerToSystem();
+        loadCustomersFromDatabase();
         // Initialize rent list
         this.rents = new ArrayList<>(maxSize);
         this.rentCount = 0;
         // Initialize staff list
         this.staffs = new HashSet<>();
         this.staffCount = 0;
-        generateStaffToSystem();
+        loadStaffsFromDatabase();
         // Initialize rental history
         this.rentalHistory = new ArrayList<>();
 
@@ -116,38 +124,114 @@ public class Garage {
 
     }
 
-    public void addAdmin(String name, String username, String password){
-        Staff admin = new ManagerStaff(name, username, password, 0){
+    private void loadVehiclesFromDatabase() {
+        try {
+            java.sql.ResultSet rs = database.MySQLConnection.executeQuery("SELECT * FROM vehicles");
+            ArrayList<Vehicle> loaded = database.DatabaseMapper.mapToVehicles(rs);
+            if (loaded != null && !loaded.isEmpty()) {
+                this.garage = loaded;
+                this.vehicleCount = garage.size();
+                for (Vehicle v : garage) {
+                    if (v instanceof Car)
+                        carCount++;
+                    else
+                        motoCount++;
+                    if (v.getVehicleId() >= vehicleID)
+                        vehicleID = v.getVehicleId() + 1;
+                }
+                return;
+            }
+        } catch (Exception e) {
+        }
+        generateVehicleToGarage();
+    }
+
+    private void loadCustomersFromDatabase() {
+        try {
+            java.sql.ResultSet rs = database.MySQLConnection.executeQuery("SELECT * FROM customers");
+            HashSet<Customer> loaded = database.DatabaseMapper.mapToCustomers(rs);
+            if (loaded != null && !loaded.isEmpty()) {
+                this.customers = loaded;
+                this.customerCount = customers.size();
+                return;
+            }
+        } catch (Exception e) {
+        }
+        generateCustomerToSystem();
+    }
+
+    private void loadStaffsFromDatabase() {
+        try {
+            java.sql.ResultSet rs = database.MySQLConnection.executeQuery("SELECT * FROM staff");
+            HashSet<Staff> loaded = database.DatabaseMapper.mapToStaff(rs);
+            if (loaded != null && !loaded.isEmpty()) {
+                this.staffs = loaded;
+                this.staffCount = staffs.size();
+                // Always guarantee the super-admin exists after any load
+                addAdmin("Admin", "admin_root", "root123");
+                return;
+            }
+        } catch (Exception e) {
+        }
+        generateStaffToSystem();
+    }
+
+    public void addAdmin(String name, String username, String password) {
+        // Check if admin already in RAM (e.g. loaded from DB)
+        for (Staff s : staffs) {
+            if (s.getUsername().equalsIgnoreCase(username))
+                return; // already exists, skip
+        }
+        Staff admin = new ManagerStaff(name, username, password, 0) {
             @Override
             public boolean can(String action) {
-                // TODO Auto-generated method stub
-                return true;
+                return true; // Super admin: can do everything
             }
         };
         staffs.add(admin);
-        // System.out.println(admin);
-
-
-
+        // Upsert to DB: only insert if not already there
+        java.sql.ResultSet check = database.MySQLConnection.executeQuery(
+                "SELECT staff_id FROM staff WHERE username = '" + username + "'");
+        try {
+            if (check == null || !check.next()) {
+                database.DatabaseMapper.saveNewStaff(admin); // Sync → DB
+            }
+        } catch (Exception ignored) {
+        }
     }
 
-
     // GETTERS
-    public String getLastMessage() { return lastMessage; }
-    public boolean isStaffLoggedIn() { return loggedInStaff != null; }
-    public Staff getLoggedInStaff() { return loggedInStaff; }
-    public static int getVehicleCount() { return vehicleCount; }
-    public static int getVehicleID() { return vehicleID; }
+    public String getLastMessage() {
+        return lastMessage;
+    }
+
+    public boolean isStaffLoggedIn() {
+        return loggedInStaff != null;
+    }
+
+    public Staff getLoggedInStaff() {
+        return loggedInStaff;
+    }
+
+    public static int getVehicleCount() {
+        return vehicleCount;
+    }
+
+    public static int getVehicleID() {
+        return vehicleID;
+    }
 
     // SETTERS
-    private void setLastMessage(String msg) { lastMessage = msg; }
+    private void setLastMessage(String msg) {
+        lastMessage = msg;
+    }
 
     // Staff Management
 
     public void generateStaffToSystem() {
-        addAdmin("Admin",   "admin_root", "root123");
-        Staff s2 = new ManagerStaff("Bob",  "bob_manager", "manager123", 0);
-        Staff s3 = new RegularStaff("Chan", "chan_staff", "staff123",1500,"Station-Moto");
+        addAdmin("Admin", "admin_root", "root123");
+        Staff s2 = new ManagerStaff("Bob", "bob_manager", "manager123", 0);
+        Staff s3 = new RegularStaff("Chan", "chan_staff", "staff123", 1500, "Station-Moto");
         staffs.add(s3);
         staffs.add(s2);
         staffCount += 3;
@@ -175,7 +259,7 @@ public class Garage {
                     3. Update Staff
                     4. Remove Staff""");
 
-                    choice = getRequiredIntInput(scanner, "choice");
+            choice = getRequiredIntInput(scanner, "choice");
 
             switch (choice) {
                 case 0 -> quit = true;
@@ -189,6 +273,7 @@ public class Garage {
 
         } while (!quit);
     }
+
     // =========================
     // LOGIN CHECK (dependency)
     // =========================
@@ -218,7 +303,7 @@ public class Garage {
             return;
         }
 
-        for (Staff s:  staffs) {
+        for (Staff s : staffs) {
 
             if (s.getUsername().equalsIgnoreCase(username.trim())) {
 
@@ -256,23 +341,24 @@ public class Garage {
     public void addStaff(Scanner scanner) {
         boolean quit = false;
         int choice;
-        do{
+        do {
             System.out.print(
                     "\n" +
-                    "0. Quit\n" +
-                    "1. Manager\n" +
-                    "2. Regular staff\n"
-            );
+                            "0. Quit\n" +
+                            "1. Manager\n" +
+                            "2. Regular staff\n");
             choice = getRequiredIntInput(scanner, "position");
             switch (choice) {
-                case 0,1,2 -> quit = true;
+                case 0, 1, 2 -> quit = true;
                 default -> System.out.println("Invalid choice!");
 
             }
-        }while (!quit);
-        if(choice == 0){return;}
+        } while (!quit);
+        if (choice == 0) {
+            return;
+        }
 
-        String name = getRequiredInput(scanner,"staff name");
+        String name = getRequiredInput(scanner, "staff name");
 
         double salary = getRequiredDoubleInput(scanner, "staff salary");
         if (salary <= 0) {
@@ -297,14 +383,19 @@ public class Garage {
         }
         String workStation = getRequiredInput(scanner, "staff work station(Moto or Car)");
 
+        Staff newStaff = null;
         switch (choice) {
-            case 1 -> staffs.add(new ManagerStaff(name, username, password, salary));
-            case 2 -> staffs.add(new RegularStaff(name, username, password, salary,workStation));
+            case 1 -> newStaff = new ManagerStaff(name, username, password, salary);
+            case 2 -> newStaff = new RegularStaff(name, username, password, salary, workStation);
             default -> {
                 System.out.println("Can't create new staff.");
             }
         }
-
+        if (newStaff != null) {
+            staffs.add(newStaff);
+            database.DatabaseMapper.saveNewStaff(newStaff); // Sync → DB
+            staffCount++;
+        }
     }
 
     public void showStaffs(Scanner scanner) {
@@ -320,14 +411,13 @@ public class Garage {
                             "0. Back to Staff Management\n" +
                             "1. All Staffs\n" +
                             "2. Regular Staffs\n" +
-                            "3. Manager Staffs\n"
-            );
+                            "3. Manager Staffs\n");
             choice = getRequiredIntInput(scanner, "option");
             switch (choice) {
                 case 0 -> quit = true;
                 case 1 -> {
                     StaffFilter allStaff = new StaffFilter() {
-                        public boolean test(Staff staff){
+                        public boolean test(Staff staff) {
                             return true;
                         }
                     };
@@ -353,7 +443,7 @@ public class Garage {
                 }
                 default -> System.out.println("Invalid choice!");
             }
-        } while(!quit);
+        } while (!quit);
     }
 
     private void showFilteredStaffs(StaffFilter filter) {
@@ -372,9 +462,10 @@ public class Garage {
     }
 
     public void updateStaff(Scanner scanner) {
-        if(!getLoggedInStaff().can(MANAGE_STAFF)) {
+        if (!getLoggedInStaff().can(MANAGE_STAFF)) {
             System.out.println("Manager section Only!");
-            return;}
+            return;
+        }
         Staff targetStaff = findStaff(scanner);
         for (Staff staff : staffs) {
             if (staff.equals(targetStaff)) {
@@ -393,36 +484,35 @@ public class Garage {
                     switch (choice) {
                         case 0 -> quit = true;
                         case 1 -> {
-
                             String newName = getRequiredInput(scanner, "new Name").trim();
                             if (newName.isEmpty()) {
                                 System.out.println("Name cannot be empty. No change made.");
                             } else {
                                 staff.setName(newName);
+                                database.DatabaseMapper.updateStaff(staff); // Sync → DB
                                 System.out.println("Staff name updated to " + newName + ".");
                             }
                         }
                         case 2 -> {
-                           if( !getLoggedInStaff().can(SET_MANAGER_SALARY)) {
-                               System.out.println("Only admin can set salary to manager!");
-                               return;
-                           }
-
+                            if (!getLoggedInStaff().can(SET_MANAGER_SALARY)) {
+                                System.out.println("Only admin can set salary to manager!");
+                                return;
+                            }
                             double newSalary = getRequiredDoubleInput(scanner, "new Salary");
                             if (newSalary > 0) {
-                                if(setSalaryStaff(staff, newSalary)){
-                                    System.out.println("Change salary of staff successfully!");
-                                }else {
-                                    System.out.println("Cannot change salary regular staff!");
+                                if (setSalaryStaff(staff, newSalary)) {
+                                    database.DatabaseMapper.updateStaff(staff); // Sync → DB
+                                    System.out.println("Staff salary updated to " + newSalary + ".");
+                                } else {
+                                    System.out.println("Cannot change salary of regular staff!");
                                     return;
                                 }
-                                System.out.println("Staff salary updated to " + newSalary + ".");
                             } else {
                                 System.out.println("Salary must be greater than 0. No change made.");
                             }
                         }
                         case 3 -> {
-                            if( targetStaff instanceof ManagerStaff && !getLoggedInStaff().can(SET_MANAGER_SALARY) ){
+                            if (targetStaff instanceof ManagerStaff && !getLoggedInStaff().can(SET_MANAGER_SALARY)) {
                                 System.out.println("You cannot Enable/Disable Manager Status!");
                                 return;
                             }
@@ -431,7 +521,9 @@ public class Garage {
                             String confirm = getRequiredInput(scanner, "confirm(yes/no)").trim();
                             if (confirm.equalsIgnoreCase("yes")) {
                                 staff.setStatus(!staff.getStatus());
-                                System.out.println("Staff status flipped. Now: " + (staff.getStatus() ? "Employed" : "Resigned"));
+                                database.DatabaseMapper.updateStaff(staff); // Sync → DB
+                                System.out.println(
+                                        "Staff status flipped. Now: " + (staff.getStatus() ? "Employed" : "Resigned"));
                             } else {
                                 System.out.println("Operation cancelled.");
                             }
@@ -450,18 +542,19 @@ public class Garage {
     public void removeStaff(Scanner scanner) {
 
         Staff staffToRemove = findStaff(scanner);
-//        for (Staff staff : staffs) {
-//            if (staff.equals(staffToRemove)) {
-//                staffToRemove = staff;
-//                break;
-//            }
-//        }
+        // for (Staff staff : staffs) {
+        // if (staff.equals(staffToRemove)) {
+        // staffToRemove = staff;
+        // break;
+        // }
+        // }
 
         if (staffToRemove != null) {
             System.out.print("Are you sure do you want to remove this staff? ");
             String confirm = getRequiredInput(scanner, "confirm(yes/no)").trim();
             if (confirm.equalsIgnoreCase("yes")) {
                 staffs.remove(staffToRemove);
+                database.DatabaseMapper.deleteStaff(staffToRemove.getId()); // Sync → DB
                 staffCount--;
                 System.out.println("Staff with ID " + staffToRemove.getId() + " removed successfully.");
                 System.out.println("staffCount: " + staffCount);
@@ -469,37 +562,38 @@ public class Garage {
                 System.out.println("Operation cancelled.");
             }
         } else {
-            System.out.println("Staff with ID " + staffToRemove.getId() + " not found.");
+            System.out.println("Staff not found.");
         }
     }
 
     // Vehicle Management
 
-
     public void generateVehicleToGarage() {
         // type, powerSource, vehicleClass, brand, model, price, licence, licencePlate
         String[][] vehicles = {
-            { "Car",  "gasoline", "SUV",      "Ford",  "Escape",   "300", "VL-01-AB-1234", "PP-1000" },
-            { "Car",  "electric", "Sedan",    "Tesla", "Model 3",  "500", "VL-02-CD-5678", "PP-1001" },
-            { "Car",  "diesel",   "Truck",    "Toyota","Hilux",    "400", "VL-03-EF-9012", "PP-1002" },
-            { "Car",  "hybrid",   "Hatchback","Honda", "Insight",  "350", "VL-04-GH-3456", "PP-1003" },
-            { "Car",  "gasoline", "Coupe",    "BMW",   "M4",       "600", "VL-05-IJ-7890", "PP-1004" },
-            { "Moto", "gasoline", "Sport",    "Honda", "CBR600RR", "75",  "MOTO-LIC-2026", "ABC-1234" },
-            { "Moto", "gasoline", "Sport",    "Honda", "CBR600RR", "75",  "MOTO-LIC-2026", "ABC-1234" },
+                { "Car", "gasoline", "SUV", "Ford", "Escape", "300", "VL-01-AB-1234", "PP-1000" },
+                { "Car", "electric", "Sedan", "Tesla", "Model 3", "500", "VL-02-CD-5678", "PP-1001" },
+                { "Car", "diesel", "Truck", "Toyota", "Hilux", "400", "VL-03-EF-9012", "PP-1002" },
+                { "Car", "hybrid", "Hatchback", "Honda", "Insight", "350", "VL-04-GH-3456", "PP-1003" },
+                { "Car", "gasoline", "Coupe", "BMW", "M4", "600", "VL-05-IJ-7890", "PP-1004" },
+                { "Moto", "gasoline", "Sport", "Honda", "CBR600RR", "75", "MOTO-LIC-2026", "ABC-1234" },
+                { "Moto", "gasoline", "Sport", "Honda", "CBR600RR", "75", "MOTO-LIC-2026", "ABC-1234" },
         };
 
         for (String[] v : vehicles) {
-            String type   = v[0];
-            double price  = Double.parseDouble(v[5]);
+            String type = v[0];
+            double price = Double.parseDouble(v[5]);
             Vehicle vehicle = switch (type) {
                 case "Moto" -> new Moto("Moto", v[1], v[2], v[3], v[4], price, v[6], v[7], true);
-                default     -> new Car("Car",  v[1], v[2], v[3], v[4], price, v[6], v[7], 4);
+                default -> new Car("Car", v[1], v[2], v[3], v[4], price, v[6], v[7], 4);
             };
-            if("Moto".equals(type)) motoCount++;
-            else carCount++;
+            if ("Moto".equals(type))
+                motoCount++;
+            else
+                carCount++;
             garage.add(vehicle);
             vehicleCount++;
-            vehicleID ++;
+            vehicleID++;
         }
     }
 
@@ -556,12 +650,12 @@ public class Garage {
         } while (!quit);
     }
 
-    //************* Helper in Vehicle operation **************//
+    // ************* Helper in Vehicle operation **************//
 
     private void filterVehicle(VehicleFilter filter) {
         boolean found = false;
         for (Vehicle vehicle : garage) {
-            if(filter.search(vehicle)) {
+            if (filter.search(vehicle)) {
                 System.out.println(vehicle.toString());
                 found = true;
             }
@@ -572,7 +666,7 @@ public class Garage {
         }
     }
 
-    //************* Vehicle operation **************//
+    // ************* Vehicle operation **************//
 
     public void printVehiclesByFilter(Scanner scanner) {
         boolean quit = false;
@@ -599,7 +693,7 @@ public class Garage {
                     break;
                 case 2:
                     input = getRequiredInput(scanner, "Vehicle price");
-                    filterVehicle(v -> String.format("%.1f", v.getRentalRatePerDay()).equals(input) );
+                    filterVehicle(v -> String.format("%.1f", v.getRentalRatePerDay()).equals(input));
                     break;
                 case 3:
                     input = getRequiredInput(scanner, "Vehicle powerSource");
@@ -615,13 +709,13 @@ public class Garage {
                             2. Moto
                             """);
                     choice = getRequiredIntInput(scanner, "choice");
-                    if (choice == 1){
+                    if (choice == 1) {
                         filterVehicle(v -> v instanceof Car);
                         break;
-                    }else if (choice == 2){
+                    } else if (choice == 2) {
                         filterVehicle(v -> v instanceof Moto);
                         break;
-                    }else{
+                    } else {
                         System.out.println("Invalid choice!");
                         break;
                     }
@@ -647,14 +741,16 @@ public class Garage {
         int doorOfCar = getRequiredIntInput(scanner, "number of seats");
 
         Car newCar = new Car("Car", powerSource, vehicleClass, brand, model,
-                              price, vehicleLicence, licencePlate, doorOfCar);
+                price, vehicleLicence, licencePlate, doorOfCar);
 
         garage.add(newCar);
+        database.DatabaseMapper.saveNewVehicle(newCar);
+
         carCount++;
         System.out.println("Add car successfully. Total cars: " + this.carCount);
 
         vehicleCount++;
-        vehicleID ++;
+        vehicleID++;
         System.out.println("vehicleCount: " + vehicleCount);
     }
 
@@ -672,14 +768,15 @@ public class Garage {
         boolean helmetIncluded = Boolean.parseBoolean(getRequiredInput(scanner, "helmet included (true/false)"));
 
         Moto newMoto = new Moto("Moto", powerSource, vehicleClass, brand, model,
-                                price, vehicleLicence, licencePlate, helmetIncluded);
+                price, vehicleLicence, licencePlate, helmetIncluded);
 
         garage.add(newMoto);
+        database.DatabaseMapper.saveNewVehicle(newMoto);
         motoCount++;
         System.out.println("Add moto successfully. Total motos: " + this.motoCount);
 
         vehicleCount++;
-        vehicleID ++;
+        vehicleID++;
         System.out.println("vehicleCount: " + vehicleCount);
     }
 
@@ -693,10 +790,9 @@ public class Garage {
         do {
             System.out.println(
                     "\n" +
-                    "0. Quit\n" +
-                    "1. Car\n" +
-                    "2. Moto\n"
-            );
+                            "0. Quit\n" +
+                            "1. Car\n" +
+                            "2. Moto\n");
             int choice = getRequiredIntInput(scanner, "choice");
             switch (choice) {
                 case 0:
@@ -713,8 +809,7 @@ public class Garage {
                     break;
             }
 
-        }while (!quit);
-
+        } while (!quit);
 
     }
 
@@ -728,7 +823,7 @@ public class Garage {
             return;
         }
         System.out.println();
-        for(Vehicle car : garage) {
+        for (Vehicle car : garage) {
             System.out.println(car.toString());
         }
         System.out.println();
@@ -759,8 +854,10 @@ public class Garage {
         }
 
         garage.remove(target);
+        database.DatabaseMapper.deleteVehicle(target.getVehicleId());
         vehicleCount--;
-        System.out.println("Vehicle [" + target.getVehicleId() + "] " + target.getVehicleCode() + " removed successfully.");
+        System.out.println(
+                "Vehicle [" + target.getVehicleId() + "] " + target.getVehicleCode() + " removed successfully.");
         System.out.println("vehicleCount: " + vehicleCount);
     }
 
@@ -780,83 +877,88 @@ public class Garage {
         }
         {
             boolean quit = false;
-                int choice;
-                do {
-                    System.out.println("""
-                            Update vehicle:
-                            0. Back to Vehicle Management
-                            1. powerSource
-                            2. Vehicle Class
-                            3. Brand
-                            4. Model
-                            5. Price
-                            6. Status""");
+            int choice;
+            do {
+                System.out.println("""
+                        Update vehicle:
+                        0. Back to Vehicle Management
+                        1. powerSource
+                        2. Vehicle Class
+                        3. Brand
+                        4. Model
+                        5. Price
+                        6. Status""");
 
-                    choice = getRequiredIntInput(scanner, "choice");
+                choice = getRequiredIntInput(scanner, "choice");
 
-                    switch (choice) {
-                        case 0:
-                            quit = true;
-                            break;
-                        case 1:
-                            String powerSource = getRequiredInput(scanner, "New powerSource");
-                            item.setPowerSource(powerSource);
-                            break;
-
-                        case 2:
-                            String vehicleClass = getRequiredInput(scanner, "New Vehicle Class");
-                            item.setVehicleClass(vehicleClass);
-                            break;
-                        case 3:
-                            String vehicleBrand = getRequiredInput(scanner, "New Brand");
-                            item.setVehicleBrand(vehicleBrand);
-                            break;
-                        case 4:
-                            String vehicleModel = getRequiredInput(scanner, "New Model");
-                            item.setVehicleModel(vehicleModel);
-                            break;
-                        case 5:
-                            double rentalRatePerDay = getRequiredDoubleInput(scanner, "New Price");
-                            item.setRentalRatePerDay(rentalRatePerDay);
-                            break;
-                        case 6:
-                            // Check if car is currently rented
-                            boolean isRented = false;
-                            for (Rent rent : rents) {
-                                if (rent != null && rent.getVehicle() != null &&
-                                        rent.getVehicle().getVehicleId() == item.getVehicleId()) {
-                                    isRented = true;
-                                    break;
-                                }
+                switch (choice) {
+                    case 0:
+                        quit = true;
+                        break;
+                    case 1:
+                        String powerSource = getRequiredInput(scanner, "New powerSource");
+                        item.setPowerSource(powerSource);
+                        database.DatabaseMapper.updateVehicle(item); // Sync → DB
+                        break;
+                    case 2:
+                        String vehicleClass = getRequiredInput(scanner, "New Vehicle Class");
+                        item.setVehicleClass(vehicleClass);
+                        database.DatabaseMapper.updateVehicle(item); // Sync → DB
+                        break;
+                    case 3:
+                        String vehicleBrand = getRequiredInput(scanner, "New Brand");
+                        item.setVehicleBrand(vehicleBrand);
+                        database.DatabaseMapper.updateVehicle(item); // Sync → DB
+                        break;
+                    case 4:
+                        String vehicleModel = getRequiredInput(scanner, "New Model");
+                        item.setVehicleModel(vehicleModel);
+                        database.DatabaseMapper.updateVehicle(item); // Sync → DB
+                        break;
+                    case 5:
+                        double rentalRatePerDay = getRequiredDoubleInput(scanner, "New Price");
+                        item.setRentalRatePerDay(rentalRatePerDay);
+                        database.DatabaseMapper.updateVehicle(item); // Sync → DB
+                        break;
+                    case 6:
+                        boolean isRented = false;
+                        for (Rent rent : rents) {
+                            if (rent != null && rent.getVehicle() != null &&
+                                    rent.getVehicle().getVehicleId() == item.getVehicleId()) {
+                                isRented = true;
+                                break;
                             }
-                            if (isRented) {
-                                System.out.println("Cannot change status - car is currently rented!");
-                            } else {
-                                boolean status = Boolean.parseBoolean(getRequiredInput(scanner, "status (true/false)"));
-                                item.setAvailable(status);
-                            }
-                            break;
-                        default:
-                            System.out.println("Invalid choice!");
-                    }
-                    System.out.println();
+                        }
+                        if (isRented) {
+                            System.out.println("Cannot change status - car is currently rented!");
+                        } else {
+                            boolean status = Boolean.parseBoolean(getRequiredInput(scanner, "status (true/false)"));
+                            item.setAvailable(status);
+                            database.DatabaseMapper.updateVehicle(item); // Sync → DB
+                        }
+                        break;
+                    default:
+                        System.out.println("Invalid choice!");
+                }
+                System.out.println();
 
-                } while (!quit);
+            } while (!quit);
         }
     }
 
     // Matches a vehicle only when BOTH numeric id AND code point to the same entry
-    //helper function
+    // helper function
     private boolean setSalaryStaff(Staff staff, double salary) {
-        if(staff == null) {
+        if (staff == null) {
             System.out.println("Invalid staff!");
             return false;
         }
         staff.setSalary(salary);
         return true;
     }
+
     private boolean canBeRented(Customer customer, Vehicle vehicle) {
-        String vehicleType =  vehicle.getClass().getSimpleName();
+        String vehicleType = vehicle.getClass().getSimpleName();
 
         switch (vehicleType) {
             case "Car":
@@ -864,9 +966,10 @@ public class Garage {
                     System.out.println("Vehicle Not Available");
                     return false;
                 }
-                if(customer.getDriverLicensePhoto() == null || customer.getDriverLicensePhoto().isEmpty()) {
+                if (customer.getDriverLicensePhoto() == null || customer.getDriverLicensePhoto().isEmpty()) {
                     System.out.println("Customer does not have Driver Licence");
-                    System.out.println("This " + vehicleType + " cannot be rented to this customer! Please check the requirements and try again.");
+                    System.out.println("This " + vehicleType
+                            + " cannot be rented to this customer! Please check the requirements and try again.");
                     return false;
                 }
                 System.out.println("Customer is valid");
@@ -878,7 +981,8 @@ public class Garage {
                 }
                 if (customer.getIDCardPhoto() == null || customer.getIDCardPhoto().isEmpty()) {
                     System.out.println("Customer does not have ID Card");
-                    System.out.println("This " + vehicleType + " cannot be rented to this customer! Please check the requirements and try again.");
+                    System.out.println("This " + vehicleType
+                            + " cannot be rented to this customer! Please check the requirements and try again.");
                     return false;
                 }
                 System.out.println("Customer is valid");
@@ -888,6 +992,7 @@ public class Garage {
         }
         return false;
     }
+
     public String getRequiredInput(Scanner scanner, String fieldName) {
         String input = "";
         while (input.trim().isEmpty()) {
@@ -909,10 +1014,12 @@ public class Garage {
             if (name.matches("^[a-zA-Z ]+$")) {
                 return name;
             } else {
-                System.out.println("Invalid input. " + fieldName + " should only contain letters, spaces and must not be empty.");
+                System.out.println(
+                        "Invalid input. " + fieldName + " should only contain letters, spaces and must not be empty.");
             }
         }
     }
+
     // Handle user input for a list of options
     public String selectInput(Scanner scanner, ArrayList<String> options, String fieldName) {
         for (int i = 0; i < options.size(); i++) {
@@ -970,19 +1077,20 @@ public class Garage {
     }
 
     public Vehicle findVehicle(Scanner scanner) {
-        int id = getRequiredIntInput(scanner,"Vehicle ID (number)");
+        int id = getRequiredIntInput(scanner, "Vehicle ID (number)");
         String code = getRequiredInput(scanner, "Enter Vehicle Code (e.g. Car-1, Moto-2)");
         Vehicle byId = getVehicleByID(id);
         Vehicle byCode = getVehicleByCode(code);
-        if (byId != null && byId == byCode) return byId;
+        if (byId != null && byId == byCode)
+            return byId;
         return null;
     }
 
     private Staff findStaff(Scanner scanner) {
         int id = getRequiredIntInput(scanner, "Staff ID (number)");
         String username = getRequiredInput(scanner, "Staff Username ");
-        for(Staff staff : staffs){
-            if(staff.getId() == id && staff.getUsername().equals(username)){
+        for (Staff staff : staffs) {
+            if (staff.getId() == id && staff.getUsername().equals(username)) {
                 return staff;
             }
         }
@@ -1017,11 +1125,11 @@ public class Garage {
 
     public void generateCustomerToSystem() {
         String[][] custs = {
-            { "Aruna Smith", "D7654321", "0662345679", "IDCard.jpg", "DriverLicense.jpg" },
-            { "Bona Johnson", "D2345678", "0122345680", "IDCard.jpg", "DriverLicense.jpg" },
-            { "Champa Brown", "D3456789", "0172345681", "IDCard.jpg", "DriverLicense.jpg" },
-            { "Diana Prince", "D4567890", "0882345682", "IDCard.jpg", "DriverLicense.jpg" },
-            { "Eno Gonzalez", "D5678901", "0972345683", "IDCard.jpg", "" }
+                { "Aruna Smith", "D7654321", "0662345679", "IDCard.jpg", "DriverLicense.jpg" },
+                { "Bona Johnson", "D2345678", "0122345680", "IDCard.jpg", "DriverLicense.jpg" },
+                { "Champa Brown", "D3456789", "0172345681", "IDCard.jpg", "DriverLicense.jpg" },
+                { "Diana Prince", "D4567890", "0882345682", "IDCard.jpg", "DriverLicense.jpg" },
+                { "Eno Gonzalez", "D5678901", "0972345683", "IDCard.jpg", "" }
         };
 
         for (String[] cust : custs) {
@@ -1091,6 +1199,7 @@ public class Garage {
         Customer newCustomer = new Customer(customerName, customerIdNum, customerPhone);
 
         customers.add(newCustomer);
+        database.DatabaseMapper.saveNewCustomer(newCustomer);
         customerCount++;
         System.out.println("Add customer successfully.");
         System.out.println("customerCount: " + customerCount);
@@ -1112,7 +1221,7 @@ public class Garage {
             System.out.println("No customers!");
             return;
         }
-        int id = getRequiredIntInput(scanner,"customer ID(int)");
+        int id = getRequiredIntInput(scanner, "customer ID(int)");
         for (Customer item : customers) {
 
             if (item.getCustomerId() == id) {
@@ -1137,19 +1246,23 @@ public class Garage {
                             break;
                         case 1:
                             item.setcustomerIdNum(getRequiredInput(scanner, "new ID Card"));
+                            database.DatabaseMapper.updateCustomer(item); // Sync → DB
                             break;
-
                         case 2:
                             item.setCustomerName(getRequiredInput(scanner, "new Name"));
+                            database.DatabaseMapper.updateCustomer(item); // Sync → DB
                             break;
                         case 3:
                             item.setCustomerPhone(getRequiredInput(scanner, "new Phone"), customers);
+                            database.DatabaseMapper.updateCustomer(item); // Sync → DB
                             break;
                         case 4:
                             item.setIDCardPhoto(getRequiredInput(scanner, "new ID Card Photo"));
+                            database.DatabaseMapper.updateCustomer(item); // Sync → DB
                             break;
                         case 5:
                             item.setDriverLicensePhoto(getRequiredInput(scanner, "new Driver License Photo"));
+                            database.DatabaseMapper.updateCustomer(item); // Sync → DB
                             break;
                         default:
                             System.out.println("Invalid choice!");
@@ -1172,7 +1285,7 @@ public class Garage {
         int id = getRequiredIntInput(scanner, "customer ID(int)");
 
         if (rentCount > 0) {
-             for (Rent rent : rents) {
+            for (Rent rent : rents) {
                 if (rent != null && rent.getCustomer() != null && rent.getCustomer().getCustomerId() == id) {
                     System.out.println("Customer is associated with an active rent and cannot be removed.");
                     return;
@@ -1183,6 +1296,7 @@ public class Garage {
         for (Customer customer : customers) {
             if (customer.getCustomerId() == id) {
                 customers.remove(customer);
+                database.DatabaseMapper.deleteCustomer(id);
                 customerCount--;
                 break;
             }
@@ -1245,7 +1359,6 @@ public class Garage {
     public void addRent(Scanner scanner) {
         int rentDays;
 
-
         Vehicle selectedvVehicle = findVehicle(scanner);
         Customer selectedCustomer = findCustomerByID(scanner);
 
@@ -1258,7 +1371,7 @@ public class Garage {
             return;
         }
 
-        if(!canBeRented(selectedCustomer, selectedvVehicle)) {
+        if (!canBeRented(selectedCustomer, selectedvVehicle)) {
             return;
         }
 
@@ -1287,17 +1400,23 @@ public class Garage {
         }
 
         double vehiclePrice = selectedvVehicle.getRentalRatePerDay(); // snapshot vehicle price
-        Rent newRent = new Rent(selectedvVehicle, selectedCustomer, rentDays, startDate, endDate); // create rent without payment first
+        Rent newRent = new Rent(selectedvVehicle, selectedCustomer, rentDays, startDate, endDate); // create rent
+                                                                                                   // without payment
+                                                                                                   // first
 
         double deposit = getRequiredDoubleInput(scanner, "deposit amount($)");
-        Payment payment = new Payment(newRent.getRentDays(), vehiclePrice, deposit); // create payment with deposit and base price
+        Payment payment = new Payment(newRent.getRentDays(), vehiclePrice, deposit); // create payment with deposit and
+                                                                                     // base price
 
         newRent.setPayment(payment); // add payment to rent
 
         selectedvVehicle.setAvailable(false); // mark vehicle as unavailable
+        database.DatabaseMapper.updateVehicle(selectedvVehicle); // Sync vehicle availability → DB
 
-        // add rent to list
+        // Save payment first so it gets a DB ID, then save rent referencing it
+        database.DatabaseMapper.saveNewPayment(payment); // Sync → DB
         rents.add(newRent);
+        database.DatabaseMapper.saveNewRent(newRent); // Sync → DB
         rentCount++;
         System.out.println("Add rent successfully.");
         System.out.println("rentCount: " + rentCount);
@@ -1339,29 +1458,22 @@ public class Garage {
                         case 0 -> quit = true;
                         case 1 -> {
                             int newRentDays = getRequiredIntInput(scanner, "New Rent Days");
-
                             if (newRentDays <= 0) {
                                 System.out.println("Rent days must be greater than 0.");
                                 break;
                             }
-
                             if (newRentDays == rent.getRentDays()) {
                                 System.out.println("Rent days is the same as before. No update needed.");
                                 break;
                             }
-
                             System.out.println("Warning: Changing rent days may affect the total price.");
                             String confirm = getRequiredInput(scanner, "Confirm (yes/no)").trim();
                             if (!confirm.equalsIgnoreCase("yes")) {
                                 System.out.println("Rent days update cancelled.");
                                 break;
                             }
-
                             rent.setRentDays(newRentDays);
-                            rent.getPayment().setRentDays(newRentDays); // update rent days in payment as well
-
-                            System.out.println("Rent days updated successfully.");
-                            System.out.println("Please re-enter start date and end date again.");
+                            rent.getPayment().setRentDays(newRentDays);
 
                             String newStartDate = getRequiredInput(scanner, "new start date");
                             while (!isValidDateFormat(newStartDate)) {
@@ -1376,6 +1488,9 @@ public class Garage {
                                 newEndDate = getRequiredInput(scanner, "new end date");
                             }
                             rent.setEndDate(newEndDate);
+                            database.DatabaseMapper.updateRent(rent); // Sync → DB
+                            database.DatabaseMapper.updatePayment(rent.getPayment()); // Sync → DB
+                            System.out.println("Rent days updated successfully.");
                         }
                         case 2 -> {
                             Vehicle newCar = findVehicle(scanner);
@@ -1384,15 +1499,16 @@ public class Garage {
                             } else if (!newCar.isAvailable()) {
                                 System.out.println("Selected car is not available!");
                             } else {
-                                // Mark old car as available
                                 if (rent.getVehicle() != null) {
                                     rent.getVehicle().setAvailable(true);
+                                    database.DatabaseMapper.updateVehicle(rent.getVehicle()); // Sync old vehicle → DB
                                 }
-                                // Mark new car as unavailable
                                 newCar.setAvailable(false);
-                                // Update the car
+                                database.DatabaseMapper.updateVehicle(newCar); // Sync new vehicle → DB
                                 rent.setVehicle(newCar);
-                                rent.getPayment().setPrice(newCar.getRentalRatePerDay()); // update price in payment as well
+                                rent.getPayment().setPrice(newCar.getRentalRatePerDay());
+                                database.DatabaseMapper.updateRent(rent); // Sync → DB
+                                database.DatabaseMapper.updatePayment(rent.getPayment()); // Sync → DB
                                 System.out.println("Vehicle updated successfully.");
                             }
                         }
@@ -1402,6 +1518,7 @@ public class Garage {
                                 System.out.println("Customer not found!");
                             } else {
                                 rent.setCustomer(newCustomer);
+                                database.DatabaseMapper.updateRent(rent); // Sync → DB
                                 System.out.println("Customer updated successfully.");
                             }
                         }
@@ -1435,12 +1552,12 @@ public class Garage {
         }
 
         System.out.println("""
-                            Warning:
-                            * This action cannot be undone, once it is removed.
-                            * Removing a rent will also remove its associated payment.
-                             
-                            Are you sure you want to remove this rent?
-                            """);
+                Warning:
+                * This action cannot be undone, once it is removed.
+                * Removing a rent will also remove its associated payment.
+
+                Are you sure you want to remove this rent?
+                """);
         String confirm = getRequiredInput(scanner, "Confirm (yes/no)").trim();
         if (!confirm.equalsIgnoreCase("yes")) {
             System.out.println("Removal cancelled.");
@@ -1451,10 +1568,15 @@ public class Garage {
         // Mark car as available when rent is removed
         if (rentToRemove.getVehicle() != null) {
             rentToRemove.getVehicle().setAvailable(true);
+            database.DatabaseMapper.updateVehicle(rentToRemove.getVehicle()); // Sync vehicle → DB
         } else {
             System.out.println("Warning: Rent has no associated car!");
         }
-
+        // Delete payment first (FK dependency), then rent
+        if (rentToRemove.getPayment() != null) {
+            database.DatabaseMapper.deletePayment(rentToRemove.getPayment().getPaymentId()); // Sync → DB
+        }
+        database.DatabaseMapper.deleteRent(rentToRemove.getRentId()); // Sync → DB
         rents.remove(index);
         rentCount--;
 
@@ -1508,13 +1630,18 @@ public class Garage {
 
                 // Mark car as available
                 rent.getVehicle().setAvailable(true);
+                rent.setStatus(false);
+
+                database.DatabaseMapper.updatePayment(rent.getPayment()); // Sync payment (PAID) → DB
+                database.DatabaseMapper.updateVehicle(rent.getVehicle()); // Sync vehicle (available) → DB
+                database.DatabaseMapper.updateRent(rent); // Sync rent (status/returnDate) → DB
 
                 double total = rent.getPayment().calculateTotal();
                 System.out.println("Payment created. Final total amount: $" + total);
                 System.out.println(
-                        "Vehicle [" + rent.getVehicle().getVehicleId() + "] " + rent.getVehicle().getVehicleCode() + " has been returned and is now available.");
+                        "Vehicle [" + rent.getVehicle().getVehicleId() + "] " + rent.getVehicle().getVehicleCode()
+                                + " has been returned and is now available.");
                 System.out.println();
-                rent.setStatus(false);
                 // --- Snapshot: add immutable record to rental history ---
                 rentalHistory.add(new RentRecord(rent));
                 return;
@@ -1524,7 +1651,7 @@ public class Garage {
     }
 
     public Rent findRentByID(Scanner scanner) {
-        int id = getRequiredIntInput(scanner,"rent ID(int)");
+        int id = getRequiredIntInput(scanner, "rent ID(int)");
 
         for (Rent rent : rents) {
             if (rent.getRentId() == id)
@@ -1565,9 +1692,9 @@ public class Garage {
         double damageFee = getRequiredDoubleInput(scanner, "damage fee (0 if none)");
         payment.setDamageFee(damageFee);
 
+        database.DatabaseMapper.updatePayment(payment); // Sync → DB
         System.out.println("Payment updated successfully!");
     }
-
 
     public void paymentManagement(Scanner scanner) {
         // Check if staff is logged in and has permission
@@ -1616,7 +1743,7 @@ public class Garage {
             return;
         }
 
-        int searchId = getRequiredIntInput(scanner,"rent ID to look up");
+        int searchId = getRequiredIntInput(scanner, "rent ID to look up");
 
         for (RentRecord record : rentalHistory) {
             if (record.getRentId() == searchId) {
@@ -1624,9 +1751,11 @@ public class Garage {
                 System.out.println("  Rent ID        : " + record.getRentId());
                 System.out.println("  --- Vehicle ---");
                 System.out.println("  ID / Code      : [" + record.getVehicleId() + "] " + record.getVehicleCode());
-                System.out.println("  Type / Vehicle : " + record.getVehicleType() + " — " + record.getVehicleBrand() + " " + record.getVehicleModel() + " (" + record.getLicencePlate() + ")");
-                System.out.println("  Power / Class  : " + record.getVehiclePowerSource() + " / " + record.getVehicleClass());
-                System.out.printf( "  Rate/day       : $%.2f%n", record.getRentalRatePerDay());
+                System.out.println("  Type / Vehicle : " + record.getVehicleType() + " — " + record.getVehicleBrand()
+                        + " " + record.getVehicleModel() + " (" + record.getLicencePlate() + ")");
+                System.out.println(
+                        "  Power / Class  : " + record.getVehiclePowerSource() + " / " + record.getVehicleClass());
+                System.out.printf("  Rate/day       : $%.2f%n", record.getRentalRatePerDay());
                 System.out.println("  --- Customer ---");
                 System.out.println("  ID / Name      : [" + record.getCustomerId() + "] " + record.getCustomerName());
                 System.out.println("  ID Card No.    : " + record.getCustomerIdNum());
@@ -1640,12 +1769,12 @@ public class Garage {
                 System.out.println("  Payment ID     : " + record.getPaymentId());
                 System.out.println("  Method         : " + record.getPaymentMethod());
                 System.out.println("  Pay date       : " + record.getPayDate());
-                System.out.printf( "  Base price/day : $%.2f%n", record.getPrice());
-                System.out.printf( "  Discount       : %.1f%%%n", record.getDiscount());
+                System.out.printf("  Base price/day : $%.2f%n", record.getPrice());
+                System.out.printf("  Discount       : %.1f%%%n", record.getDiscount());
                 System.out.println("  Extra days     : " + record.getExtraDays());
-                System.out.printf( "  Damage fee     : $%.2f%n", record.getDamageFee());
-                System.out.printf( "  Deposit        : $%.2f%n", record.getDeposit());
-                System.out.printf( "  Total paid     : $%.2f%n", record.getTotalPaid());
+                System.out.printf("  Damage fee     : $%.2f%n", record.getDamageFee());
+                System.out.printf("  Deposit        : $%.2f%n", record.getDeposit());
+                System.out.printf("  Total paid     : $%.2f%n", record.getTotalPaid());
                 System.out.println("  Status         : " + record.getPaymentStatus());
                 System.out.println("---------------------------------\n");
                 return;
@@ -1687,9 +1816,9 @@ public class Garage {
         }
 
         System.out.println("\n╔══════════════════════════════════════════╗");
-        System.out.println(  "║         VEHICLE RENTAL MANAGEMENT        ║");
-        System.out.println(  "║              FULL REPORT                 ║");
-        System.out.println(  "╚══════════════════════════════════════════╝");
+        System.out.println("║         VEHICLE RENTAL MANAGEMENT        ║");
+        System.out.println("║              FULL REPORT                 ║");
+        System.out.println("╚══════════════════════════════════════════╝");
 
         // ── 1. Fleet summary ──────────────────────────────────────────
         System.out.println("\n── 1. Fleet Summary ─────────────────────");
@@ -1697,25 +1826,30 @@ public class Garage {
         for (Vehicle v : garage) {
             if (v instanceof Car) {
                 totalCars++;
-                if (v.isAvailable()) availableCars++;
+                if (v.isAvailable())
+                    availableCars++;
             } else if (v instanceof Moto) {
                 totalMotos++;
-                if (v.isAvailable()) availableMotos++;
+                if (v.isAvailable())
+                    availableMotos++;
             }
         }
         int totalVehicles = totalCars + totalMotos;
-        int available     = availableCars + availableMotos;
+        int available = availableCars + availableMotos;
         System.out.println("  Total vehicles   : " + totalVehicles);
         System.out.println("  Available        : " + available);
         System.out.println("  Rented out       : " + (totalVehicles - available));
-        System.out.printf( "  Cars  : %d total, %d available, %d rented%n", totalCars,  availableCars,  totalCars  - availableCars);
-        System.out.printf( "  Motos : %d total, %d available, %d rented%n", totalMotos, availableMotos, totalMotos - availableMotos);
+        System.out.printf("  Cars  : %d total, %d available, %d rented%n", totalCars, availableCars,
+                totalCars - availableCars);
+        System.out.printf("  Motos : %d total, %d available, %d rented%n", totalMotos, availableMotos,
+                totalMotos - availableMotos);
 
         // ── 2. Rental summary ─────────────────────────────────────────
         System.out.println("\n── 2. Rental Summary ────────────────────");
         int activeRents = 0;
         for (Rent r : rents) {
-            if (r.isStatus()) activeRents++;
+            if (r.isStatus())
+                activeRents++;
         }
         System.out.println("  Active rents     : " + activeRents);
         System.out.println("  Completed rents  : " + rentalHistory.size());
@@ -1727,7 +1861,8 @@ public class Garage {
             System.out.println("  No completed rentals yet.");
         } else {
             double totalRevenue = 0;
-            for (RentRecord r : rentalHistory) totalRevenue += r.getTotalPaid();
+            for (RentRecord r : rentalHistory)
+                totalRevenue += r.getTotalPaid();
             double avgRevenue = totalRevenue / rentalHistory.size();
             System.out.printf("  Total revenue    : $%.2f%n", totalRevenue);
             System.out.printf("  Average per rent : $%.2f%n", avgRevenue);
@@ -1739,7 +1874,7 @@ public class Garage {
             System.out.println("  No data yet.");
         } else {
             java.util.HashMap<Integer, Integer> vehicleFreq = new java.util.HashMap<>();
-            java.util.HashMap<Integer, String>  vehicleLabel = new java.util.HashMap<>();
+            java.util.HashMap<Integer, String> vehicleLabel = new java.util.HashMap<>();
             for (RentRecord r : rentalHistory) {
                 int vid = r.getVehicleId();
                 vehicleFreq.put(vid, vehicleFreq.getOrDefault(vid, 0) + 1);
@@ -1749,7 +1884,7 @@ public class Garage {
             for (java.util.Map.Entry<Integer, Integer> entry : vehicleFreq.entrySet()) {
                 if (entry.getValue() > topVehicleCount) {
                     topVehicleCount = entry.getValue();
-                    topVehicleId    = entry.getKey();
+                    topVehicleId = entry.getKey();
                 }
             }
             System.out.println("  " + vehicleLabel.get(topVehicleId) + " — rented " + topVehicleCount + " time(s)");
@@ -1760,8 +1895,8 @@ public class Garage {
         if (rentalHistory.isEmpty()) {
             System.out.println("  No data yet.");
         } else {
-            java.util.HashMap<Integer, Integer> customerFreq  = new java.util.HashMap<>();
-            java.util.HashMap<Integer, String>  customerLabel = new java.util.HashMap<>();
+            java.util.HashMap<Integer, Integer> customerFreq = new java.util.HashMap<>();
+            java.util.HashMap<Integer, String> customerLabel = new java.util.HashMap<>();
             for (RentRecord r : rentalHistory) {
                 int cid = r.getCustomerId();
                 customerFreq.put(cid, customerFreq.getOrDefault(cid, 0) + 1);
@@ -1772,10 +1907,11 @@ public class Garage {
             for (java.util.Map.Entry<Integer, Integer> entry : customerFreq.entrySet()) {
                 if (entry.getValue() > topCustomerCount) {
                     topCustomerCount = entry.getValue();
-                    topCustomerId    = entry.getKey();
+                    topCustomerId = entry.getKey();
                 }
             }
-            System.out.println("  " + customerLabel.get(topCustomerId) + " (ID: " + topCustomerId + ") — " + topCustomerCount + " rental(s)");
+            System.out.println("  " + customerLabel.get(topCustomerId) + " (ID: " + topCustomerId + ") — "
+                    + topCustomerCount + " rental(s)");
         }
 
         System.out.println("\n══════════════════════════════════════════\n");
@@ -1786,16 +1922,20 @@ public class Garage {
     public void showDashboard() {
         int availableVehicles = 0;
         for (Vehicle v : garage) {
-            if (v.isAvailable()) availableVehicles++;
+            if (v.isAvailable())
+                availableVehicles++;
         }
 
         int activeRents = 0;
         for (Rent r : rents) {
-            if (r.isStatus()) activeRents++;
+            if (r.isStatus())
+                activeRents++;
         }
 
         System.out.println("\n========== GARAGE DASHBOARD ==========");
-        System.out.println("Logged in as : " + (loggedInStaff != null ? loggedInStaff.getName() + " (" + loggedInStaff.getClass().getSimpleName() + ")" : "N/A"));
+        System.out.println("Logged in as : " + (loggedInStaff != null
+                ? loggedInStaff.getName() + " (" + loggedInStaff.getClass().getSimpleName() + ")"
+                : "N/A"));
         System.out.println("--------------------------------------");
         System.out.println("Total vehicles   : " + vehicleCount);
         System.out.println("Available now    : " + availableVehicles);

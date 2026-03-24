@@ -73,6 +73,13 @@ public abstract class Vehicle implements IVehicle {
     }
 
     //setter
+    public void setVehicleId(int vehicleId) {
+        this.vehicleId = vehicleId;
+    }
+
+    public void setVehicleCode(String vehicleCode) {
+        this.vehicleCode = vehicleCode;
+    }
 
     public void setPowerSource(String powerSource) {
         this.powerSource = powerSource;

@@ -56,6 +56,9 @@ public class Customer {
     }
 
     /*===== Setter =====*/
+    public void setCustomerId(int customerId) {
+        this.customerId = customerId;
+    }
     public void setCustomerName(String customerName) {
         
         if(customerName == null || customerName.trim().isEmpty()) {

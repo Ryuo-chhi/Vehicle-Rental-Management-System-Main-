@@ -79,6 +79,10 @@ public class Rent {
     }
 
     // ===== SETTER =====
+    public void setRentId(int rentId) {
+        this.rentId = rentId;
+    }
+    
     public void setPayment(Payment payment) {
         if (payment != null) {
             this.payment = payment;

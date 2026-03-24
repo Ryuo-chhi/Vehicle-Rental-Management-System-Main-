@@ -68,6 +68,10 @@ public abstract class Staff implements IStaff {
     }
 
     /*====== Setters (with simple validation) ====== */
+    public void setStaffId(int staffId) {
+        this.staffId = staffId;
+    }
+    
     @Override
     public void setName(String name) {
         if (name == null || name.trim().isEmpty()) {

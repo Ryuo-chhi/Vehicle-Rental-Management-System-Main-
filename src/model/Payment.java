@@ -56,10 +56,14 @@ public class Payment {
 
 
     // ===== SETTERS (only for changeable fields) =====
+    public void setPaymentId(int paymentId) {
+        this.paymentId = paymentId;
+    }
 
     public void setRentDays(int rentDays) { //use this method to update rent days in case of extension or early return
         this.rentDays = rentDays > 0 ? rentDays : 1;
     }
+    public int getRentDays() { return rentDays; }
 
     public String getPaymentMethod() { return paymentMethod; }
     public int getPaymentId()         { return paymentId; }

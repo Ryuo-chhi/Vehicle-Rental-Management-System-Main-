@@ -1,4 +1,4 @@
-package controller;
+package database;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -50,6 +50,22 @@ public class MySQLConnection {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    // Execute an insert and retrieve the Auto-Incremented Database ID
+    public static int executeInsertAndGetId(String query) {
+        try {
+            Statement statement = getConnection().createStatement();
+            statement.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+            ResultSet rs = statement.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1); // Return the newly generated ID
+            }
+        } catch (SQLException e) {
+            System.out.println("Insert execution failed or failed to retrieve key!");
+            e.printStackTrace();
+        }
+        return -1; // -1 indicates failure
     }
     // Close the connection
     public static void closeConnection() {
