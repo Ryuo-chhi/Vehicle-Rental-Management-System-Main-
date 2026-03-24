@@ -1,5 +1,5 @@
 import controller.Garage;
-
+import java.io.Console;
 import java.util.Scanner;
 
 class Main {
@@ -12,8 +12,7 @@ class Main {
         System.out.println("Please login to continue...");
         System.out.print("Enter username: ");
         String username = scanner.nextLine();
-        System.out.print("Enter password: ");
-        String password = scanner.nextLine();
+        String password = readPassword(scanner);
 
         myGarage.staffLogin(username, password);
         System.out.println(myGarage.getLastMessage());
@@ -73,5 +72,17 @@ class Main {
         }
         scanner.close();
 
+    }
+
+    private static String readPassword(Scanner scanner) {
+        Console console = System.console();
+        if (console != null) {
+            char[] passwordChars = console.readPassword("Enter password: ");
+            return passwordChars == null ? "" : new String(passwordChars);
+        }
+
+        // IDE-integrated terminals often do not expose java.io.Console.
+        System.out.print("Enter password: ");
+        return scanner.nextLine();
     }
 }
