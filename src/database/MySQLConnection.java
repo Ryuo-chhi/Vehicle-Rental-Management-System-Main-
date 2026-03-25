@@ -20,10 +20,11 @@ public class MySQLConnection {
             try {
                 connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
                 System.out.println("Connected to MySQL successfully!");
-            }catch (Exception e) {
+            } catch (SQLException e) {
+                System.out.println("Failed to connect to MySQL database.");
+                System.out.println("Reason: " + e.getMessage());
                 e.printStackTrace();
             }
-
         }
         return connection;
     }
@@ -34,7 +35,9 @@ public class MySQLConnection {
             Statement statement = getConnection().createStatement();
             return statement.executeQuery(query);
         } catch (SQLException e) {
-            System.out.println("Query execution failed!");
+            System.out.println("Query execution failed.");
+            System.out.println("Query: " + query);
+            System.out.println("Reason: " + e.getMessage());
             e.printStackTrace();
         }
         return null;
@@ -46,7 +49,9 @@ public class MySQLConnection {
             Statement statement = getConnection().createStatement();
             return statement.executeUpdate(query);
         } catch (SQLException e) {
-            System.out.println("Update execution failed!");
+            System.out.println("Update execution failed.");
+            System.out.println("Query: " + query);
+            System.out.println("Reason: " + e.getMessage());
             e.printStackTrace();
         }
         return 0;
@@ -62,11 +67,14 @@ public class MySQLConnection {
                 return rs.getInt(1); // Return the newly generated ID
             }
         } catch (SQLException e) {
-            System.out.println("Insert execution failed or failed to retrieve key!");
+            System.out.println("Insert execution failed or failed to retrieve generated key.");
+            System.out.println("Query: " + query);
+            System.out.println("Reason: " + e.getMessage());
             e.printStackTrace();
         }
         return -1; // -1 indicates failure
     }
+
     // Close the connection
     public static void closeConnection() {
         if (connection != null) {
@@ -75,7 +83,8 @@ public class MySQLConnection {
                 connection = null;
                 System.out.println("Connection closed.");
             } catch (SQLException e) {
-                System.out.println("Failed to close the connection!");
+                System.out.println("Failed to close the connection.");
+                System.out.println("Reason: " + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -84,34 +93,22 @@ public class MySQLConnection {
     public static void main(String[] args) {
         // Example usage
         Connection conn = MySQLConnection.getConnection();
-//        ResultSet rs = MySQLConnection.executeQuery("SELECT * FROM employees limit 10"); // Change to your table name and query
-//        try {
-//            while (rs != null && rs.next()) {
-//                System.out.println("Employee ID: " + rs.getInt("employee_id") + ", Name: " + rs.getString("first_name"));
-//            }
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        } finally {
-//            if (rs != null) {
-//                try {
-//                    rs.close();
-//                } catch (SQLException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-        ResultSet rs = MySQLConnection.executeQuery("SELECT * FROM cars "); // Change to your table name and query
+        ResultSet rs = MySQLConnection.executeQuery("SELECT * FROM customers "); // Change to your table name and query
         try {
             while (rs != null && rs.next()) {
-                System.out.println("Car ID: " + rs.getInt("car_id") + ", Model: " + rs.getString("model"));
+                System.out.println("Customer ID: " + rs.getInt("customer_id") + ", Customer Name: " + rs.getString("customer_name"));
             }
         } catch (SQLException e) {
+            System.out.println("Failed while reading query results.");
+            System.out.println("Reason: " + e.getMessage());
             e.printStackTrace();
         } finally {
             if (rs != null) {
                 try {
                     rs.close();
                 } catch (SQLException e) {
+                    System.out.println("Failed to close ResultSet.");
+                    System.out.println("Reason: " + e.getMessage());
                     e.printStackTrace();
                 }
             }
@@ -122,8 +119,5 @@ public class MySQLConnection {
         } else {
             System.out.println("Failed to establish connection.");
         }
-
-
     }
-
 }
