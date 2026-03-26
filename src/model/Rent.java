@@ -1,4 +1,5 @@
 package model;
+import user.Staff;
 
 public class Rent {
     private int rentId;
@@ -11,11 +12,12 @@ public class Rent {
     private Vehicle vehicle;
     private Customer customer;
     private Payment payment;
+    private Staff staff;
 
     private static int countRentId = 0;
 
     // create
-    public Rent(Vehicle vehicle, Customer customer, int rentDays, String startDate, String endDate) {
+    public Rent(Vehicle vehicle, Customer customer, Staff staff, int rentDays, String startDate, String endDate) {
         this.rentId = ++countRentId;
         this.setVehicle(vehicle);
         this.setCustomer(customer);
@@ -25,6 +27,7 @@ public class Rent {
         this.setReturnDate("TBD");
         this.payment = null; // Initialized to null, will be set later(when payment is processed)
         this.setStatus(true);
+        this.setStaff(staff);
     }
 
     // rent lookup
@@ -74,6 +77,10 @@ public class Rent {
         return status;
     }
 
+    public Staff getStaff() {
+        return staff;
+    }
+
     public static int getTotalRentCount() {
         return countRentId;
     }
@@ -82,7 +89,15 @@ public class Rent {
     public void setRentId(int rentId) {
         this.rentId = rentId;
     }
-    
+
+    public void setStaff(Staff staff) {
+        if (staff != null) {
+            this.staff = staff;
+            return;
+        }
+        System.out.println("Error: Staff is null");
+    }
+
     public void setPayment(Payment payment) {
         if (payment != null) {
             this.payment = payment;
@@ -154,6 +169,8 @@ public class Rent {
                 ", customer=" + customer.toStringSimple() + "\n" +
                 ", payment=" + payment + "\n" +
                 ", status=" + (status ? "Active" : "Completed") + "\n" +
+                ", staffID=" + staff.getId() + "\n" +
+                ", staffName=" + staff.getName() + "\n" +
                 '}';
     }
 

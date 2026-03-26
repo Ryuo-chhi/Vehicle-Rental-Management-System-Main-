@@ -28,6 +28,10 @@ public final class RentRecord {
     private final String customerIdNum;
     private final String customerPhone;
 
+    //Staff snapshot
+    private final String staffName;
+    private final int staffID;
+
     // Rental details snapshot
     private final int rentDays;
     private final String startDate;
@@ -67,6 +71,9 @@ public final class RentRecord {
         this.customerName = rent.getCustomer().getCustomerName();
         this.customerIdNum = rent.getCustomer().getcustomerIdNum();
         this.customerPhone = rent.getCustomer().getCustomerPhone();
+
+        this.staffID = rent.getStaff().getId();
+        this.staffName = rent.getStaff().getName();
 
         this.rentDays   = rent.getRentDays();
         this.startDate  = rent.getStartDate();
@@ -124,6 +131,8 @@ public final class RentRecord {
     public String toString() {
         return "RentRecord{" +
                 "rentId=" + rentId +
+                ", staffID=" + staffID +
+                ", staffName='" + staffName + '\'' +
                 ", vehicle=[" + vehicleId + "] " + vehicleCode + " " + vehicleBrand + " " + vehicleModel + " (" + licencePlate + ")" +
                 ", customer=[" + customerId + "] " + customerName +
                 ", rentDays=" + rentDays +

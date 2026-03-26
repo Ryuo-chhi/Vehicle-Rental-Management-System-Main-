@@ -162,7 +162,8 @@ public class DatabaseMapper {
     public static ArrayList<Rent> mapToRents(
             ResultSet rs, 
             ArrayList<Vehicle> allVehicles, 
-            HashSet<Customer> allCustomers, 
+            HashSet<Customer> allCustomers,
+            HashSet<Staff> allStaff,
             ArrayList<Payment> allPayments) throws SQLException {
                 
         ArrayList<Rent> rents = new ArrayList<>();
@@ -170,15 +171,18 @@ public class DatabaseMapper {
             int vehicleId = rs.getInt("vehicle_id");
             int customerId = rs.getInt("customer_id");
             int paymentId = rs.getInt("payment_id");
+            int staffID = rs.getInt("staff_id");
 
             // Look up existing references
             Vehicle rentVehicle = allVehicles.stream().filter(v -> v.getVehicleId() == vehicleId).findFirst().orElse(null);
             Customer rentCustomer = allCustomers.stream().filter(c -> c.getCustomerId() == customerId).findFirst().orElse(null);
-            
+            Staff currentStaff = allStaff.stream().filter(s -> s.getId() == staffID ).findFirst().orElse(null);
+
             if (rentVehicle != null && rentCustomer != null) {
                 Rent rent = new Rent(
                         rentVehicle,
                         rentCustomer,
+                        currentStaff,
                         rs.getInt("rent_days"),
                         rs.getString("start_date"),
                         rs.getString("end_date")

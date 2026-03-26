@@ -209,7 +209,7 @@ public class Garage {
         return loggedInStaff != null;
     }
 
-    public Staff getLoggedInStaff() {
+    private Staff getLoggedInStaff() {
         return loggedInStaff;
     }
 
@@ -1400,7 +1400,7 @@ public class Garage {
         }
 
         double vehiclePrice = selectedvVehicle.getRentalRatePerDay(); // snapshot vehicle price
-        Rent newRent = new Rent(selectedvVehicle, selectedCustomer, rentDays, startDate, endDate); // create rent
+        Rent newRent = new Rent(selectedvVehicle, selectedCustomer, getLoggedInStaff(), rentDays, startDate, endDate); // create rent
                                                                                                    // without payment
                                                                                                    // first
 
