@@ -1,8 +1,8 @@
 name: Keep Aiven MySQL Alive
 on:
   schedule:
-    # Runs every 12 hours
-    - cron: '0 */12 * * *'
+    # Runs every 3 hours (00:00, 03:00, 06:00, 09:00, 12:00, 15:00, 18:00, 21:00 UTC)
+    - cron: '0 */3 * * *'
   workflow_dispatch: # Allows you to run it manually from the Actions tab
 
 jobs:
