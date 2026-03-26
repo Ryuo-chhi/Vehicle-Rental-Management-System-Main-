@@ -10,6 +10,7 @@ import model.Customer;
 import model.Moto;
 import model.Payment;
 import model.Rent;
+import model.RentRecord;
 import model.Vehicle;
 import user.ManagerStaff;
 import user.RegularStaff;
@@ -345,10 +346,11 @@ public class DatabaseMapper {
     // ==========================================
     public static Rent saveNewRent(Rent rent) {
         String query = String.format(
-            "INSERT INTO rents (vehicle_id, customer_id, payment_id, rent_days, start_date, end_date, return_date, status) " +
-            "VALUES (%d, %d, %s, %d, '%s', '%s', '%s', %b)",
+            "INSERT INTO rents (vehicle_id, customer_id, staff_id, payment_id, rent_days, start_date, end_date, return_date, status) " +
+            "VALUES (%d, %d, %d, %s, %d, '%s', '%s', '%s', %b)",
             rent.getVehicle().getVehicleId(),
             rent.getCustomer().getCustomerId(),
+            rent.getStaff() != null ? rent.getStaff().getId() : 0,
             rent.getPayment() != null ? String.valueOf(rent.getPayment().getPaymentId()) : "NULL",
             rent.getRentDays(),
             rent.getStartDate(),
@@ -365,6 +367,49 @@ public class DatabaseMapper {
             System.out.println("Failed to insert Rent into DB.");
         }
         return rent;
+    }
+
+    // ==========================================
+    // saveNewRentRecord
+    // ==========================================
+    public static void saveNewRentRecord(RentRecord r) {
+        String query = String.format(
+            "INSERT INTO rent_records (rent_id, vehicle_id, vehicle_type, vehicle_code, vehicle_power_source, " +
+            "vehicle_class, vehicle_brand, vehicle_model, licence_plate, rental_rate_per_day, " +
+            "customer_id, customer_name, customer_id_num, customer_phone, " +
+            "staff_id, staff_name, " +
+            "rent_days, start_date, end_date, return_date, " +
+            "payment_id, payment_method, price, discount, extra_days, damage_fee, deposit, pay_date, payment_status, total_paid) " +
+            "VALUES (%d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %.2f, " +
+            "%d, '%s', '%s', '%s', " +
+            "%d, '%s', " +
+            "%d, '%s', '%s', '%s', " +
+            "%d, '%s', %.2f, %.2f, %d, %.2f, %.2f, '%s', '%s', %.2f)",
+            r.getRentId(), r.getVehicleId(), r.getVehicleType(), r.getVehicleCode(), r.getVehiclePowerSource(),
+            r.getVehicleClass(), r.getVehicleBrand(), r.getVehicleModel(), r.getLicencePlate(), r.getRentalRatePerDay(),
+            r.getCustomerId(), r.getCustomerName(), r.getCustomerIdNum(), r.getCustomerPhone(),
+            r.getStaffID(), r.getStaffName(),
+            r.getRentDays(), r.getStartDate(), r.getEndDate(), r.getReturnDate(),
+            r.getPaymentId(), r.getPaymentMethod(), r.getPrice(), r.getDiscount(),
+            r.getExtraDays(), r.getDamageFee(), r.getDeposit(), r.getPayDate(),
+            r.getPaymentStatus(), r.getTotalPaid()
+        );
+        MySQLConnection.executeUpdate(query);
+        System.out.println("Saved RentRecord to DB: rent_id=" + r.getRentId());
+    }
+
+    // ==========================================
+    // mapToRentRecords
+    // ==========================================
+    public static ArrayList<RentRecord> mapToRentRecords(ResultSet rs) throws SQLException {
+        // RentRecord is immutable — we build a lightweight holder here.
+        // Since RentRecord's only public constructor takes a Rent object,
+        // we reconstruct via a helper that reads every column directly.
+        ArrayList<RentRecord> records = new ArrayList<>();
+        while (rs != null && rs.next()) {
+            records.add(RentRecord.fromResultSet(rs));
+        }
+        return records;
     }
 
     // ==========================================
@@ -439,9 +484,10 @@ public class DatabaseMapper {
 
     public static void updateRent(Rent r) {
         String query = String.format(
-            "UPDATE rents SET vehicle_id=%d, customer_id=%d, payment_id=%s, rent_days=%d, start_date='%s', " +
+            "UPDATE rents SET vehicle_id=%d, customer_id=%d, staff_id=%d, payment_id=%s, rent_days=%d, start_date='%s', " +
             "end_date='%s', return_date='%s', status=%b WHERE rent_id=%d",
-            r.getVehicle().getVehicleId(), r.getCustomer().getCustomerId(), 
+            r.getVehicle().getVehicleId(), r.getCustomer().getCustomerId(),
+            r.getStaff() != null ? r.getStaff().getId() : 0 ,
             (r.getPayment() != null ? String.valueOf(r.getPayment().getPaymentId()) : "NULL"),
             r.getRentDays(), r.getStartDate(), r.getEndDate(), r.getReturnDate(), r.isStatus(), r.getRentId()
         );

@@ -1,4 +1,6 @@
 package model;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * RentRecord — Immutable snapshot of a completed rental.
@@ -111,6 +113,9 @@ public final class RentRecord {
     public String getCustomerIdNum()  { return customerIdNum; }
     public String getCustomerPhone()  { return customerPhone; }
 
+    public int getStaffID()           { return staffID; }
+    public String getStaffName()      { return staffName; }
+
     public int getRentDays()          { return rentDays; }
     public String getStartDate()      { return startDate; }
     public String getEndDate()        { return endDate; }
@@ -126,6 +131,77 @@ public final class RentRecord {
     public String getPayDate()        { return payDate; }
     public String getPaymentStatus()  { return paymentStatus; }
     public double getTotalPaid()      { return totalPaid; }
+
+    /**
+     * Static factory: reconstruct a RentRecord directly from a DB ResultSet row.
+     * Used by DatabaseMapper.mapToRentRecords().
+     */
+    public static RentRecord fromResultSet(ResultSet rs) throws SQLException {
+        // Build a lightweight mutable container, then copy into final fields via this constructor trick:
+        // We use the package-private all-args constructor below.
+        return new RentRecord(
+            rs.getInt("rent_id"),
+            rs.getInt("vehicle_id"),        rs.getString("vehicle_type"),
+            rs.getString("vehicle_code"),   rs.getString("vehicle_power_source"),
+            rs.getString("vehicle_class"),  rs.getString("vehicle_brand"),
+            rs.getString("vehicle_model"),  rs.getString("licence_plate"),
+            rs.getDouble("rental_rate_per_day"),
+            rs.getInt("customer_id"),       rs.getString("customer_name"),
+            rs.getString("customer_id_num"),rs.getString("customer_phone"),
+            rs.getInt("staff_id"),          rs.getString("staff_name"),
+            rs.getInt("rent_days"),         rs.getString("start_date"),
+            rs.getString("end_date"),       rs.getString("return_date"),
+            rs.getInt("payment_id"),        rs.getString("payment_method"),
+            rs.getDouble("price"),          rs.getDouble("discount"),
+            rs.getInt("extra_days"),        rs.getDouble("damage_fee"),
+            rs.getDouble("deposit"),        rs.getString("pay_date"),
+            rs.getString("payment_status"), rs.getDouble("total_paid")
+        );
+    }
+
+    /** All-args constructor used exclusively by fromResultSet(). */
+    private RentRecord(
+            int rentId,
+            int vehicleId, String vehicleType, String vehicleCode,
+            String vehiclePowerSource, String vehicleClass, String vehicleBrand,
+            String vehicleModel, String licencePlate, double rentalRatePerDay,
+            int customerId, String customerName, String customerIdNum, String customerPhone,
+            int staffID, String staffName,
+            int rentDays, String startDate, String endDate, String returnDate,
+            int paymentId, String paymentMethod, double price, double discount,
+            int extraDays, double damageFee, double deposit, String payDate,
+            String paymentStatus, double totalPaid) {
+        this.rentId           = rentId;
+        this.vehicleId        = vehicleId;
+        this.vehicleType      = vehicleType;
+        this.vehicleCode      = vehicleCode;
+        this.vehiclePowerSource = vehiclePowerSource;
+        this.vehicleClass     = vehicleClass;
+        this.vehicleBrand     = vehicleBrand;
+        this.vehicleModel     = vehicleModel;
+        this.licencePlate     = licencePlate;
+        this.rentalRatePerDay = rentalRatePerDay;
+        this.customerId       = customerId;
+        this.customerName     = customerName;
+        this.customerIdNum    = customerIdNum;
+        this.customerPhone    = customerPhone;
+        this.staffID          = staffID;
+        this.staffName        = staffName;
+        this.rentDays         = rentDays;
+        this.startDate        = startDate;
+        this.endDate          = endDate;
+        this.returnDate       = returnDate;
+        this.paymentId        = paymentId;
+        this.paymentMethod    = paymentMethod;
+        this.price            = price;
+        this.discount         = discount;
+        this.extraDays        = extraDays;
+        this.damageFee        = damageFee;
+        this.deposit          = deposit;
+        this.payDate          = payDate;
+        this.paymentStatus    = paymentStatus;
+        this.totalPaid        = totalPaid;
+    }
 
     @Override
     public String toString() {

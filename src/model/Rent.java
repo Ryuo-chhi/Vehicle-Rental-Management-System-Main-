@@ -169,8 +169,8 @@ public class Rent {
                 ", customer=" + customer.toStringSimple() + "\n" +
                 ", payment=" + payment + "\n" +
                 ", status=" + (status ? "Active" : "Completed") + "\n" +
-                ", staffID=" + staff.getId() + "\n" +
-                ", staffName=" + staff.getName() + "\n" +
+                ", staffID=" + (staff != null ? staff.getId() : "N/A") + "\n" +
+                ", staffName=" + (staff != null ? staff.getName() : "N/A") + "\n" +
                 '}';
     }
 

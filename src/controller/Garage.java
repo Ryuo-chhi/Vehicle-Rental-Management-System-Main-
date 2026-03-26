@@ -105,19 +105,25 @@ public class Garage {
         this.garage = new ArrayList<>(maxSize);
         this.vehicleCount = 0;
         loadVehiclesFromDatabase();
+
         // Initialize customer list
         this.customers = new HashSet<>();
         this.customerCount = 0;
         loadCustomersFromDatabase();
-        // Initialize rent list
-        this.rents = new ArrayList<>(maxSize);
-        this.rentCount = 0;
+
         // Initialize staff list
         this.staffs = new HashSet<>();
         this.staffCount = 0;
         loadStaffsFromDatabase();
+
+        // Initialize rent list (must be after staffs so staff lookups resolve)
+        this.rents = new ArrayList<>(maxSize);
+        this.rentCount = 0;
+        loadRentsFromDatabase();
+
         // Initialize rental history
         this.rentalHistory = new ArrayList<>();
+        loadRentsHistoryFromDatabase();
 
         loggedInStaff = null;
         lastMessage = "Controller.Garage created successfully!";
@@ -158,6 +164,36 @@ public class Garage {
         } catch (Exception e) {
         }
         generateCustomerToSystem();
+    }
+
+    private void loadRentsFromDatabase() {
+        try {
+            java.sql.ResultSet paymentsRs = database.MySQLConnection.executeQuery("SELECT * FROM payments");
+            java.util.ArrayList<model.Payment> allPayments = database.DatabaseMapper.mapToPayments(paymentsRs);
+
+            java.sql.ResultSet rs = database.MySQLConnection.executeQuery("SELECT * FROM rents");
+            java.util.ArrayList<Rent> loaded = database.DatabaseMapper.mapToRents(rs, this.garage, this.customers, this.staffs, allPayments);
+            if (loaded != null && !loaded.isEmpty()) {
+                this.rents = loaded;
+                this.rentCount = rents.size();
+                return;
+            }
+        } catch (Exception e) {
+        }
+        // No fallback needed — empty list is valid on first run
+    }
+
+    private void loadRentsHistoryFromDatabase() {
+        try {
+            java.sql.ResultSet rs = database.MySQLConnection.executeQuery("SELECT * FROM rent_records");
+            java.util.ArrayList<RentRecord> loaded = database.DatabaseMapper.mapToRentRecords(rs);
+            if (loaded != null && !loaded.isEmpty()) {
+                this.rentalHistory = loaded;
+                return;
+            }
+        } catch (Exception e) {
+        }
+        // No fallback needed — empty history is valid on first run
     }
 
     private void loadStaffsFromDatabase() {
