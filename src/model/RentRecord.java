@@ -142,20 +142,20 @@ public final class RentRecord {
         return new RentRecord(
             rs.getInt("rent_id"),
             rs.getInt("vehicle_id"),        rs.getString("vehicle_type"),
-            rs.getString("vehicle_code"),   rs.getString("vehicle_power_source"),
-            rs.getString("vehicle_class"),  rs.getString("vehicle_brand"),
-            rs.getString("vehicle_model"),  rs.getString("licence_plate"),
-            rs.getDouble("rental_rate_per_day"),
+            rs.getString("vehicle_code"),   rs.getString("power_source"),
+            rs.getString("vehicle_class"),  rs.getString("brand"),
+            rs.getString("model"),          rs.getString("licence_plate"),
+            rs.getDouble("rate_per_day"),
             rs.getInt("customer_id"),       rs.getString("customer_name"),
-            rs.getString("customer_id_num"),rs.getString("customer_phone"),
+            rs.getString("id_num"),         rs.getString("phone"),
             rs.getInt("staff_id"),          rs.getString("staff_name"),
             rs.getInt("rent_days"),         rs.getString("start_date"),
             rs.getString("end_date"),       rs.getString("return_date"),
-            rs.getInt("payment_id"),        rs.getString("payment_method"),
-            rs.getDouble("price"),          rs.getDouble("discount"),
+            rs.getInt("payment_id"),        rs.getString("method"),
+            rs.getDouble("price_per_day"),  rs.getDouble("discount_pct"),
             rs.getInt("extra_days"),        rs.getDouble("damage_fee"),
             rs.getDouble("deposit"),        rs.getString("pay_date"),
-            rs.getString("payment_status"), rs.getDouble("total_paid")
+            rs.getString("pay_status"),     rs.getDouble("total_paid")
         );
     }
 

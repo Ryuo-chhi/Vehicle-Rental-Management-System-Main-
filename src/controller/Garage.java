@@ -198,7 +198,7 @@ public class Garage {
 
     private void loadStaffsFromDatabase() {
         try {
-            java.sql.ResultSet rs = database.MySQLConnection.executeQuery("SELECT * FROM staff");
+            java.sql.ResultSet rs = database.MySQLConnection.executeQuery("SELECT * FROM staffs");
             HashSet<Staff> loaded = database.DatabaseMapper.mapToStaff(rs);
             if (loaded != null && !loaded.isEmpty()) {
                 this.staffs = loaded;
@@ -227,7 +227,7 @@ public class Garage {
         staffs.add(admin);
         // Upsert to DB: only insert if not already there
         java.sql.ResultSet check = database.MySQLConnection.executeQuery(
-                "SELECT staff_id FROM staff WHERE username = '" + username + "'");
+                "SELECT staff_id FROM staffs WHERE username = '" + username + "'");
         try {
             if (check == null || !check.next()) {
                 database.DatabaseMapper.saveNewStaff(admin); // Sync → DB
