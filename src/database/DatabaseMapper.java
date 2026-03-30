@@ -167,7 +167,7 @@ public class DatabaseMapper {
             HashSet<Customer> allCustomers,
             HashSet<Staff> allStaff,
             ArrayList<Payment> allPayments) throws SQLException {
-        
+
         ArrayList<Rent> rents = new ArrayList<>();
         while (rs != null && rs.next()) {
             int rentID = rs.getInt("rent_id");
@@ -176,16 +176,29 @@ public class DatabaseMapper {
             int paymentID = rs.getInt("payment_id");
             int staffID = rs.getInt("staff_id");
 
-            // Match by ID
-            Vehicle rentVehicle = allVehicles.stream()
-                .filter(v -> v.getVehicleId() == vehicleID)
-                .findFirst().orElse(null);
-            Customer rentCustomer = allCustomers.stream()
-                .filter(c -> c.getCustomerId() == customerID)
-                .findFirst().orElse(null);
-            Staff currentStaff = allStaff.stream()
-                .filter(s -> s.getId() == staffID)
-                .findFirst().orElse(null);
+            Vehicle rentVehicle = null;
+            for (Vehicle v : allVehicles) {
+                if (v.getVehicleId() == vehicleID) {
+                    rentVehicle = v;
+                    break;
+                }
+            }
+
+            Customer rentCustomer = null;
+            for (Customer c : allCustomers) {
+                if (c.getCustomerId() == customerID) {
+                    rentCustomer = c;
+                    break;
+                }
+            }
+
+            Staff currentStaff = null;
+            for (Staff s : allStaff) {
+                if (s.getId() == staffID) {
+                    currentStaff = s;
+                    break;
+                }
+            }
 
             if (rentVehicle != null && rentCustomer != null) {
                 Rent rent = new Rent(
@@ -194,20 +207,20 @@ public class DatabaseMapper {
                         currentStaff,
                         rs.getInt("rent_days"),
                         rs.getString("start_date"),
-                        rs.getString("end_date")
-                );
-                
+                        rs.getString("end_date"));
+
                 rent.setReturnDate(rs.getString("return_date"));
                 rent.setStatus(rs.getBoolean("status"));
-                
+
                 if (paymentID > 0 && allPayments != null) {
                     Payment p = allPayments.stream()
-                        .filter(pay -> pay.getPaymentId() == paymentID)
-                        .findFirst().orElse(null);
+                            .filter(pay -> pay.getPaymentId() == paymentID)
+                            .findFirst().orElse(null);
                     rent.setPayment(p);
                 }
-                
+
                 rent.setRentId(rentID);
+                rentVehicle.setAvailable(false); // list in rents means vehicle is false
                 rents.add(rent);
             }
         }

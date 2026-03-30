@@ -213,7 +213,7 @@ public class Garage {
     }
 
     public void addAdmin(String name, String username, String password) {
-        // Check if admin already in RAM (e.g. loaded from DB)
+        // Check if admin already in RAM
         for (Staff s : staffs) {
             if (s.getUsername().equalsIgnoreCase(username))
                 return; // already exists, skip
@@ -225,15 +225,6 @@ public class Garage {
             }
         };
         staffs.add(admin);
-        // Upsert to DB: only insert if not already there
-        java.sql.ResultSet check = database.MySQLConnection.executeQuery(
-                "SELECT staff_id FROM staffs WHERE username = '" + username + "'");
-        try {
-            if (check == null || !check.next()) {
-                database.DatabaseMapper.saveNewStaff(admin); // Sync → DB
-            }
-        } catch (Exception ignored) {
-        }
     }
 
     // GETTERS
@@ -525,7 +516,9 @@ public class Garage {
                                 System.out.println("Name cannot be empty. No change made.");
                             } else {
                                 staff.setName(newName);
-                                database.DatabaseMapper.updateStaff(staff); // Sync → DB
+                                if (!staff.can("SUPER_ADMIN_CHECK")) {
+                                    database.DatabaseMapper.updateStaff(staff); // Sync → DB
+                                }
                                 System.out.println("Staff name updated to " + newName + ".");
                             }
                         }
@@ -537,7 +530,9 @@ public class Garage {
                             double newSalary = getRequiredDoubleInput(scanner, "new Salary");
                             if (newSalary > 0) {
                                 if (setSalaryStaff(staff, newSalary)) {
-                                    database.DatabaseMapper.updateStaff(staff); // Sync → DB
+                                    if (!staff.can("SUPER_ADMIN_CHECK")) {
+                                        database.DatabaseMapper.updateStaff(staff); // Sync → DB
+                                    }
                                     System.out.println("Staff salary updated to " + newSalary + ".");
                                 } else {
                                     System.out.println("Cannot change salary of regular staff!");
@@ -557,7 +552,9 @@ public class Garage {
                             String confirm = getRequiredInput(scanner, "confirm(yes/no)").trim();
                             if (confirm.equalsIgnoreCase("yes")) {
                                 staff.setStatus(!staff.getStatus());
-                                database.DatabaseMapper.updateStaff(staff); // Sync → DB
+                                if (!staff.can("SUPER_ADMIN_CHECK")) {
+                                    database.DatabaseMapper.updateStaff(staff); // Sync → DB
+                                }
                                 System.out.println(
                                         "Staff status flipped. Now: " + (staff.getStatus() ? "Employed" : "Resigned"));
                             } else {
@@ -590,7 +587,9 @@ public class Garage {
             String confirm = getRequiredInput(scanner, "confirm(yes/no)").trim();
             if (confirm.equalsIgnoreCase("yes")) {
                 staffs.remove(staffToRemove);
-                database.DatabaseMapper.deleteStaff(staffToRemove.getId()); // Sync → DB
+                if (!staffToRemove.can("SUPER_ADMIN_CHECK")) {
+                    database.DatabaseMapper.deleteStaff(staffToRemove.getId()); // Sync → DB
+                }
                 staffCount--;
                 System.out.println("Staff with ID " + staffToRemove.getId() + " removed successfully.");
                 System.out.println("staffCount: " + staffCount);
