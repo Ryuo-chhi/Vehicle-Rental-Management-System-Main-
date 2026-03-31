@@ -1390,6 +1390,37 @@ public class Garage {
 
         } while (!quit);
     }
+    
+    public void reportManagement(Scanner scanner) {
+        if (!requireStaffLogin()) {
+            System.out.println(getLastMessage());
+            return;
+        }
+        if (!loggedInStaff.can(VIEW_REPORTS)) {
+            System.out.println("Access denied: insufficient permissions.");
+            return;
+        }
+
+        System.out.println("Report Management");
+        boolean quit = false;
+        do {
+            System.out.println("""
+                    0. Back to Main Menu
+                    1. Show Rent Records
+                    2. Generate Full Report
+                    """);
+
+            int choice = getRequiredIntInput(scanner, "choice");
+
+            switch (choice) {
+                case 0 -> quit = true;
+                case 1 -> showRentalHistory();
+                case 2 -> generateReport();
+                default -> System.out.println("Invalid choice!");
+            }
+            System.out.println();
+        } while (!quit);
+    }
 
     public void addRent(Scanner scanner) {
         int rentDays;
