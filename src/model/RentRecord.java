@@ -152,7 +152,7 @@ public final class RentRecord {
             rs.getInt("rent_days"),         rs.getString("start_date"),
             rs.getString("end_date"),       rs.getString("return_date"),
             rs.getInt("payment_id"),        rs.getString("method"),
-            rs.getDouble("price_per_day"),  rs.getDouble("discount_pct"),
+            rs.getDouble("price"),          rs.getDouble("discount"),
             rs.getInt("extra_days"),        rs.getDouble("damage_fee"),
             rs.getDouble("deposit"),        rs.getString("pay_date"),
             rs.getString("pay_status"),     rs.getDouble("total_paid")

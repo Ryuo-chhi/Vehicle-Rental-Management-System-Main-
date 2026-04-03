@@ -405,7 +405,7 @@ public class DatabaseMapper {
                         "customer_id, customer_name, id_num, phone, " +
                         "staff_id, staff_name, " +
                         "rent_days, start_date, end_date, return_date, " +
-                        "payment_id, method, price_per_day, discount_pct, extra_days, damage_fee, deposit, pay_date, pay_status, total_paid) "
+                        "payment_id, method, price, discount, extra_days, damage_fee, deposit, pay_date, pay_status, total_paid) "
                         +
                         "VALUES (%d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %.2f, " +
                         "%d, '%s', '%s', '%s', " +
