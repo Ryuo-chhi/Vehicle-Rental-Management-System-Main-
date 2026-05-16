@@ -11,6 +11,7 @@ This document outlines a detailed, step-by-step roadmap to upgrade the current c
     *   **Action:** Create a `pom.xml` file to replace manual JAR management (like the current `/jdbc/` folder).
     *   **Details:** Define core dependencies: `spring-boot-starter-web`, `spring-boot-starter-data-jpa`, `mysql-connector-j`, `lombok` (to reduce boilerplate), and `junit-jupiter` (for testing).
     *   **Refactor Structure:** Migrate source code to the standard Maven layout: `src/main/java/com/rental/system` and `src/test/java`. This ensures compatibility with modern IDEs and CI/CD tools.
+    *   **Test Structure:** ✅ **COMPLETED** - Added Maven-standard test folders `src/test/java/com/rental/system` and `src/test/resources` with basic test setup and H2 database configuration.
 2.  **Decompose the "Garage" Monolith:**
     *   **Problem:** `Garage.java` currently handles UI (Scanners), Business Logic (Pricing), and Database mapping.
     *   **Action:** Extract logic into dedicated **Service Classes** to follow the Single Responsibility Principle.

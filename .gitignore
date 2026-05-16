@@ -4,6 +4,7 @@ out/
 !**/src/test/**/out/
 .kotlin
 .idea/
+*.iml
 
 # Ignore all Java class files
 *.class
