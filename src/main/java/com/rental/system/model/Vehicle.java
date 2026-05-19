@@ -16,9 +16,9 @@ public abstract class Vehicle implements IVehicle {
     private boolean isAvailable;
 
 
-    public Vehicle(String vehicleType,String powerSource, String vehicleClass, String vehicleBrand, String vehicleModel, double rentalRatePerDay, String vehicleLicence, String licencePlate) {
-        this.vehicleId = Garage.getVehicleID() + 1; // assign current count + 1 as ID
-        this.vehicleCode = vehicleType.equals("Moto") ?  vehicleType + "-" + Moto.getMotoID() : vehicleType + "-" + Car.getCarID();
+    public Vehicle(String vehicleType, String powerSource, String vehicleClass, String vehicleBrand, String vehicleModel, double rentalRatePerDay, String vehicleLicence, String licencePlate) {
+        this.vehicleId = com.rental.system.service.VehicleService.getNextVehicleID() + 1; // assign current count + 1 as ID
+        this.vehicleCode = vehicleType.equals("Moto") ? vehicleType + "-" + Moto.getMotoID() : vehicleType + "-" + Car.getCarID();
         this.setPowerSource(powerSource);
         this.setVehicleClass(vehicleClass);
         this.setVehicleBrand(vehicleBrand);
@@ -115,6 +115,14 @@ public abstract class Vehicle implements IVehicle {
         this.licencePlate = licencePlate;
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Vehicle vehicle = (Vehicle) o;
+        return vehicleId == vehicle.vehicleId && Objects.equals(licencePlate, vehicle.licencePlate);
+    }
 
     @Override
     public int hashCode() {

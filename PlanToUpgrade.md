@@ -12,13 +12,24 @@ This document outlines a detailed, step-by-step roadmap to upgrade the current c
     *   **Details:** Define core dependencies: `spring-boot-starter-web`, `spring-boot-starter-data-jpa`, `mysql-connector-j`, `lombok` (to reduce boilerplate), and `junit-jupiter` (for testing).
     *   **Refactor Structure:** Migrate source code to the standard Maven layout: `src/main/java/com/rental/system` and `src/test/java`. This ensures compatibility with modern IDEs and CI/CD tools.
     *   **Test Structure:** ✅ **COMPLETED** - Added Maven-standard test folders `src/test/java/com/rental/system` and `src/test/resources` with basic test setup and H2 database configuration.
-2.  **Decompose the "Garage" Monolith:**
-    *   **Problem:** `Garage.java` currently handles UI (Scanners), Business Logic (Pricing), and Database mapping.
-    *   **Action:** Extract logic into dedicated **Service Classes** to follow the Single Responsibility Principle.
-    *   **Service Layers:**
-        *   `VehicleService`: Logic for fleet management, filtering, and availability status.
-        *   `RentalService`: Complex transaction logic (pricing calculations, return processing, and history generation).
-        *   `StaffService`: Authentication logic and internal permission checks.
+2.  **Decompose the "Garage" Monolith (UI vs. Business Logic):**
+    *   **The Problem:** `Garage.java` is currently a "God Object." it acts as the Waiter (taking orders), the Chef (cooking/logic), and the Pantry (holding data). If one part breaks, everything breaks.
+    *   **The Architecture (The "Waiter & Chef" Model):**
+        *   **The Face (Garage.java - Controller/UI):** Stays as the "Waiter." Its ONLY job is to talk to the user via the console.
+        *   **The Brain (Service Layer):** Becomes the "Chef." Its ONLY job is to process data and enforce rules. It never uses a `Scanner` or `System.out`.
+    *   **Structural Breakdown:**
+        | What STAYS in `Garage.java` (UI) | What MOVES to `Service` Classes (Logic) |
+        | :--- | :--- |
+        | **User Input:** All `scanner.nextLine()` calls. | **Data Storage:** All `ArrayList` and `HashSet` lists. |
+        | **Navigation:** Menus, `switch-cases`, and loops. | **Search/Filter:** Finding items by ID, Code, or Name. |
+        | **Display:** All `System.out.println()` messages. | **Business Rules:** Checking license requirements or availability. |
+        | **Formatting:** Validating that input is a valid number. | **Calculations:** Pricing, damage fees, and date math. |
+        | **Feedback:** Telling the user if an action worked. | **DB Sync:** Direct calls to `DatabaseMapper`. |
+    *   **Target Services:**
+        *   `VehicleService`: Fleet management and availability.
+        *   `CustomerService`: Profile management and validation.
+        *   `RentalService`: Transaction logic and pricing.
+        *   `StaffService`: Login and permission checks.
 3.  **Implement Design Patterns for Scalability:**
     *   **Factory Pattern:** Create a `VehicleFactory` to handle the instantiation of `Car` and `Moto` objects. This replaces the `switch(type)` logic in `addVehicle`, making it easy to add new vehicle types (e.g., "Truck") later.
     *   **DTO (Data Transfer Object) Pattern:** Use DTOs to pass data between the backend and frontend. This prevents sensitive fields (like staff passwords) from accidentally being exposed in API responses.

@@ -10,7 +10,7 @@ This file tracks the live progress of the project upgrade as outlined in `PlanTo
 - [x] **Create Test Structure**: Added Maven-standard test folders `src/test/java/com/rental/system` and `src/test/resources` with basic test setup.
 - [x] **Fix Build Path**: Removed old manual JAR library configuration (.idea/libraries/mysql_connector_j_9_6_0.xml) to resolve IDE build errors and ensure Maven dependency management works correctly.
 - [x] **Fix IDE Configuration**: Updated .idea module configuration to use correct source folders (src/main/java, src/test/java) and removed conflicting JAR references to resolve import resolution issues.
-- [ ] **Decompose the "Garage" Monolith**: Extract logic into Service classes.
+- [x] **Decompose the "Garage" Monolith**: ✅ **COMPLETED** - Extracted business logic from `Garage.java` into dedicated service layers (`VehicleService`, `CustomerService`, `RentalService`, `StaffService`). This separates UI concerns (Scanners/Printing) from core logic and data management.
 - [ ] **Implement Design Patterns**: Create `VehicleFactory` and initial DTOs.
 
 ---

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Scanner;
 import com.rental.system.model.*;
+import com.rental.system.service.*;
 import com.rental.system.user.*;
 
 @FunctionalInterface
@@ -79,55 +80,30 @@ public class Garage {
         }
     };
 
-    private ArrayList<Vehicle> garage;
-    private static int vehicleID = 0;
-    private static int vehicleCount; // current number of vehicles
-    private int carCount;
-    private int motoCount;
+    private com.rental.system.service.VehicleService vehicleService;
+    private com.rental.system.service.CustomerService customerService;
+    private com.rental.system.service.StaffService staffService;
+    private com.rental.system.service.RentalService rentalService;
 
-    private HashSet<Customer> customers;
-    private int customerCount;
-
-    private ArrayList<Rent> rents;
-    private int rentCount;
-
-    private HashSet<Staff> staffs;
-    private int staffCount;
-
-    private ArrayList<RentRecord> rentalHistory;
-
-    // LOGIN DEPENDENCY & FEEDBACK MESSAGE
-    private Staff loggedInStaff; // null = no staff login
+    // FEEDBACK MESSAGE
     private String lastMessage;
 
     public Garage(int maxSize) {
-        // Initialize garage
-        this.garage = new ArrayList<>(maxSize);
-        this.vehicleCount = 0;
+        // Initialize services
+        this.vehicleService = new com.rental.system.service.VehicleService();
+        this.customerService = new com.rental.system.service.CustomerService();
+        this.staffService = new com.rental.system.service.StaffService();
+        this.rentalService = new com.rental.system.service.RentalService();
+
         loadVehiclesFromDatabase();
-
-        // Initialize customer list
-        this.customers = new HashSet<>();
-        this.customerCount = 0;
         loadCustomersFromDatabase();
-
-        // Initialize staff list
-        this.staffs = new HashSet<>();
-        this.staffCount = 0;
         loadStaffsFromDatabase();
 
-        // Initialize rent list (must be after staffs so staff lookups resolve)
-        this.rents = new ArrayList<>(maxSize);
-        this.rentCount = 0;
+        // Initialize rent list
         loadRentsFromDatabase();
-
-        // Initialize rental history
-        this.rentalHistory = new ArrayList<>();
         loadRentsHistoryFromDatabase();
 
-        loggedInStaff = null;
         lastMessage = "Controller.Garage created successfully!";
-
     }
 
     private void loadVehiclesFromDatabase() {
@@ -135,21 +111,12 @@ public class Garage {
             java.sql.ResultSet rs = com.rental.system.database.MySQLConnection.executeQuery("SELECT * FROM vehicles");
             ArrayList<Vehicle> loaded = com.rental.system.database.DatabaseMapper.mapToVehicles(rs);
             if (loaded != null && !loaded.isEmpty()) {
-                this.garage = loaded;
-                this.vehicleCount = garage.size();
-                for (Vehicle v : garage) {
-                    if (v instanceof Car)
-                        carCount++;
-                    else
-                        motoCount++;
-                    if (v.getVehicleId() >= vehicleID)
-                        vehicleID = v.getVehicleId() + 1;
-                }
+                this.vehicleService.setVehicles(loaded);
                 return;
             }
         } catch (Exception e) {
         }
-        generateVehicleToGarage();
+        this.vehicleService.generateDefaultVehicles();
     }
 
     private void loadCustomersFromDatabase() {
@@ -157,13 +124,12 @@ public class Garage {
             java.sql.ResultSet rs = com.rental.system.database.MySQLConnection.executeQuery("SELECT * FROM customers");
             HashSet<Customer> loaded = com.rental.system.database.DatabaseMapper.mapToCustomers(rs);
             if (loaded != null && !loaded.isEmpty()) {
-                this.customers = loaded;
-                this.customerCount = customers.size();
+                customerService.setCustomers(loaded);
                 return;
             }
         } catch (Exception e) {
         }
-        generateCustomerToSystem();
+        customerService.generateDefaultCustomers();
     }
 
     private void loadRentsFromDatabase() {
@@ -172,15 +138,13 @@ public class Garage {
             java.util.ArrayList<com.rental.system.model.Payment> allPayments = com.rental.system.database.DatabaseMapper.mapToPayments(paymentsRs);
 
             java.sql.ResultSet rs = com.rental.system.database.MySQLConnection.executeQuery("SELECT * FROM rents");
-            java.util.ArrayList<Rent> loaded = com.rental.system.database.DatabaseMapper.mapToRents(rs, this.garage, this.customers, this.staffs, allPayments);
+            java.util.ArrayList<Rent> loaded = com.rental.system.database.DatabaseMapper.mapToRents(rs, this.vehicleService.getAllVehicles(), this.customerService.getAllCustomers(), this.staffService.getAllStaff(), allPayments);
             if (loaded != null && !loaded.isEmpty()) {
-                this.rents = loaded;
-                this.rentCount = rents.size();
+                this.rentalService.setRents(loaded);
                 return;
             }
         } catch (Exception e) {
         }
-        // No fallback needed — empty list is valid on first run
     }
 
     private void loadRentsHistoryFromDatabase() {
@@ -188,12 +152,11 @@ public class Garage {
             java.sql.ResultSet rs = com.rental.system.database.MySQLConnection.executeQuery("SELECT * FROM rent_records");
             java.util.ArrayList<RentRecord> loaded = com.rental.system.database.DatabaseMapper.mapToRentRecords(rs);
             if (loaded != null && !loaded.isEmpty()) {
-                this.rentalHistory = loaded;
+                this.rentalService.setRentalHistory(loaded);
                 return;
             }
         } catch (Exception e) {
         }
-        // No fallback needed — empty history is valid on first run
     }
 
     private void loadStaffsFromDatabase() {
@@ -201,30 +164,12 @@ public class Garage {
             java.sql.ResultSet rs = com.rental.system.database.MySQLConnection.executeQuery("SELECT * FROM staffs");
             HashSet<Staff> loaded = com.rental.system.database.DatabaseMapper.mapToStaff(rs);
             if (loaded != null && !loaded.isEmpty()) {
-                this.staffs = loaded;
-                this.staffCount = staffs.size();
-                // Always guarantee the super-admin exists after any load
-                addAdmin("Admin", "admin_root", "root123");
+                this.staffService.setStaffs(loaded);
                 return;
             }
         } catch (Exception e) {
         }
-        generateStaffToSystem();
-    }
-
-    public void addAdmin(String name, String username, String password) {
-        // Check if admin already in RAM
-        for (Staff s : staffs) {
-            if (s.getUsername().equalsIgnoreCase(username))
-                return; // already exists, skip
-        }
-        Staff admin = new ManagerStaff(name, username, password, 0) {
-            @Override
-            public boolean can(String action) {
-                return true; // Super admin: can do everything
-            }
-        };
-        staffs.add(admin);
+        this.staffService.generateDefaultStaff();
     }
 
     // GETTERS
@@ -233,19 +178,19 @@ public class Garage {
     }
 
     public boolean isStaffLoggedIn() {
-        return loggedInStaff != null;
+        return staffService.isStaffLoggedIn();
     }
 
     private Staff getLoggedInStaff() {
-        return loggedInStaff;
+        return staffService.getLoggedInStaff();
     }
 
-    public static int getVehicleCount() {
-        return vehicleCount;
+    public int getVehicleCount() {
+        return vehicleService.getVehicleCount();
     }
 
-    public static int getVehicleID() {
-        return vehicleID;
+    public int getVehicleID() {
+        return com.rental.system.service.VehicleService.getNextVehicleID();
     }
 
     // SETTERS
@@ -255,22 +200,13 @@ public class Garage {
 
     // Staff Management
 
-    public void generateStaffToSystem() {
-        addAdmin("Admin", "admin_root", "root123");
-        Staff s2 = new ManagerStaff("Bob", "bob_manager", "manager123", 0);
-        Staff s3 = new RegularStaff("Chan", "chan_staff", "staff123", 1500, "Station-Moto");
-        staffs.add(s3);
-        staffs.add(s2);
-        staffCount += 3;
-    }
-
     public void staffManagement(Scanner scanner) {
         // Check if staff is logged in and has permission
         if (!requireStaffLogin()) {
             System.out.println(getLastMessage());
             return;
         }
-        if (!loggedInStaff.can(MANAGE_STAFF)) {
+        if (!staffService.getLoggedInStaff().can(MANAGE_STAFF)) {
             System.out.println("Access denied: insufficient permissions.");
             return;
         }
@@ -305,13 +241,13 @@ public class Garage {
     // LOGIN CHECK (dependency)
     // =========================
     private boolean requireStaffLogin() {
-        if (loggedInStaff == null) {
+        if (staffService.getLoggedInStaff() == null) {
             setLastMessage("Action denied: staff must login first.");
             return false;
         }
 
-        if (!loggedInStaff.isActive()) {
-            loggedInStaff = null;
+        if (!staffService.getLoggedInStaff().isActive()) {
+            staffService.logout();
             setLastMessage("Action denied: staff is inactive (auto logout).");
             return false;
         }
@@ -324,44 +260,16 @@ public class Garage {
     // =========================
 
     public void staffLogin(String username, String password) {
-
-        if (username.isBlank() || password == null) {
-            setLastMessage("Login failed: missing username/password.");
-            return;
+        String result = staffService.login(username, password);
+        setLastMessage(result);
+        if (result.contains("success")) {
+            System.out.println(result);
+            showDashboard();
         }
-
-        for (Staff s : staffs) {
-
-            if (s.getUsername().equalsIgnoreCase(username.trim())) {
-
-                if (!s.getStatus()) {
-                    setLastMessage("Login failed: staff is no longer employed.");
-                    return;
-                }
-
-                if (!s.checkPassword(password)) {
-                    setLastMessage("Login failed: wrong password.");
-                    return;
-                }
-
-                // Set staff as online (active)
-                s.setActive(true);
-                loggedInStaff = s;
-                setLastMessage("\nLogin success. Welcome " + s.getUsername() + "!\n");
-                showDashboard();
-                return;
-            }
-        }
-
-        setLastMessage("Login failed: username not found.");
     }
 
     public void staffLogout() {
-        if (loggedInStaff != null) {
-            // Set staff as offline (inactive)
-            loggedInStaff.setActive(false);
-        }
-        loggedInStaff = null;
+        staffService.logout();
         setLastMessage("Logged out successfully.");
     }
 
@@ -396,11 +304,9 @@ public class Garage {
         String username = getRequiredInput(scanner, "staff username");
 
         // Check username uniqueness
-        for (Staff s : staffs) {
-            if (s.getUsername().equalsIgnoreCase(username)) {
-                System.out.println("Username already exists. Please choose another.");
-                return;
-            }
+        if (staffService.findByIdAndUsername(-1, username) != null) {
+            System.out.println("Username already exists. Please choose another.");
+            return;
         }
 
         String password = getRequiredInput(scanner, "staff password");
@@ -414,19 +320,14 @@ public class Garage {
         switch (choice) {
             case 1 -> newStaff = new ManagerStaff(name, username, password, salary);
             case 2 -> newStaff = new RegularStaff(name, username, password, salary, workStation);
-            default -> {
-                System.out.println("Can't create new staff.");
-            }
         }
         if (newStaff != null) {
-            staffs.add(newStaff);
-            com.rental.system.database.DatabaseMapper.saveNewStaff(newStaff); // Sync → DB
-            staffCount++;
+            staffService.registerNewStaff(newStaff);
         }
     }
 
     public void showStaffs(Scanner scanner) {
-        if (staffCount == 0) {
+        if (staffService.getStaffCount() == 0) {
             System.out.println("No staffs!");
             return;
         }
@@ -443,29 +344,15 @@ public class Garage {
             switch (choice) {
                 case 0 -> quit = true;
                 case 1 -> {
-                    StaffFilter allStaff = new StaffFilter() {
-                        public boolean test(Staff staff) {
-                            return true;
-                        }
-                    };
+                    StaffFilter allStaff = staff -> true;
                     showFilteredStaffs(allStaff);
                 }
                 case 2 -> {
-                    StaffFilter regularOnly = new StaffFilter() {
-                        @Override
-                        public boolean test(Staff staff) {
-                            return staff instanceof RegularStaff;
-                        }
-                    };
+                    StaffFilter regularOnly = staff -> staff instanceof RegularStaff;
                     showFilteredStaffs(regularOnly);
                 }
                 case 3 -> {
-                    StaffFilter managerOnly = new StaffFilter() {
-                        @Override
-                        public boolean test(Staff staff) {
-                            return staff instanceof ManagerStaff;
-                        }
-                    };
+                    StaffFilter managerOnly = staff -> staff instanceof ManagerStaff;
                     showFilteredStaffs(managerOnly);
                 }
                 default -> System.out.println("Invalid choice!");
@@ -476,7 +363,7 @@ public class Garage {
     private void showFilteredStaffs(StaffFilter filter) {
         boolean found = false;
 
-        for (Staff staff : staffs) {
+        for (Staff staff : staffService.getAllStaff()) {
             if (filter.test(staff)) {
                 System.out.println(staff);
                 found = true;
@@ -489,146 +376,104 @@ public class Garage {
     }
 
     public void updateStaff(Scanner scanner) {
-        if (!getLoggedInStaff().can(MANAGE_STAFF)) {
+        if (!staffService.getLoggedInStaff().can(MANAGE_STAFF)) {
             System.out.println("Manager section Only!");
             return;
         }
         Staff targetStaff = findStaff(scanner);
-        for (Staff staff : staffs) {
-            if (staff.equals(targetStaff)) {
-                boolean quit = false;
-                int choice;
-                do {
-                    System.out.println("""
-                            Update staff:
-                            0. Back to Staff Management
-                            1. Name
-                            2. Salary
-                            3. Enable/Disable Status""");
+        if (targetStaff != null) {
+            boolean quit = false;
+            int choice;
+            do {
+                System.out.println("""
+                        Update staff:
+                        0. Back to Staff Management
+                        1. Name
+                        2. Salary
+                        3. Enable/Disable Status""");
 
-                    choice = getRequiredIntInput(scanner, "choice");
+                choice = getRequiredIntInput(scanner, "choice");
 
-                    switch (choice) {
-                        case 0 -> quit = true;
-                        case 1 -> {
-                            String newName = getRequiredInput(scanner, "new Name").trim();
-                            if (newName.isEmpty()) {
-                                System.out.println("Name cannot be empty. No change made.");
-                            } else {
-                                staff.setName(newName);
-                                if (!staff.can("SUPER_ADMIN_CHECK")) {
-                                    com.rental.system.database.DatabaseMapper.updateStaff(staff); // Sync → DB
-                                }
-                                System.out.println("Staff name updated to " + newName + ".");
+                switch (choice) {
+                    case 0 -> quit = true;
+                    case 1 -> {
+                        String newName = getRequiredInput(scanner, "new Name").trim();
+                        if (newName.isEmpty()) {
+                            System.out.println("Name cannot be empty. No change made.");
+                        } else {
+                            targetStaff.setName(newName);
+                            if (!targetStaff.can("SUPER_ADMIN_CHECK")) {
+                                staffService.updateStaffInDB(targetStaff);
                             }
+                            System.out.println("Staff name updated to " + newName + ".");
                         }
-                        case 2 -> {
-                            if (!getLoggedInStaff().can(SET_MANAGER_SALARY)) {
-                                System.out.println("Only admin can set salary to manager!");
-                                return;
-                            }
-                            double newSalary = getRequiredDoubleInput(scanner, "new Salary");
-                            if (newSalary > 0) {
-                                if (setSalaryStaff(staff, newSalary)) {
-                                    if (!staff.can("SUPER_ADMIN_CHECK")) {
-                                        com.rental.system.database.DatabaseMapper.updateStaff(staff); // Sync → DB
-                                    }
-                                    System.out.println("Staff salary updated to " + newSalary + ".");
-                                } else {
-                                    System.out.println("Cannot change salary of regular staff!");
-                                    return;
-                                }
-                            } else {
-                                System.out.println("Salary must be greater than 0. No change made.");
-                            }
-                        }
-                        case 3 -> {
-                            if (targetStaff instanceof ManagerStaff && !getLoggedInStaff().can(SET_MANAGER_SALARY)) {
-                                System.out.println("You cannot Enable/Disable Manager Status!");
-                                return;
-                            }
-                            String action = staff.getStatus() ? "disable (resign)" : "enable (employ)";
-                            System.out.print("Are you sure do you want to " + action + " this staff? ");
-                            String confirm = getRequiredInput(scanner, "confirm(yes/no)").trim();
-                            if (confirm.equalsIgnoreCase("yes")) {
-                                staff.setStatus(!staff.getStatus());
-                                if (!staff.can("SUPER_ADMIN_CHECK")) {
-                                    com.rental.system.database.DatabaseMapper.updateStaff(staff); // Sync → DB
-                                }
-                                System.out.println(
-                                        "Staff status flipped. Now: " + (staff.getStatus() ? "Employed" : "Resigned"));
-                            } else {
-                                System.out.println("Operation cancelled.");
-                            }
-                        }
-                        default -> System.out.println("Invalid choice!");
                     }
-                    System.out.println();
+                    case 2 -> {
+                        if (!staffService.getLoggedInStaff().can(SET_MANAGER_SALARY)) {
+                            System.out.println("Only admin can set salary to manager!");
+                            return;
+                        }
+                        double newSalary = getRequiredDoubleInput(scanner, "new Salary");
+                        if (newSalary > 0) {
+                            if (setSalaryStaff(targetStaff, newSalary)) {
+                                if (!targetStaff.can("SUPER_ADMIN_CHECK")) {
+                                    staffService.updateStaffInDB(targetStaff);
+                                }
+                                System.out.println("Staff salary updated to " + newSalary + ".");
+                            } else {
+                                System.out.println("Cannot change salary of regular staff!");
+                                return;
+                            }
+                        } else {
+                            System.out.println("Salary must be greater than 0. No change made.");
+                        }
+                    }
+                    case 3 -> {
+                        if (targetStaff instanceof ManagerStaff && !staffService.getLoggedInStaff().can(SET_MANAGER_SALARY)) {
+                            System.out.println("You cannot Enable/Disable Manager Status!");
+                            return;
+                        }
+                        String action = targetStaff.getStatus() ? "disable (resign)" : "enable (employ)";
+                        System.out.print("Are you sure do you want to " + action + " this staff? ");
+                        String confirm = getRequiredInput(scanner, "confirm(yes/no)").trim();
+                        if (confirm.equalsIgnoreCase("yes")) {
+                            targetStaff.setStatus(!targetStaff.getStatus());
+                            if (!targetStaff.can("SUPER_ADMIN_CHECK")) {
+                                staffService.updateStaffInDB(targetStaff);
+                            }
+                            System.out.println(
+                                    "Staff status flipped. Now: " + (targetStaff.getStatus() ? "Employed" : "Resigned"));
+                        } else {
+                            System.out.println("Operation cancelled.");
+                        }
+                    }
+                    default -> System.out.println("Invalid choice!");
+                }
+                System.out.println();
 
-                } while (!quit);
-                return;
-            }
+            } while (!quit);
+            return;
         }
         System.out.println("Staff not found!");
     }
 
     public void removeStaff(Scanner scanner) {
-
         Staff staffToRemove = findStaff(scanner);
-        // for (Staff staff : staffs) {
-        // if (staff.equals(staffToRemove)) {
-        // staffToRemove = staff;
-        // break;
-        // }
-        // }
-
         if (staffToRemove != null) {
             System.out.print("Are you sure do you want to remove this staff? ");
             String confirm = getRequiredInput(scanner, "confirm(yes/no)").trim();
             if (confirm.equalsIgnoreCase("yes")) {
-                staffs.remove(staffToRemove);
                 if (!staffToRemove.can("SUPER_ADMIN_CHECK")) {
-                    com.rental.system.database.DatabaseMapper.deleteStaff(staffToRemove.getId()); // Sync → DB
+                    staffService.removeStaff(staffToRemove);
+                    System.out.println("Staff with ID " + staffToRemove.getId() + " removed successfully.");
+                } else {
+                    System.out.println("Cannot remove Super Admin!");
                 }
-                staffCount--;
-                System.out.println("Staff with ID " + staffToRemove.getId() + " removed successfully.");
-                System.out.println("staffCount: " + staffCount);
             } else {
                 System.out.println("Operation cancelled.");
             }
         } else {
             System.out.println("Staff not found.");
-        }
-    }
-
-    // Vehicle Management
-
-    public void generateVehicleToGarage() {
-        // type, powerSource, vehicleClass, brand, model, price, licence, licencePlate
-        String[][] vehicles = {
-                { "Car", "gasoline", "SUV", "Ford", "Escape", "300", "VL-01-AB-1234", "PP-1000" },
-                { "Car", "electric", "Sedan", "Tesla", "Model 3", "500", "VL-02-CD-5678", "PP-1001" },
-                { "Car", "diesel", "Truck", "Toyota", "Hilux", "400", "VL-03-EF-9012", "PP-1002" },
-                { "Car", "hybrid", "Hatchback", "Honda", "Insight", "350", "VL-04-GH-3456", "PP-1003" },
-                { "Car", "gasoline", "Coupe", "BMW", "M4", "600", "VL-05-IJ-7890", "PP-1004" },
-                { "Moto", "gasoline", "Sport", "Honda", "CBR600RR", "75", "MOTO-LIC-2026", "ABC-1234" },
-                { "Moto", "gasoline", "Sport", "Honda", "CBR600RR", "75", "MOTO-LIC-2026", "ABC-1234" },
-        };
-
-        for (String[] v : vehicles) {
-            String type = v[0];
-            double price = Double.parseDouble(v[5]);
-            Vehicle vehicle = switch (type) {
-                case "Moto" -> new Moto("Moto", v[1], v[2], v[3], v[4], price, v[6], v[7], true);
-                default -> new Car("Car", v[1], v[2], v[3], v[4], price, v[6], v[7], 4);
-            };
-            if ("Moto".equals(type))
-                motoCount++;
-            else
-                carCount++;
-            garage.add(vehicle);
-            vehicleCount++;
-            vehicleID++;
         }
     }
 
@@ -638,7 +483,7 @@ public class Garage {
             System.out.println(getLastMessage());
             return;
         }
-        if (!loggedInStaff.can(VIEW_VEHICLE)) {
+        if (!getLoggedInStaff().can(VIEW_VEHICLE)) {
             System.out.println("Access denied: insufficient permissions.");
             return;
         }
@@ -689,7 +534,7 @@ public class Garage {
 
     private void filterVehicle(VehicleFilter filter) {
         boolean found = false;
-        for (Vehicle vehicle : garage) {
+        for (Vehicle vehicle : vehicleService.getAllVehicles()) {
             if (filter.search(vehicle)) {
                 System.out.println(vehicle.toString());
                 found = true;
@@ -778,15 +623,10 @@ public class Garage {
         Car newCar = new Car("Car", powerSource, vehicleClass, brand, model,
                 price, vehicleLicence, licencePlate, doorOfCar);
 
-        garage.add(newCar);
-        com.rental.system.database.DatabaseMapper.saveNewVehicle(newCar);
+        vehicleService.registerNewVehicle(newCar);
 
-        carCount++;
-        System.out.println("Add car successfully. Total cars: " + this.carCount);
-
-        vehicleCount++;
-        vehicleID++;
-        System.out.println("vehicleCount: " + vehicleCount);
+        System.out.println("Add car successfully. Total cars: " + this.vehicleService.getCarCount());
+        System.out.println("vehicleCount: " + vehicleService.getVehicleCount());
     }
 
     public void addMoto(Scanner scanner) {
@@ -805,19 +645,14 @@ public class Garage {
         Moto newMoto = new Moto("Moto", powerSource, vehicleClass, brand, model,
                 price, vehicleLicence, licencePlate, helmetIncluded);
 
-        garage.add(newMoto);
-        com.rental.system.database.DatabaseMapper.saveNewVehicle(newMoto);
-        motoCount++;
-        System.out.println("Add moto successfully. Total motos: " + this.motoCount);
-
-        vehicleCount++;
-        vehicleID++;
-        System.out.println("vehicleCount: " + vehicleCount);
+        vehicleService.registerNewVehicle(newMoto);
+        System.out.println("Add moto successfully. Total motos: " + this.vehicleService.getMotoCount());
+        System.out.println("vehicleCount: " + vehicleService.getVehicleCount());
     }
 
     public void addVehicle(Scanner scanner) {
 
-        if (!loggedInStaff.can(MANAGE_VEHICLE)) {
+        if (!getLoggedInStaff().can(MANAGE_VEHICLE)) {
             System.out.println("Access denied: insufficient permissions.");
             return;
         }
@@ -849,27 +684,27 @@ public class Garage {
     }
 
     public void showVehicle() {
-        if (!loggedInStaff.can(VIEW_VEHICLE)) {
+        if (!getLoggedInStaff().can(VIEW_VEHICLE)) {
             System.out.println("Access denied: insufficient permissions.");
             return;
         }
-        if (vehicleCount == 0) {
+        if (vehicleService.getVehicleCount() == 0) {
             System.out.println("Controller.Garage is empty!");
             return;
         }
         System.out.println();
-        for (Vehicle car : garage) {
+        for (Vehicle car : vehicleService.getAllVehicles()) {
             System.out.println(car.toString());
         }
         System.out.println();
     }
 
     public void removeVehicle(Scanner scanner) {
-        if (!loggedInStaff.can(MANAGE_VEHICLE)) {
+        if (!getLoggedInStaff().can(MANAGE_VEHICLE)) {
             System.out.println("Access denied: insufficient permissions.");
             return;
         }
-        if (vehicleCount == 0) {
+        if (vehicleService.getVehicleCount() == 0) {
             System.out.println("No vehicle to remove!");
             return;
         }
@@ -880,7 +715,7 @@ public class Garage {
             return;
         }
 
-        for (Rent rent : rents) {
+        for (Rent rent : rentalService.getActiveRents()) {
             if (rent != null && rent.getVehicle() != null &&
                     rent.getVehicle().getVehicleId() == target.getVehicleId()) {
                 System.out.println("Vehicle is currently rented and cannot be removed.");
@@ -888,20 +723,18 @@ public class Garage {
             }
         }
 
-        garage.remove(target);
-        com.rental.system.database.DatabaseMapper.deleteVehicle(target.getVehicleId());
-        vehicleCount--;
+        vehicleService.removeVehicle(target);
         System.out.println(
                 "Vehicle [" + target.getVehicleId() + "] " + target.getVehicleCode() + " removed successfully.");
-        System.out.println("vehicleCount: " + vehicleCount);
+        System.out.println("vehicleCount: " + vehicleService.getVehicleCount());
     }
 
     public void updateVehicle(Scanner scanner) {
-        if (!loggedInStaff.can(MANAGE_VEHICLE)) {
+        if (!getLoggedInStaff().can(MANAGE_VEHICLE)) {
             System.out.println("Access denied: insufficient permissions.");
             return;
         }
-        if (vehicleCount == 0) {
+        if (vehicleService.getVehicleCount() == 0) {
             System.out.println("Controller.Garage is Empty!");
             return;
         }
@@ -933,31 +766,31 @@ public class Garage {
                     case 1:
                         String powerSource = getRequiredInput(scanner, "New powerSource");
                         item.setPowerSource(powerSource);
-                        com.rental.system.database.DatabaseMapper.updateVehicle(item); // Sync → DB
+                        vehicleService.updateVehicleInDB(item);
                         break;
                     case 2:
                         String vehicleClass = getRequiredInput(scanner, "New Vehicle Class");
                         item.setVehicleClass(vehicleClass);
-                        com.rental.system.database.DatabaseMapper.updateVehicle(item); // Sync → DB
+                        vehicleService.updateVehicleInDB(item);
                         break;
                     case 3:
                         String vehicleBrand = getRequiredInput(scanner, "New Brand");
                         item.setVehicleBrand(vehicleBrand);
-                        com.rental.system.database.DatabaseMapper.updateVehicle(item); // Sync → DB
+                        vehicleService.updateVehicleInDB(item);
                         break;
                     case 4:
                         String vehicleModel = getRequiredInput(scanner, "New Model");
                         item.setVehicleModel(vehicleModel);
-                        com.rental.system.database.DatabaseMapper.updateVehicle(item); // Sync → DB
+                        vehicleService.updateVehicleInDB(item);
                         break;
                     case 5:
                         double rentalRatePerDay = getRequiredDoubleInput(scanner, "New Price");
                         item.setRentalRatePerDay(rentalRatePerDay);
-                        com.rental.system.database.DatabaseMapper.updateVehicle(item); // Sync → DB
+                        vehicleService.updateVehicleInDB(item);
                         break;
                     case 6:
                         boolean isRented = false;
-                        for (Rent rent : rents) {
+                        for (Rent rent : rentalService.getActiveRents()) {
                             if (rent != null && rent.getVehicle() != null &&
                                     rent.getVehicle().getVehicleId() == item.getVehicleId()) {
                                 isRented = true;
@@ -969,7 +802,7 @@ public class Garage {
                         } else {
                             boolean status = Boolean.parseBoolean(getRequiredInput(scanner, "status (true/false)"));
                             item.setAvailable(status);
-                            com.rental.system.database.DatabaseMapper.updateVehicle(item); // Sync → DB
+                            vehicleService.updateVehicleInDB(item);
                         }
                         break;
                     default:
@@ -980,6 +813,7 @@ public class Garage {
             } while (!quit);
         }
     }
+
 
     // Matches a vehicle only when BOTH numeric id AND code point to the same entry
     // helper function
@@ -1114,8 +948,8 @@ public class Garage {
     public Vehicle findVehicle(Scanner scanner) {
         int id = getRequiredIntInput(scanner, "Vehicle ID (number)");
         String code = getRequiredInput(scanner, "Enter Vehicle Code (e.g. Car-1, Moto-2)");
-        Vehicle byId = getVehicleByID(id);
-        Vehicle byCode = getVehicleByCode(code);
+        Vehicle byId = vehicleService.findById(id);
+        Vehicle byCode = vehicleService.findByCode(code);
         if (byId != null && byId == byCode)
             return byId;
         return null;
@@ -1124,32 +958,17 @@ public class Garage {
     private Staff findStaff(Scanner scanner) {
         int id = getRequiredIntInput(scanner, "Staff ID (number)");
         String username = getRequiredInput(scanner, "Staff Username ");
-        for (Staff staff : staffs) {
-            if (staff.getId() == id && staff.getUsername().equals(username)) {
-                return staff;
-            }
-        }
-        return null;
+        return staffService.findByIdAndUsername(id, username);
     }
 
     /** Look up a vehicle by its global numeric ID (1, 2, 3, …). */
     public Vehicle getVehicleByID(int id) {
-        for (Vehicle v : garage) {
-            if (v.getVehicleId() == id) {
-                return v;
-            }
-        }
-        return null;
+        return vehicleService.findById(id);
     }
 
     /** Look up a vehicle by its type-based code (e.g. "Car-1", "Moto-2"). */
     public Vehicle getVehicleByCode(String code) {
-        for (Vehicle v : garage) {
-            if (v.getVehicleCode() != null && v.getVehicleCode().equals(code.trim())) {
-                return v;
-            }
-        }
-        return null;
+        return vehicleService.findByCode(code);
     }
 
     private boolean isValidDateFormat(String date) {
@@ -1158,20 +977,118 @@ public class Garage {
 
     // Customer Management
 
-    public void generateCustomerToSystem() {
-        String[][] custs = {
-                { "Aruna Smith", "D7654321", "0662345679", "IDCard.jpg", "DriverLicense.jpg" },
-                { "Bona Johnson", "D2345678", "0122345680", "IDCard.jpg", "DriverLicense.jpg" },
-                { "Champa Brown", "D3456789", "0172345681", "IDCard.jpg", "DriverLicense.jpg" },
-                { "Diana Prince", "D4567890", "0882345682", "IDCard.jpg", "DriverLicense.jpg" },
-                { "Eno Gonzalez", "D5678901", "0972345683", "IDCard.jpg", "" }
-        };
+    public void addCustomer(Scanner scanner) {
+        String customerName = getRequiredInput(scanner, "customer Name");
+        String customerIdNum = getRequiredInput(scanner, "customer ID Number");
+        String customerPhone = getRequiredInput(scanner, "customer Phone");
 
-        for (String[] cust : custs) {
-            Customer newCustomer = new Customer(cust[0], cust[1], cust[2], cust[3], cust[4]);
-            customers.add(newCustomer);
-            customerCount++;
+        Customer newCustomer = new Customer(customerName, customerIdNum, customerPhone);
+        customerService.registerNewCustomer(newCustomer);
+        
+        System.out.println("Add customer successfully.");
+        System.out.println("customerCount: " + customerService.getCount());
+    }
+
+    public void showCustomers() {
+        if (customerService.getCount() == 0) {
+            System.out.println("No customers!");
+            return;
         }
+        for (Customer customer : customerService.getAllCustomers()) {
+            System.out.println(customer.toString());
+        }
+        System.out.println();
+    }
+
+    public void updateCustomer(Scanner scanner) {
+        if (customerService.getCount() == 0) {
+            System.out.println("No customers!");
+            return;
+        }
+        int id = getRequiredIntInput(scanner, "customer ID(int)");
+        Customer item = customerService.findById(id);
+
+        if (item != null) {
+            boolean quit = false;
+            int choice;
+            do {
+                System.out.println("""
+                            Update customer:
+                            0. Back to Customer Management
+                            1. ID Card Number
+                            2. Name
+                            3. Phone
+                            4. ID Card Photo
+                            5. Driver License Photo
+                        """);
+
+                choice = getRequiredIntInput(scanner, "choice");
+
+                switch (choice) {
+                    case 0:
+                        quit = true;
+                        break;
+                    case 1:
+                        item.setcustomerIdNum(getRequiredInput(scanner, "new ID Card"));
+                        customerService.updateCustomerInDB(item);
+                        break;
+                    case 2:
+                        item.setCustomerName(getRequiredInput(scanner, "new Name"));
+                        customerService.updateCustomerInDB(item);
+                        break;
+                    case 3:
+                        item.setCustomerPhone(getRequiredInput(scanner, "new Phone"), customerService.getAllCustomers());
+                        customerService.updateCustomerInDB(item);
+                        break;
+                    case 4:
+                        item.setIDCardPhoto(getRequiredInput(scanner, "new ID Card Photo"));
+                        customerService.updateCustomerInDB(item);
+                        break;
+                    case 5:
+                        item.setDriverLicensePhoto(getRequiredInput(scanner, "new Driver License Photo"));
+                        customerService.updateCustomerInDB(item);
+                        break;
+                    default:
+                        System.out.println("Invalid choice!");
+                }
+                System.out.println();
+
+            } while (!quit);
+            return;
+        }
+        System.out.println("Customer not found!");
+    }
+
+    public void removeCustomer(Scanner scanner) {
+        if (customerService.getCount() == 0) {
+            System.out.println("No customer to remove!");
+            return;
+        }
+
+        int id = getRequiredIntInput(scanner, "customer ID(int)");
+
+        if (rentalService.getTotalRentCount() > 0) {
+            for (Rent rent : rentalService.getActiveRents()) {
+                if (rent != null && rent.getCustomer() != null && rent.getCustomer().getCustomerId() == id) {
+                    System.out.println("Customer is associated with an active rent and cannot be removed.");
+                    return;
+                }
+            }
+        }
+
+        Customer customer = customerService.findById(id);
+        if (customer != null) {
+            customerService.removeCustomer(id);
+            System.out.println("Customer with ID " + id + " removed successfully.");
+            System.out.println("customerCount: " + customerService.getCount());
+        } else {
+            System.out.println("Customer not found!");
+        }
+    }
+
+    public Customer findCustomerByID(Scanner scanner) {
+        int id = getRequiredIntInput(scanner, "customer ID(int)");
+        return customerService.findById(id);
     }
 
     public void customerManagement(Scanner scanner) {
@@ -1180,7 +1097,7 @@ public class Garage {
             System.out.println(getLastMessage());
             return;
         }
-        if (!loggedInStaff.can(MANAGE_CUSTOMER)) {
+        if (!getLoggedInStaff().can(MANAGE_CUSTOMER)) {
             System.out.println("Access denied: insufficient permissions.");
             return;
         }
@@ -1223,133 +1140,7 @@ public class Garage {
         } while (!quit);
     }
 
-    public void addCustomer(Scanner scanner) {
-        // Take inputs
-        String customerName = getRequiredInput(scanner, "customer Name");
 
-        String customerIdNum = getRequiredInput(scanner, "customer ID Number");
-
-        String customerPhone = getRequiredInput(scanner, "customer Phone");
-
-        Customer newCustomer = new Customer(customerName, customerIdNum, customerPhone);
-
-        customers.add(newCustomer);
-        com.rental.system.database.DatabaseMapper.saveNewCustomer(newCustomer);
-        customerCount++;
-        System.out.println("Add customer successfully.");
-        System.out.println("customerCount: " + customerCount);
-    }
-
-    public void showCustomers() {
-        if (customerCount == 0) {
-            System.out.println("No customers!");
-            return;
-        }
-        for (Customer customer : customers) {
-            System.out.println(customer.toString());
-        }
-        System.out.println();
-    }
-
-    public void updateCustomer(Scanner scanner) {
-        if (customerCount == 0) {
-            System.out.println("No customers!");
-            return;
-        }
-        int id = getRequiredIntInput(scanner, "customer ID(int)");
-        for (Customer item : customers) {
-
-            if (item.getCustomerId() == id) {
-                boolean quit = false;
-                int choice;
-                do {
-                    System.out.println("""
-                                Update customer:
-                                0. Back to Customer Management
-                                1. ID Card Number
-                                2. Name
-                                3. Phone
-                                4. ID Card Photo
-                                5. Driver License Photo
-                            """);
-
-                    choice = getRequiredIntInput(scanner, "choice");
-
-                    switch (choice) {
-                        case 0:
-                            quit = true;
-                            break;
-                        case 1:
-                            item.setcustomerIdNum(getRequiredInput(scanner, "new ID Card"));
-                            com.rental.system.database.DatabaseMapper.updateCustomer(item); // Sync → DB
-                            break;
-                        case 2:
-                            item.setCustomerName(getRequiredInput(scanner, "new Name"));
-                            com.rental.system.database.DatabaseMapper.updateCustomer(item); // Sync → DB
-                            break;
-                        case 3:
-                            item.setCustomerPhone(getRequiredInput(scanner, "new Phone"), customers);
-                            com.rental.system.database.DatabaseMapper.updateCustomer(item); // Sync → DB
-                            break;
-                        case 4:
-                            item.setIDCardPhoto(getRequiredInput(scanner, "new ID Card Photo"));
-                            com.rental.system.database.DatabaseMapper.updateCustomer(item); // Sync → DB
-                            break;
-                        case 5:
-                            item.setDriverLicensePhoto(getRequiredInput(scanner, "new Driver License Photo"));
-                            com.rental.system.database.DatabaseMapper.updateCustomer(item); // Sync → DB
-                            break;
-                        default:
-                            System.out.println("Invalid choice!");
-                    }
-                    System.out.println();
-
-                } while (!quit);
-                return;
-            }
-        }
-        System.out.println("Customer not found!");
-    }
-
-    public void removeCustomer(Scanner scanner) {
-        if (customerCount == 0) {
-            System.out.println("No customer to remove!");
-            return;
-        }
-
-        int id = getRequiredIntInput(scanner, "customer ID(int)");
-
-        if (rentCount > 0) {
-            for (Rent rent : rents) {
-                if (rent != null && rent.getCustomer() != null && rent.getCustomer().getCustomerId() == id) {
-                    System.out.println("Customer is associated with an active rent and cannot be removed.");
-                    return;
-                }
-            }
-        }
-
-        for (Customer customer : customers) {
-            if (customer.getCustomerId() == id) {
-                customers.remove(customer);
-                com.rental.system.database.DatabaseMapper.deleteCustomer(id);
-                customerCount--;
-                break;
-            }
-        }
-
-        System.out.println("Customer with ID " + id + " removed successfully.");
-        System.out.println("customerCount: " + customerCount);
-    }
-
-    public Customer findCustomerByID(Scanner scanner) {
-        int id = getRequiredIntInput(scanner, "customer ID(int)");
-
-        for (Customer customer : customers) {
-            if (customer.getCustomerId() == id)
-                return customer;
-        }
-        return null;
-    }
 
     // Rent Management
 
@@ -1396,7 +1187,7 @@ public class Garage {
             System.out.println(getLastMessage());
             return;
         }
-        if (!loggedInStaff.can(VIEW_REPORTS)) {
+        if (!getLoggedInStaff().can(VIEW_REPORTS)) {
             System.out.println("Access denied: insufficient permissions.");
             return;
         }
@@ -1466,153 +1257,138 @@ public class Garage {
         }
 
         double vehiclePrice = selectedvVehicle.getRentalRatePerDay(); // snapshot vehicle price
-        Rent newRent = new Rent(selectedvVehicle, selectedCustomer, getLoggedInStaff(), rentDays, startDate, endDate); // create rent
-                                                                                                   // without payment
-                                                                                                   // first
+        Rent newRent = new Rent(selectedvVehicle, selectedCustomer, getLoggedInStaff(), rentDays, startDate, endDate); 
 
         double deposit = getRequiredDoubleInput(scanner, "deposit amount($)");
-        Payment payment = new Payment(newRent.getRentDays(), vehiclePrice, deposit); // create payment with deposit and
-                                                                                     // base price
+        Payment payment = new Payment(newRent.getRentDays(), vehiclePrice, deposit); 
 
-        newRent.setPayment(payment); // add payment to rent
+        newRent.setPayment(payment);
 
-        selectedvVehicle.setAvailable(false); // mark vehicle as unavailable
-        com.rental.system.database.DatabaseMapper.updateVehicle(selectedvVehicle); // Sync vehicle availability → DB
-
-        // Save payment first so it gets a DB ID, then save rent referencing it
-        com.rental.system.database.DatabaseMapper.saveNewPayment(payment); // Sync → DB
-        rents.add(newRent);
-        com.rental.system.database.DatabaseMapper.saveNewRent(newRent); // Sync → DB
-        rentCount++;
+        rentalService.processNewRent(newRent);
+        
         System.out.println("Add rent successfully.");
-        System.out.println("rentCount: " + rentCount);
+        System.out.println("rentCount: " + rentalService.getTotalRentCount());
     }
 
     public void showRents() {
-        if (rentCount == 0) {
+        if (rentalService.getTotalRentCount() == 0) {
             System.out.println("No rents!");
             return;
         }
-        for (Rent rent : rents) {
+        for (Rent rent : rentalService.getActiveRents()) {
             System.out.println(rent.toString());
         }
         System.out.println();
     }
 
     public void updateRent(Scanner scanner) {
-        if (rentCount == 0) {
+        if (rentalService.getTotalRentCount() == 0) {
             System.out.println("No rents!");
             return;
         }
         int id = getRequiredIntInput(scanner, "rent ID(int)");
+        Rent rent = rentalService.findById(id);
 
-        for (Rent rent : rents) {
-            if (rent.getRentId() == id) {
-                boolean quit = false;
-                int choice;
-                do {
-                    System.out.println("""
-                            Update rent:
-                            0. Back to Rent Management
-                            1. Rent Days
-                            2. Vehicle
-                            3. Customer
-                            """);
-                    choice = getRequiredIntInput(scanner, "choice");
+        if (rent != null) {
+            boolean quit = false;
+            int choice;
+            do {
+                System.out.println("""
+                        Update rent:
+                        0. Back to Rent Management
+                        1. Rent Days
+                        2. Vehicle
+                        3. Customer
+                        """);
+                choice = getRequiredIntInput(scanner, "choice");
 
-                    switch (choice) {
-                        case 0 -> quit = true;
-                        case 1 -> {
-                            int newRentDays = getRequiredIntInput(scanner, "New Rent Days");
-                            if (newRentDays <= 0) {
-                                System.out.println("Rent days must be greater than 0.");
-                                break;
-                            }
-                            if (newRentDays == rent.getRentDays()) {
-                                System.out.println("Rent days is the same as before. No update needed.");
-                                break;
-                            }
-                            System.out.println("Warning: Changing rent days may affect the total price.");
-                            String confirm = getRequiredInput(scanner, "Confirm (yes/no)").trim();
-                            if (!confirm.equalsIgnoreCase("yes")) {
-                                System.out.println("Rent days update cancelled.");
-                                break;
-                            }
-                            rent.setRentDays(newRentDays);
-                            rent.getPayment().setRentDays(newRentDays);
+                switch (choice) {
+                    case 0 -> quit = true;
+                    case 1 -> {
+                        int newRentDays = getRequiredIntInput(scanner, "New Rent Days");
+                        if (newRentDays <= 0) {
+                            System.out.println("Rent days must be greater than 0.");
+                            break;
+                        }
+                        if (newRentDays == rent.getRentDays()) {
+                            System.out.println("Rent days is the same as before. No update needed.");
+                            break;
+                        }
+                        System.out.println("Warning: Changing rent days may affect the total price.");
+                        String confirm = getRequiredInput(scanner, "Confirm (yes/no)").trim();
+                        if (!confirm.equalsIgnoreCase("yes")) {
+                            System.out.println("Rent days update cancelled.");
+                            break;
+                        }
+                        rent.setRentDays(newRentDays);
+                        rent.getPayment().setRentDays(newRentDays);
 
-                            String newStartDate = getRequiredInput(scanner, "new start date");
-                            while (!isValidDateFormat(newStartDate)) {
-                                System.out.println("Invalid date format! Please enter date in dd-MM-yyyy format.");
-                                newStartDate = getRequiredInput(scanner, "new start date");
-                            }
-                            rent.setStartDate(newStartDate);
+                        String newStartDate = getRequiredInput(scanner, "new start date");
+                        while (!isValidDateFormat(newStartDate)) {
+                            System.out.println("Invalid date format! Please enter date in dd-MM-yyyy format.");
+                            newStartDate = getRequiredInput(scanner, "new start date");
+                        }
+                        rent.setStartDate(newStartDate);
 
-                            String newEndDate = getRequiredInput(scanner, "new end date");
-                            while (!isValidDateFormat(newEndDate)) {
-                                System.out.println("Invalid date format! Please enter date in dd-MM-yyyy format.");
-                                newEndDate = getRequiredInput(scanner, "new end date");
+                        String newEndDate = getRequiredInput(scanner, "new end date");
+                        while (!isValidDateFormat(newEndDate)) {
+                            System.out.println("Invalid date format! Please enter date in dd-MM-yyyy format.");
+                            newEndDate = getRequiredInput(scanner, "new end date");
+                        }
+                        rent.setEndDate(newEndDate);
+                        com.rental.system.database.DatabaseMapper.updateRent(rent); // Sync → DB
+                        com.rental.system.database.DatabaseMapper.updatePayment(rent.getPayment()); // Sync → DB
+                        System.out.println("Rent days updated successfully.");
+                    }
+                    case 2 -> {
+                        Vehicle newCar = findVehicle(scanner);
+                        if (newCar == null) {
+                            System.out.println("Vehicle not found!");
+                        } else if (!newCar.isAvailable()) {
+                            System.out.println("Selected car is not available!");
+                        } else {
+                            if (rent.getVehicle() != null) {
+                                rent.getVehicle().setAvailable(true);
+                                vehicleService.updateVehicleInDB(rent.getVehicle());
                             }
-                            rent.setEndDate(newEndDate);
+                            newCar.setAvailable(false);
+                            vehicleService.updateVehicleInDB(newCar);
+                            rent.setVehicle(newCar);
+                            rent.getPayment().setPrice(newCar.getRentalRatePerDay());
                             com.rental.system.database.DatabaseMapper.updateRent(rent); // Sync → DB
                             com.rental.system.database.DatabaseMapper.updatePayment(rent.getPayment()); // Sync → DB
-                            System.out.println("Rent days updated successfully.");
+                            System.out.println("Vehicle updated successfully.");
                         }
-                        case 2 -> {
-                            Vehicle newCar = findVehicle(scanner);
-                            if (newCar == null) {
-                                System.out.println("Vehicle not found!");
-                            } else if (!newCar.isAvailable()) {
-                                System.out.println("Selected car is not available!");
-                            } else {
-                                if (rent.getVehicle() != null) {
-                                    rent.getVehicle().setAvailable(true);
-                                    com.rental.system.database.DatabaseMapper.updateVehicle(rent.getVehicle()); // Sync old vehicle → DB
-                                }
-                                newCar.setAvailable(false);
-                                com.rental.system.database.DatabaseMapper.updateVehicle(newCar); // Sync new vehicle → DB
-                                rent.setVehicle(newCar);
-                                rent.getPayment().setPrice(newCar.getRentalRatePerDay());
-                                com.rental.system.database.DatabaseMapper.updateRent(rent); // Sync → DB
-                                com.rental.system.database.DatabaseMapper.updatePayment(rent.getPayment()); // Sync → DB
-                                System.out.println("Vehicle updated successfully.");
-                            }
-                        }
-                        case 3 -> {
-                            Customer newCustomer = findCustomerByID(scanner);
-                            if (newCustomer == null) {
-                                System.out.println("Customer not found!");
-                            } else {
-                                rent.setCustomer(newCustomer);
-                                com.rental.system.database.DatabaseMapper.updateRent(rent); // Sync → DB
-                                System.out.println("Customer updated successfully.");
-                            }
-                        }
-                        default -> System.out.println("Invalid choice!");
                     }
-                    System.out.println();
+                    case 3 -> {
+                        Customer newCustomer = findCustomerByID(scanner);
+                        if (newCustomer == null) {
+                            System.out.println("Customer not found!");
+                        } else {
+                            rent.setCustomer(newCustomer);
+                            com.rental.system.database.DatabaseMapper.updateRent(rent); // Sync → DB
+                            System.out.println("Customer updated successfully.");
+                        }
+                    }
+                    default -> System.out.println("Invalid choice!");
+                }
+                System.out.println();
 
-                } while (!quit);
-                return;
-            }
+            } while (!quit);
+            return;
         }
+        System.out.println("Rent ID not found!");
     }
 
     public void removeRent(Scanner scanner) {
-        if (rentCount == 0) {
+        if (rentalService.getTotalRentCount() == 0) {
             System.out.println("No rent to remove!");
             return;
         }
         int id = getRequiredIntInput(scanner, "rent ID(int)");
+        Rent rentToRemove = rentalService.findById(id);
 
-        int index = -1;
-        for (int i = 0; i < rents.size(); i++) {
-            if (rents.get(i).getRentId() == id) {
-                index = i;
-                break;
-            }
-        }
-        if (index == -1) {
+        if (rentToRemove == null) {
             System.out.println("Rent ID not found!");
             return;
         }
@@ -1630,100 +1406,65 @@ public class Garage {
             return;
         }
 
-        Rent rentToRemove = rents.get(index);
-        // Mark car as available when rent is removed
-        if (rentToRemove.getVehicle() != null) {
-            rentToRemove.getVehicle().setAvailable(true);
-            com.rental.system.database.DatabaseMapper.updateVehicle(rentToRemove.getVehicle()); // Sync vehicle → DB
-        } else {
-            System.out.println("Warning: Rent has no associated car!");
-        }
-        // Delete payment first (FK dependency), then rent
-        if (rentToRemove.getPayment() != null) {
-            com.rental.system.database.DatabaseMapper.deletePayment(rentToRemove.getPayment().getPaymentId()); // Sync → DB
-        }
-        com.rental.system.database.DatabaseMapper.deleteRent(rentToRemove.getRentId()); // Sync → DB
-        rents.remove(index);
-        rentCount--;
-
+        rentalService.removeRent(rentToRemove);
         System.out.println("Remove rent successfully.");
     }
 
     public void returnVehicle(Scanner scanner) {
-        if (rentCount == 0) {
+        if (rentalService.getTotalRentCount() == 0) {
             System.out.println("No rents! Nothing to return.");
             return;
         }
         int id = getRequiredIntInput(scanner, "rent ID(int)");
+        Rent rent = rentalService.findById(id);
 
-        for (Rent rent : rents) {
-            if (rent.getRentId() == id) {
-                if (!rent.isStatus()) {
-                    System.out.println("This receipt is already paid!");
-                    return;
-                }
-
-                if (rent.getVehicle() == null) {
-                    System.out.println("Error: No car associated with this rent!");
-                    return;
-                }
-                // prompt staff to verify vehicle by both ID and code
-                Vehicle vehicle = findVehicle(scanner);
-                if (vehicle == null || vehicle != rent.getVehicle()) {
-                    System.out.println("Vehicle mismatch! ID and code must match the vehicle on this rent.");
-                    return;
-                }
-
-                System.out.print("Enter payment method: ");
-                String paymentMethod = scanner.nextLine();
-
-                // if there's discount or extra day or damage
-                boolean update = getRequiredBooleanInput(scanner, "Update special case (true/false)");
-                if (update)
-                    updatePayment(scanner, rent);
-
-                String payDate = getRequiredInput(scanner, "payDate");
-                while (!isValidDateFormat(payDate)) {
-                    System.out.println("Invalid date format! Please enter date in dd-MM-yyyy format.");
-                    payDate = getRequiredInput(scanner, "payDate");
-                }
-
-                // Process payment
-                rent.getPayment().processPayment(paymentMethod, payDate);
-
-                // Set rent return date
-                rent.setReturnDate(payDate);
-
-                // Mark car as available
-                rent.getVehicle().setAvailable(true);
-                rent.setStatus(false);
-
-                com.rental.system.database.DatabaseMapper.updatePayment(rent.getPayment()); // Sync payment (PAID) → DB
-                com.rental.system.database.DatabaseMapper.updateVehicle(rent.getVehicle()); // Sync vehicle (available) → DB
-                com.rental.system.database.DatabaseMapper.updateRent(rent); // Sync rent (status/returnDate) → DB
-
-                double total = rent.getPayment().calculateTotal();
-                System.out.println("Payment created. Final total amount: $" + total);
-                System.out.println(
-                        "Vehicle [" + rent.getVehicle().getVehicleId() + "] " + rent.getVehicle().getVehicleCode()
-                                + " has been returned and is now available.");
-                System.out.println();
-                // --- Snapshot: add immutable record to rental history ---
-                rentalHistory.add(new RentRecord(rent));
+        if (rent != null) {
+            if (!rent.isStatus()) {
+                System.out.println("This receipt is already paid!");
                 return;
             }
+
+            if (rent.getVehicle() == null) {
+                System.out.println("Error: No car associated with this rent!");
+                return;
+            }
+            // prompt staff to verify vehicle by both ID and code
+            Vehicle vehicle = findVehicle(scanner);
+            if (vehicle == null || vehicle != rent.getVehicle()) {
+                System.out.println("Vehicle mismatch! ID and code must match the vehicle on this rent.");
+                return;
+            }
+
+            System.out.print("Enter payment method: ");
+            String paymentMethod = scanner.nextLine();
+
+            // if there's discount or extra day or damage
+            boolean update = getRequiredBooleanInput(scanner, "Update special case (true/false)");
+            if (update)
+                updatePayment(scanner, rent);
+
+            String payDate = getRequiredInput(scanner, "payDate");
+            while (!isValidDateFormat(payDate)) {
+                System.out.println("Invalid date format! Please enter date in dd-MM-yyyy format.");
+                payDate = getRequiredInput(scanner, "payDate");
+            }
+
+            rentalService.processReturn(rent, payDate, paymentMethod);
+
+            double total = rent.getPayment().calculateTotal();
+            System.out.println("Payment created. Final total amount: $" + total);
+            System.out.println(
+                    "Vehicle [" + rent.getVehicle().getVehicleId() + "] " + rent.getVehicle().getVehicleCode()
+                            + " has been returned and is now available.");
+            System.out.println();
+            return;
         }
         System.out.println("Rent ID not found!");
     }
 
     public Rent findRentByID(Scanner scanner) {
         int id = getRequiredIntInput(scanner, "rent ID(int)");
-
-        for (Rent rent : rents) {
-            if (rent.getRentId() == id)
-                return rent;
-        }
-        return null;
+        return rentalService.findById(id);
     }
 
     // Payment Management
@@ -1768,7 +1509,7 @@ public class Garage {
             System.out.println(getLastMessage());
             return;
         }
-        if (!loggedInStaff.can(SHOW_PAYMENT)) {
+        if (!getLoggedInStaff().can(SHOW_PAYMENT)) {
             System.out.println("Access denied: insufficient permissions.");
             return;
         }
@@ -1800,18 +1541,18 @@ public class Garage {
             System.out.println(getLastMessage());
             return;
         }
-        if (!loggedInStaff.can(VIEW_RENT)) {
+        if (!getLoggedInStaff().can(VIEW_RENT)) {
             System.out.println("Access denied: insufficient permissions.");
             return;
         }
-        if (rentalHistory.isEmpty()) {
+        if (rentalService.getRentalHistory().isEmpty()) {
             System.out.println("No completed rentals in history yet.");
             return;
         }
 
         int searchId = getRequiredIntInput(scanner, "rent ID to look up");
 
-        for (RentRecord record : rentalHistory) {
+        for (RentRecord record : rentalService.getRentalHistory()) {
             if (record.getRentId() == searchId) {
                 System.out.println("\n----- Completed Rent Record -----");
                 System.out.println("  Rent ID        : " + record.getRentId());
@@ -1854,19 +1595,18 @@ public class Garage {
             System.out.println(getLastMessage());
             return;
         }
-        if (!loggedInStaff.can(VIEW_REPORTS)) {
+        if (!getLoggedInStaff().can(VIEW_REPORTS)) {
             System.out.println("Access denied: insufficient permissions.");
             return;
         }
-        if (rentalHistory.isEmpty()) {
+        if (rentalService.getRentalHistory().isEmpty()) {
             System.out.println("No completed rentals in history yet.");
             return;
         }
-        System.out.println("===== Rental History ===== (" + rentalHistory.size() + " records)");
-        double totalRevenue = 0;
-        for (RentRecord record : rentalHistory) {
+        System.out.println("===== Rental History ===== (" + rentalService.getRentalHistory().size() + " records)");
+        double totalRevenue = rentalService.calculateTotalRevenue();
+        for (RentRecord record : rentalService.getRentalHistory()) {
             System.out.println(record);
-            totalRevenue += record.getTotalPaid();
         }
         System.out.printf("Total revenue from completed rentals: $%.2f%n", totalRevenue);
     }
@@ -1876,7 +1616,7 @@ public class Garage {
             System.out.println(getLastMessage());
             return;
         }
-        if (!loggedInStaff.can(VIEW_REPORTS)) {
+        if (!getLoggedInStaff().can(VIEW_REPORTS)) {
             System.out.println("Access denied: insufficient permissions.");
             return;
         }
@@ -1889,7 +1629,7 @@ public class Garage {
         // ── 1. Fleet summary ──────────────────────────────────────────
         System.out.println("\n── 1. Fleet Summary ─────────────────────");
         int totalCars = 0, totalMotos = 0, availableCars = 0, availableMotos = 0;
-        for (Vehicle v : garage) {
+        for (Vehicle v : vehicleService.getAllVehicles()) {
             if (v instanceof Car) {
                 totalCars++;
                 if (v.isAvailable())
@@ -1912,72 +1652,44 @@ public class Garage {
 
         // ── 2. Rental summary ─────────────────────────────────────────
         System.out.println("\n── 2. Rental Summary ────────────────────");
-        int activeRents = 0;
-        for (Rent r : rents) {
-            if (r.isStatus())
-                activeRents++;
-        }
+        int activeRents = rentalService.getActiveRentCount();
+        int completedRents = rentalService.getRentalHistory().size();
         System.out.println("  Active rents     : " + activeRents);
-        System.out.println("  Completed rents  : " + rentalHistory.size());
-        System.out.println("  Total rents ever : " + (activeRents + rentalHistory.size()));
+        System.out.println("  Completed rents  : " + completedRents);
+        System.out.println("  Total rents ever : " + (activeRents + completedRents));
 
         // ── 3. Revenue summary ────────────────────────────────────────
         System.out.println("\n── 3. Revenue Summary ───────────────────");
-        if (rentalHistory.isEmpty()) {
+        if (completedRents == 0) {
             System.out.println("  No completed rentals yet.");
         } else {
-            double totalRevenue = 0;
-            for (RentRecord r : rentalHistory)
-                totalRevenue += r.getTotalPaid();
-            double avgRevenue = totalRevenue / rentalHistory.size();
+            double totalRevenue = rentalService.calculateTotalRevenue();
+            double avgRevenue = totalRevenue / completedRents;
             System.out.printf("  Total revenue    : $%.2f%n", totalRevenue);
             System.out.printf("  Average per rent : $%.2f%n", avgRevenue);
         }
 
         // ── 4. Top rented vehicle ─────────────────────────────────────
         System.out.println("\n── 4. Top Rented Vehicle ────────────────");
-        if (rentalHistory.isEmpty()) {
+        java.util.Map.Entry<Integer, Integer> topV = rentalService.getTopVehicleId();
+        if (topV == null) {
             System.out.println("  No data yet.");
         } else {
-            java.util.HashMap<Integer, Integer> vehicleFreq = new java.util.HashMap<>();
-            java.util.HashMap<Integer, String> vehicleLabel = new java.util.HashMap<>();
-            for (RentRecord r : rentalHistory) {
-                int vid = r.getVehicleId();
-                vehicleFreq.put(vid, vehicleFreq.getOrDefault(vid, 0) + 1);
-                vehicleLabel.put(vid, r.getVehicleCode() + " " + r.getVehicleBrand() + " " + r.getVehicleModel());
-            }
-            int topVehicleId = -1, topVehicleCount = 0;
-            for (java.util.Map.Entry<Integer, Integer> entry : vehicleFreq.entrySet()) {
-                if (entry.getValue() > topVehicleCount) {
-                    topVehicleCount = entry.getValue();
-                    topVehicleId = entry.getKey();
-                }
-            }
-            System.out.println("  " + vehicleLabel.get(topVehicleId) + " — rented " + topVehicleCount + " time(s)");
+            Vehicle v = vehicleService.findById(topV.getKey());
+            String label = (v != null) ? v.getVehicleCode() + " " + v.getVehicleBrand() + " " + v.getVehicleModel() : "Unknown Vehicle (ID: " + topV.getKey() + ")";
+            System.out.println("  " + label + " — rented " + topV.getValue() + " time(s)");
         }
 
         // ── 5. Top customer ───────────────────────────────────────────
         System.out.println("\n── 5. Top Customer ──────────────────────");
-        if (rentalHistory.isEmpty()) {
+        java.util.Map.Entry<Integer, Integer> topC = rentalService.getTopCustomerId();
+        if (topC == null) {
             System.out.println("  No data yet.");
         } else {
-            java.util.HashMap<Integer, Integer> customerFreq = new java.util.HashMap<>();
-            java.util.HashMap<Integer, String> customerLabel = new java.util.HashMap<>();
-            for (RentRecord r : rentalHistory) {
-                int cid = r.getCustomerId();
-                customerFreq.put(cid, customerFreq.getOrDefault(cid, 0) + 1);
-                customerLabel.put(cid, r.getCustomerName());
-            }
-            int topCustomerId = -1;
-            int topCustomerCount = 0;
-            for (java.util.Map.Entry<Integer, Integer> entry : customerFreq.entrySet()) {
-                if (entry.getValue() > topCustomerCount) {
-                    topCustomerCount = entry.getValue();
-                    topCustomerId = entry.getKey();
-                }
-            }
-            System.out.println("  " + customerLabel.get(topCustomerId) + " (ID: " + topCustomerId + ") — "
-                    + topCustomerCount + " rental(s)");
+            Customer c = customerService.findById(topC.getKey());
+            String label = (c != null) ? c.getCustomerName() : "Unknown Customer (ID: " + topC.getKey() + ")";
+            System.out.println("  " + label + " (ID: " + topC.getKey() + ") — "
+                    + topC.getValue() + " rental(s)");
         }
 
         System.out.println("\n══════════════════════════════════════════\n");
@@ -1987,29 +1699,25 @@ public class Garage {
 
     public void showDashboard() {
         int availableVehicles = 0;
-        for (Vehicle v : garage) {
+        for (Vehicle v : vehicleService.getAllVehicles()) {
             if (v.isAvailable())
                 availableVehicles++;
         }
 
-        int activeRents = 0;
-        for (Rent r : rents) {
-            if (r.isStatus())
-                activeRents++;
-        }
+        int activeRentsCount = rentalService.getActiveRentCount();
 
         System.out.println("\n========== GARAGE DASHBOARD ==========");
-        System.out.println("Logged in as : " + (loggedInStaff != null
-                ? loggedInStaff.getName() + " (" + loggedInStaff.getClass().getSimpleName() + ")"
+        System.out.println("Logged in as : " + (getLoggedInStaff() != null
+                ? getLoggedInStaff().getName() + " (" + getLoggedInStaff().getClass().getSimpleName() + ")"
                 : "N/A"));
         System.out.println("--------------------------------------");
-        System.out.println("Total vehicles   : " + vehicleCount);
+        System.out.println("Total vehicles   : " + vehicleService.getVehicleCount());
         System.out.println("Available now    : " + availableVehicles);
-        System.out.println("Rented out       : " + (vehicleCount - availableVehicles));
+        System.out.println("Rented out       : " + (vehicleService.getVehicleCount() - availableVehicles));
         System.out.println("--------------------------------------");
-        System.out.println("Total customers  : " + customerCount);
-        System.out.println("Active rents     : " + activeRents);
-        System.out.println("Completed rents  : " + rentalHistory.size());
+        System.out.println("Total customers  : " + customerService.getCount());
+        System.out.println("Active rents     : " + activeRentsCount);
+        System.out.println("Completed rents  : " + rentalService.getRentalHistory().size());
         System.out.println("======================================\n");
     }
 

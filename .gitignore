@@ -1,14 +1,11 @@
-### IntelliJ IDEA ###
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
-.kotlin
-.idea/
-*.iml
-
-# Ignore all Java class files
+target/
 *.class
 
+### IntelliJ IDEA ###
+.idea/
+*.iml
+out/
+.kotlin
 
 ### Eclipse ###
 .apt_generated
@@ -19,8 +16,6 @@ out/
 .springBeans
 .sts4-cache
 bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
 
 ### NetBeans ###
 /nbproject/private/
