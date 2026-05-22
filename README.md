@@ -1,6 +1,6 @@
 # Vehicle Rental Management System
 
-A comprehensive console-based Java application designed to manage vehicle rentals, customer records, payments, and staff operations. This system provides a robust solution for vehicle rental businesses to track their fleet and transactions efficiently.
+A comprehensive Java backend application integrated with a React frontend, designed to manage vehicle rentals, customer records, payments, and staff operations. This system provides a robust solution for vehicle rental businesses to track their fleet and transactions efficiently.
 
 ## 🚀 Features
 
@@ -38,16 +38,17 @@ A comprehensive console-based Java application designed to manage vehicle rental
 
 ## 🛠️ Technical Stack
 
-- **Language:** Java
+- **Backend:** Java
+- **Frontend:** React (JavaScript/TypeScript)
 - **Database:** MySQL
-- **Connectivity:** JDBC (MySQL Connector/J)
-- **Architecture:** Modular design with Model-View-Controller (MVC) principles.
+- **Connectivity:** JDBC (MySQL Connector/J) / REST APIs
+- **Architecture:** Client-Server architecture with modular MVC principles.
 
 ## 📋 Prerequisites
 
 - **Java Development Kit (JDK):** Version 17 or higher recommended.
+- **Maven:** For build and dependency management.
 - **MySQL Server:** Installed and running.
-- **MySQL JDBC Driver:** Included in the `jdbc/` directory.
 
 ## ⚙️ Setup & Installation
 
@@ -63,27 +64,29 @@ A comprehensive console-based Java application designed to manage vehicle rental
     - `DB_USERNAME`: Your MySQL username.
     - `DB_PASSWORD`: Your MySQL password.
 
-3.  **Compile the Project:**
-    Ensure the JDBC driver is in your classpath.
+3.  **Build the Project:**
+    Use Maven to package the application:
     ```bash
-    javac -cp ".;jdbc/mysql-connector-j-9.6.0.jar" src/*.java src/controller/*.java src/database/*.java src/model/*.java src/user/*.java -d bin
+    mvn clean package
     ```
 
 4.  **Run the Application:**
+    Run the Spring Boot application:
     ```bash
-    java -cp "bin;jdbc/mysql-connector-j-9.6.0.jar" Main
+    mvn spring-boot:run
     ```
 
 ## 📂 Project Structure
 
 ```text
-src/
-├── Main.java           # Application entry point & menu loop
-├── controller/         # Business logic (Garage.java)
-├── database/           # Database connectivity & mapping
-├── model/              # Data models (Vehicle, Car, Customer, etc.)
-└── user/               # Staff and permission management
-jdbc/                   # MySQL JDBC Connector
+src/main/java/com/rental/system/
+├── Main.java           # Spring Boot application entry point
+├── controller/         # REST Controllers / endpoints
+├── service/            # Service layer logic
+├── database/           # Database configuration & mappings
+├── model/              # Data models/Entities (Vehicle, Car, Customer, etc.)
+└── user/               # User models and roles (Staff, ManagerStaff, etc.)
+pom.xml                 # Maven configuration and dependencies
 ```
 
 ## 🔐 Default Credentials
@@ -92,5 +95,3 @@ For first-time setup, the system automatically ensures a super-admin exists:
 - **Username:** `admin_root`
 - **Password:** `root123`
 
----
-*Developed as a robust vehicle management solution.*

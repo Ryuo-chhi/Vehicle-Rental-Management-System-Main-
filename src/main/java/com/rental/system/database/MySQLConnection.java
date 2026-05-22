@@ -10,9 +10,39 @@ import java.sql.ResultSet;
 public class MySQLConnection {
 
     private static Connection connection = null;
-    private static final String URL = System.getenv("DB_URL");
-    private static final String USERNAME = System.getenv("DB_USERNAME");
-    private static final String PASSWORD = System.getenv("DB_PASSWORD");
+    private static final String URL = getEnv("DB_URL", "jdbc:mysql://localhost:3306/rental_db");
+    private static final String USERNAME = getEnv("DB_USERNAME", "root");
+    private static final String PASSWORD = getEnv("DB_PASSWORD", "");
+
+    private static String getEnv(String key, String defaultValue) {
+        String value = System.getenv(key);
+        if (value != null) {
+            return value;
+        }
+        try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.FileReader(".env"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty() || line.startsWith("#")) {
+                    continue;
+                }
+                int eqIdx = line.indexOf('=');
+                if (eqIdx > 0) {
+                    String k = line.substring(0, eqIdx).trim();
+                    if (k.equals(key)) {
+                        String v = line.substring(eqIdx + 1).trim();
+                        if ((v.startsWith("\"") && v.endsWith("\"")) || (v.startsWith("'") && v.endsWith("'"))) {
+                            v = v.substring(1, v.length() - 1);
+                        }
+                        return v;
+                    }
+                }
+            }
+        } catch (java.io.IOException e) {
+            // Ignore if .env is missing or unreadable
+        }
+        return defaultValue;
+    }
 
     // Establish the connection
     public static Connection getConnection() {
@@ -96,7 +126,8 @@ public class MySQLConnection {
         ResultSet rs = MySQLConnection.executeQuery("SELECT * FROM customers "); // Change to your table name and query
         try {
             while (rs != null && rs.next()) {
-                System.out.println("Customer ID: " + rs.getInt("customer_id") + ", Customer Name: " + rs.getString("customer_name"));
+                System.out.println("Customer ID: " + rs.getInt("customer_id") + ", Customer Name: "
+                        + rs.getString("customer_name"));
             }
         } catch (SQLException e) {
             System.out.println("Failed while reading query results.");
