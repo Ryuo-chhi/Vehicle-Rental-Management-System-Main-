@@ -31,6 +31,7 @@ public class Garage {
     public static final String MANAGE_STAFF = "MANAGE_STAFF";
     public static final String VIEW_REPORTS = "VIEW_REPORTS";
     public static final String SET_MANAGER_SALARY = "SET_MANAGER_SALARY";
+    public static final String OTHER_MANAGEMENT = "OTHER_MANAGEMENT";
     private ArrayList<String> carClasses = new ArrayList<>() {
         {
             add("SUV");
@@ -1236,12 +1237,20 @@ public class Garage {
             System.out.println("Vehicle is not available for rent!");
             return;
         }
+        int maxDuration = 30;
+        try {
+            maxDuration = Integer.parseInt(com.rental.system.database.DatabaseMapper.getSetting("MAX_RENTAL_DURATION", "30"));
+        } catch (NumberFormatException e) {
+            // fallback
+        }
         while (true) {
             rentDays = getRequiredIntInput(scanner, "number of days(int)");
-            if (rentDays > 0) {
-                break;
-            } else {
+            if (rentDays <= 0) {
                 System.out.println("Rent days must be greater than 0. Please try again.");
+            } else if (rentDays > maxDuration) {
+                System.out.println("Rental duration exceeds the maximum allowed limit of " + maxDuration + " days! Please enter a lower number of days.");
+            } else {
+                break;
             }
         }
         String startDate = getRequiredInput(scanner, "start date");
@@ -1490,7 +1499,30 @@ public class Garage {
 
         Payment payment = rent.getPayment();
 
-        double discount = getRequiredDoubleInput(scanner, "discount (0 if none)");
+        System.out.print("Do you have a Promotion Code? (yes/no): ");
+        String answer = scanner.nextLine().trim();
+        double discount = 0.0;
+        if (answer.equalsIgnoreCase("yes") || answer.equalsIgnoreCase("y")) {
+            System.out.print("Enter code: ");
+            String code = scanner.nextLine().trim();
+            Promotion found = null;
+            ArrayList<Promotion> promos = com.rental.system.database.DatabaseMapper.getAllPromotions();
+            for (Promotion p : promos) {
+                if (p.getCode().equalsIgnoreCase(code) && p.isActive()) {
+                    found = p;
+                    break;
+                }
+            }
+            if (found != null) {
+                discount = found.getDiscountPercent();
+                System.out.println("Promotion code applied! Discount: " + discount + "%");
+            } else {
+                System.out.println("Invalid or inactive promotion code!");
+                discount = getRequiredDoubleInput(scanner, "discount (0 if none)");
+            }
+        } else {
+            discount = getRequiredDoubleInput(scanner, "discount (0 if none)");
+        }
         payment.setDiscount(discount);
 
         int extraDays = getRequiredIntInput(scanner, "extra days (0 if none)");
@@ -1532,6 +1564,298 @@ public class Garage {
             }
             System.out.println();
         } while (!quit);
+    }
+
+    // ==========================================
+    // OTHER SYSTEM MANAGEMENT (Option 7)
+    // ==========================================
+    public void otherManagement(Scanner scanner) {
+        if (!requireStaffLogin()) {
+            System.out.println(getLastMessage());
+            return;
+        }
+        if (!getLoggedInStaff().can(OTHER_MANAGEMENT)) {
+            System.out.println("Access denied: insufficient permissions.");
+            return;
+        }
+
+        boolean quit = false;
+        do {
+            System.out.println("""
+                    Other Management Options:
+                    0. Back to Main Menu
+                    1. Vehicle Maintenance & Repair
+                    2. Promotion & Discount Codes
+                    3. System Settings & Configuration
+                    """);
+            System.out.print("Enter your choice(int): ");
+            int choice = getRequiredIntInput(scanner, "choice");
+            switch (choice) {
+                case 0 -> quit = true;
+                case 1 -> vehicleMaintenanceMenu(scanner);
+                case 2 -> promotionMenu(scanner);
+                case 3 -> settingsMenu(scanner);
+                default -> System.out.println("Invalid choice!");
+            }
+            System.out.println();
+        } while (!quit);
+    }
+
+    private void vehicleMaintenanceMenu(Scanner scanner) {
+        boolean quit = false;
+        do {
+            System.out.println("""
+                    Vehicle Maintenance & Repair:
+                    0. Back to Other Management Menu
+                    1. Send Vehicle to Maintenance
+                    2. Complete Vehicle Maintenance
+                    3. Show Maintenance History
+                    """);
+            System.out.print("Enter your choice(int): ");
+            int choice = getRequiredIntInput(scanner, "choice");
+            switch (choice) {
+                case 0 -> quit = true;
+                case 1 -> sendVehicleToMaintenance(scanner);
+                case 2 -> completeVehicleMaintenance(scanner);
+                case 3 -> showMaintenanceHistory();
+                default -> System.out.println("Invalid choice!");
+            }
+            System.out.println();
+        } while (!quit);
+    }
+
+    private void sendVehicleToMaintenance(Scanner scanner) {
+        Vehicle vehicle = findVehicle(scanner);
+        if (vehicle == null) {
+            System.out.println("Vehicle not found!");
+            return;
+        }
+        if (!vehicle.isAvailable()) {
+            System.out.println("Vehicle is currently rented out, in maintenance, or otherwise not available!");
+            return;
+        }
+
+        System.out.print("Enter maintenance details: ");
+        String details = scanner.nextLine().trim();
+        double cost = getRequiredDoubleInput(scanner, "estimated cost($)");
+        String startDate = getRequiredInput(scanner, "start date");
+        while (!isValidDateFormat(startDate)) {
+            System.out.println("Invalid date format! Please enter date in dd-MM-yyyy format.");
+            startDate = getRequiredInput(scanner, "start date");
+        }
+
+        vehicle.setAvailable(false);
+        com.rental.system.database.DatabaseMapper.updateVehicle(vehicle);
+
+        MaintenanceRecord r = new MaintenanceRecord(vehicle.getVehicleId(), details, cost, startDate);
+        com.rental.system.database.DatabaseMapper.saveMaintenanceRecord(r);
+
+        System.out.println("Vehicle [" + vehicle.getVehicleId() + "] sent to maintenance successfully.");
+    }
+
+    private void completeVehicleMaintenance(Scanner scanner) {
+        Vehicle vehicle = findVehicle(scanner);
+        if (vehicle == null) {
+            System.out.println("Vehicle not found!");
+            return;
+        }
+
+        MaintenanceRecord ongoing = null;
+        ArrayList<MaintenanceRecord> records = com.rental.system.database.DatabaseMapper.getAllMaintenanceRecords();
+        for (MaintenanceRecord r : records) {
+            if (r.getVehicleId() == vehicle.getVehicleId() && r.getStatus().equals("ONGOING")) {
+                ongoing = r;
+                break;
+            }
+        }
+
+        if (ongoing == null) {
+            System.out.println("This vehicle is not currently in maintenance!");
+            return;
+        }
+
+        double finalCost = getRequiredDoubleInput(scanner, "final cost($)");
+        String endDate = getRequiredInput(scanner, "end date");
+        while (!isValidDateFormat(endDate)) {
+            System.out.println("Invalid date format! Please enter date in dd-MM-yyyy format.");
+            endDate = getRequiredInput(scanner, "end date");
+        }
+
+        ongoing.setCost(finalCost);
+        ongoing.setEndDate(endDate);
+        ongoing.setStatus("COMPLETED");
+
+        com.rental.system.database.DatabaseMapper.updateMaintenanceRecord(ongoing);
+
+        vehicle.setAvailable(true);
+        com.rental.system.database.DatabaseMapper.updateVehicle(vehicle);
+
+        System.out.println("Maintenance completed. Vehicle [" + vehicle.getVehicleId() + "] is now available!");
+    }
+
+    private void showMaintenanceHistory() {
+        ArrayList<MaintenanceRecord> records = com.rental.system.database.DatabaseMapper.getAllMaintenanceRecords();
+        if (records.isEmpty()) {
+            System.out.println("No maintenance history found.");
+            return;
+        }
+        System.out.println("--- Maintenance History ---");
+        for (MaintenanceRecord r : records) {
+            System.out.println(r);
+        }
+        System.out.println("---------------------------");
+    }
+
+    private void promotionMenu(Scanner scanner) {
+        boolean quit = false;
+        do {
+            System.out.println("""
+                    Promotion & Discount Codes:
+                    0. Back to Other Management Menu
+                    1. Add Promotion Code
+                    2. View All Promotion Codes
+                    3. Toggle Promotion Code Status (Active/Inactive)
+                    """);
+            System.out.print("Enter your choice(int): ");
+            int choice = getRequiredIntInput(scanner, "choice");
+            switch (choice) {
+                case 0 -> quit = true;
+                case 1 -> addPromotionCode(scanner);
+                case 2 -> viewAllPromotionCodes();
+                case 3 -> togglePromotionStatus(scanner);
+                default -> System.out.println("Invalid choice!");
+            }
+            System.out.println();
+        } while (!quit);
+    }
+
+    private void addPromotionCode(Scanner scanner) {
+        System.out.print("Enter unique promotion code: ");
+        String code = scanner.nextLine().trim();
+        if (code.isEmpty()) {
+            System.out.println("Promotion code cannot be empty!");
+            return;
+        }
+
+        ArrayList<Promotion> promos = com.rental.system.database.DatabaseMapper.getAllPromotions();
+        for (Promotion p : promos) {
+            if (p.getCode().equalsIgnoreCase(code)) {
+                System.out.println("Promotion code already exists!");
+                return;
+            }
+        }
+
+        double percent = getRequiredDoubleInput(scanner, "discount percentage(%)");
+        if (percent < 0 || percent > 100) {
+            System.out.println("Discount must be between 0 and 100!");
+            return;
+        }
+
+        Promotion newPromo = new Promotion(code, percent);
+        com.rental.system.database.DatabaseMapper.savePromotion(newPromo);
+        System.out.println("Promotion code [" + code + "] added successfully.");
+    }
+
+    private void viewAllPromotionCodes() {
+        ArrayList<Promotion> promos = com.rental.system.database.DatabaseMapper.getAllPromotions();
+        if (promos.isEmpty()) {
+            System.out.println("No promotion codes found.");
+            return;
+        }
+        System.out.println("--- Promotion Codes ---");
+        for (Promotion p : promos) {
+            System.out.println(p);
+        }
+        System.out.println("------------------------");
+    }
+
+    private void togglePromotionStatus(Scanner scanner) {
+        System.out.print("Enter promotion code to toggle: ");
+        String code = scanner.nextLine().trim();
+        Promotion found = null;
+        ArrayList<Promotion> promos = com.rental.system.database.DatabaseMapper.getAllPromotions();
+        for (Promotion p : promos) {
+            if (p.getCode().equalsIgnoreCase(code)) {
+                found = p;
+                break;
+            }
+        }
+
+        if (found == null) {
+            System.out.println("Promotion code not found!");
+            return;
+        }
+
+        found.setActive(!found.isActive());
+        com.rental.system.database.DatabaseMapper.updatePromotion(found);
+        System.out.println("Promotion code [" + found.getCode() + "] status changed to: " + (found.isActive() ? "ACTIVE" : "INACTIVE"));
+    }
+
+    private void settingsMenu(Scanner scanner) {
+        boolean quit = false;
+        do {
+            System.out.println("""
+                    System Settings & Configuration:
+                    0. Back to Other Management Menu
+                    1. View Current System Settings
+                    2. Change Tax Rate
+                    3. Change Late Return Penalty Multiplier
+                    4. Change Max Rental Duration
+                    """);
+            System.out.print("Enter your choice(int): ");
+            int choice = getRequiredIntInput(scanner, "choice");
+            switch (choice) {
+                case 0 -> quit = true;
+                case 1 -> viewSystemSettings();
+                case 2 -> changeTaxRate(scanner);
+                case 3 -> changeLatePenalty(scanner);
+                case 4 -> changeMaxRentalDuration(scanner);
+                default -> System.out.println("Invalid choice!");
+            }
+            System.out.println();
+        } while (!quit);
+    }
+
+    private void viewSystemSettings() {
+        String taxRate = com.rental.system.database.DatabaseMapper.getSetting("TAX_RATE", "0.0");
+        String penalty = com.rental.system.database.DatabaseMapper.getSetting("LATE_PENALTY_MULTIPLIER", "1.5");
+        String maxDuration = com.rental.system.database.DatabaseMapper.getSetting("MAX_RENTAL_DURATION", "30");
+
+        System.out.println("--- Current System Settings ---");
+        System.out.println("Tax Rate:                    " + taxRate + "%");
+        System.out.println("Late Penalty Multiplier:     " + penalty + "x");
+        System.out.println("Max Rental Duration:         " + maxDuration + " days");
+        System.out.println("--------------------------------");
+    }
+
+    private void changeTaxRate(Scanner scanner) {
+        double rate = getRequiredDoubleInput(scanner, "new tax rate percentage(%)");
+        if (rate < 0 || rate > 100) {
+            System.out.println("Tax rate must be between 0 and 100!");
+            return;
+        }
+        com.rental.system.database.DatabaseMapper.saveSetting("TAX_RATE", String.valueOf(rate));
+        System.out.println("Tax rate updated to: " + rate + "%");
+    }
+
+    private void changeLatePenalty(Scanner scanner) {
+        double multiplier = getRequiredDoubleInput(scanner, "new late penalty multiplier (e.g. 1.5)");
+        if (multiplier < 1.0) {
+            System.out.println("Penalty multiplier must be at least 1.0!");
+            return;
+        }
+        com.rental.system.database.DatabaseMapper.saveSetting("LATE_PENALTY_MULTIPLIER", String.valueOf(multiplier));
+        System.out.println("Late penalty multiplier updated to: " + multiplier + "x");
+    }
+
+    private void changeMaxRentalDuration(Scanner scanner) {
+        int duration = getRequiredIntInput(scanner, "new max rental duration in days");
+        if (duration <= 0) {
+            System.out.println("Duration must be greater than 0!");
+            return;
+        }
+        com.rental.system.database.DatabaseMapper.saveSetting("MAX_RENTAL_DURATION", String.valueOf(duration));
+        System.out.println("Max rental duration updated to: " + duration + " days");
     }
 
     // History Management

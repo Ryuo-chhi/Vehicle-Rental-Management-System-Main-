@@ -28,11 +28,20 @@ public class Payment {
     }
 
     public double calculateTotal() {
+        double penaltyMultiplier = 1.5;
+        double taxRate = 0.0;
+        try {
+            penaltyMultiplier = Double.parseDouble(com.rental.system.database.DatabaseMapper.getSetting("LATE_PENALTY_MULTIPLIER", "1.5"));
+            taxRate = Double.parseDouble(com.rental.system.database.DatabaseMapper.getSetting("TAX_RATE", "0.0"));
+        } catch (NumberFormatException e) {
+            // fallback
+        }
+
         // Base cost for the rental period
         double baseCost = price * this.rentDays;
 
-        // Extra days cost (same daily rate)
-        double extraCost = price * extraDays;
+        // Extra days cost with penalty multiplier
+        double extraCost = price * extraDays * penaltyMultiplier;
 
         // Subtotal before discount
         double subtotal = baseCost + extraCost;
@@ -40,8 +49,15 @@ public class Payment {
         // Apply discount (percentage)
         double discountAmount = subtotal * (discount / 100.0);
 
-        // Final total = subtotal - discount + damage fee - deposit
-        double total = subtotal - discountAmount + damageFee - deposit;
+        // Before tax (subtotal - discount + damage fee)
+        double beforeTax = subtotal - discountAmount + damageFee;
+
+        // Apply tax (percentage)
+        double taxAmount = beforeTax * (taxRate / 100.0);
+
+        // Final total = beforeTax + taxAmount - deposit
+        double total = beforeTax + taxAmount - deposit;
+        
         // Ensure total isn't negative (deposit might exceed charges)
         if (total < 0.0) {
             total = 0.0;
@@ -51,7 +67,17 @@ public class Payment {
     }
 
     public double expectedTotal() {
-        return price * this.rentDays - deposit;
+        double taxRate = 0.0;
+        try {
+            taxRate = Double.parseDouble(com.rental.system.database.DatabaseMapper.getSetting("TAX_RATE", "0.0"));
+        } catch (NumberFormatException e) {
+            // fallback
+        }
+        double base = price * this.rentDays;
+        double subtotal = base - (base * (discount / 100.0));
+        double withTax = subtotal * (1.0 + taxRate / 100.0);
+        double total = withTax - deposit;
+        return total < 0.0 ? 0.0 : total;
     }
 
 

@@ -50,6 +50,7 @@ public class MySQLConnection {
             try {
                 connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
                 System.out.println("Connected to MySQL successfully!");
+                initializeTables(connection);
             } catch (SQLException e) {
                 System.out.println("Failed to connect to MySQL com.rental.system.database.");
                 System.out.println("Reason: " + e.getMessage());
@@ -57,6 +58,44 @@ public class MySQLConnection {
             }
         }
         return connection;
+    }
+
+    private static void initializeTables(Connection conn) {
+        try (Statement stmt = conn.createStatement()) {
+            // 1. maintenance_records table
+            stmt.execute("CREATE TABLE IF NOT EXISTS maintenance_records (" +
+                    "maintenance_id INT AUTO_INCREMENT PRIMARY KEY, " +
+                    "vehicle_id INT NOT NULL, " +
+                    "details VARCHAR(255) NOT NULL, " +
+                    "cost DECIMAL(10,2) NOT NULL DEFAULT 0, " +
+                    "start_date VARCHAR(20) NOT NULL, " +
+                    "end_date VARCHAR(20), " +
+                    "status VARCHAR(20) NOT NULL DEFAULT 'ONGOING', " +
+                    "FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) ON DELETE CASCADE" +
+                    ")");
+
+            // 2. promotions table
+            stmt.execute("CREATE TABLE IF NOT EXISTS promotions (" +
+                    "promo_id INT AUTO_INCREMENT PRIMARY KEY, " +
+                    "code VARCHAR(50) UNIQUE NOT NULL, " +
+                    "discount_percent DECIMAL(5,2) NOT NULL, " +
+                    "is_active BOOLEAN NOT NULL DEFAULT TRUE" +
+                    ")");
+
+            // 3. system_settings table
+            stmt.execute("CREATE TABLE IF NOT EXISTS system_settings (" +
+                    "setting_key VARCHAR(50) PRIMARY KEY, " +
+                    "setting_value VARCHAR(50) NOT NULL" +
+                    ")");
+
+            // Insert default settings if they are not present
+            stmt.execute("INSERT IGNORE INTO system_settings (setting_key, setting_value) VALUES " +
+                    "('TAX_RATE', '0.0'), " +
+                    "('LATE_PENALTY_MULTIPLIER', '1.5'), " +
+                    "('MAX_RENTAL_DURATION', '30')");
+        } catch (SQLException e) {
+            System.out.println("Failed to initialize database tables: " + e.getMessage());
+        }
     }
 
     // Execute a query (SELECT)

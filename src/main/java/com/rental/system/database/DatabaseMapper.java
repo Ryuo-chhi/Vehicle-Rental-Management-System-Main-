@@ -12,6 +12,8 @@ import com.rental.system.model.Payment;
 import com.rental.system.model.Rent;
 import com.rental.system.model.RentRecord;
 import com.rental.system.model.Vehicle;
+import com.rental.system.model.MaintenanceRecord;
+import com.rental.system.model.Promotion;
 import com.rental.system.user.ManagerStaff;
 import com.rental.system.user.RegularStaff;
 import com.rental.system.user.Staff;
@@ -530,5 +532,139 @@ public class DatabaseMapper {
                 p.getDamageFee(), p.getPayDate(), p.getStatus(), p.getDeposit(), p.calculateTotal(), p.getPaymentId());
         MySQLConnection.executeUpdate(query);
         System.out.println("Updated Payment in DB: ID " + p.getPaymentId());
+    }
+
+    // ==========================================
+    // MAINTENANCE_RECORDS OPERATIONS
+    // ==========================================
+    public static MaintenanceRecord saveMaintenanceRecord(MaintenanceRecord r) {
+        String query = String.format(
+                "INSERT INTO maintenance_records (vehicle_id, details, cost, start_date, end_date, status) " +
+                "VALUES (%d, '%s', %.2f, '%s', '%s', '%s')",
+                r.getVehicleId(), r.getDetails(), r.getCost(), r.getStartDate(), r.getEndDate(), r.getStatus());
+        int generatedId = MySQLConnection.executeInsertAndGetId(query);
+        if (generatedId != -1) {
+            r.setMaintenanceId(generatedId);
+        }
+        return r;
+    }
+
+    public static void updateMaintenanceRecord(MaintenanceRecord r) {
+        String query = String.format(
+                "UPDATE maintenance_records SET details='%s', cost=%.2f, start_date='%s', end_date='%s', status='%s' " +
+                "WHERE maintenance_id=%d",
+                r.getDetails(), r.getCost(), r.getStartDate(), r.getEndDate(), r.getStatus(), r.getMaintenanceId());
+        MySQLConnection.executeUpdate(query);
+    }
+
+    public static ArrayList<MaintenanceRecord> getAllMaintenanceRecords() {
+        ArrayList<MaintenanceRecord> list = new ArrayList<>();
+        ResultSet rs = null;
+        try {
+            rs = MySQLConnection.executeQuery("SELECT * FROM maintenance_records");
+            while (rs != null && rs.next()) {
+                list.add(new MaintenanceRecord(
+                        rs.getInt("maintenance_id"),
+                        rs.getInt("vehicle_id"),
+                        rs.getString("details"),
+                        rs.getDouble("cost"),
+                        rs.getString("start_date"),
+                        rs.getString("end_date"),
+                        rs.getString("status")
+                ));
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to read maintenance records: " + e.getMessage());
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    // ignore
+                }
+            }
+        }
+        return list;
+    }
+
+    // ==========================================
+    // PROMOTIONS OPERATIONS
+    // ==========================================
+    public static Promotion savePromotion(Promotion p) {
+        String query = String.format(
+                "INSERT INTO promotions (code, discount_percent, is_active) VALUES ('%s', %.2f, %b)",
+                p.getCode(), p.getDiscountPercent(), p.isActive());
+        int generatedId = MySQLConnection.executeInsertAndGetId(query);
+        if (generatedId != -1) {
+            p.setPromoId(generatedId);
+        }
+        return p;
+    }
+
+    public static void updatePromotion(Promotion p) {
+        String query = String.format(
+                "UPDATE promotions SET code='%s', discount_percent=%.2f, is_active=%b WHERE promo_id=%d",
+                p.getCode(), p.getDiscountPercent(), p.isActive(), p.getPromoId());
+        MySQLConnection.executeUpdate(query);
+    }
+
+    public static ArrayList<Promotion> getAllPromotions() {
+        ArrayList<Promotion> list = new ArrayList<>();
+        ResultSet rs = null;
+        try {
+            rs = MySQLConnection.executeQuery("SELECT * FROM promotions");
+            while (rs != null && rs.next()) {
+                list.add(new Promotion(
+                        rs.getInt("promo_id"),
+                        rs.getString("code"),
+                        rs.getDouble("discount_percent"),
+                        rs.getBoolean("is_active")
+                ));
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to read promotions: " + e.getMessage());
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    // ignore
+                }
+            }
+        }
+        return list;
+    }
+
+    // ==========================================
+    // SYSTEM SETTINGS OPERATIONS
+    // ==========================================
+    public static String getSetting(String key, String defaultValue) {
+        String query = String.format("SELECT setting_value FROM system_settings WHERE setting_key='%s'", key);
+        ResultSet rs = null;
+        try {
+            rs = MySQLConnection.executeQuery(query);
+            if (rs != null && rs.next()) {
+                return rs.getString("setting_value");
+            }
+        } catch (SQLException e) {
+            // Ignore and fallback
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    // ignore
+                }
+            }
+        }
+        return defaultValue;
+    }
+
+    public static void saveSetting(String key, String value) {
+        String query = String.format(
+                "INSERT INTO system_settings (setting_key, setting_value) VALUES ('%s', '%s') " +
+                "ON DUPLICATE KEY UPDATE setting_value='%s'",
+                key, value, value);
+        MySQLConnection.executeUpdate(query);
     }
 }

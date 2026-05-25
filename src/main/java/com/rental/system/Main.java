@@ -44,7 +44,7 @@ class Main {
                     -- MANAGER --
                       5.  Staff Management
                       6.  Report Management
-                      7.  Other Management       [ soon ]
+                      7.  Other Management
                     ========================================
                     """);
             int choice = Integer.parseInt(myGarage.getRequiredInput(scanner,"choice"));
@@ -61,7 +61,7 @@ class Main {
                 case 4 -> myGarage.paymentManagement(scanner);
                 case 5 -> myGarage.staffManagement(scanner);
                 case 6 -> myGarage.reportManagement(scanner);
-                case 7 -> System.out.println("Coming soon...");
+                case 7 -> myGarage.otherManagement(scanner);
                 default -> System.out.println("Invalid choice!");
             }
             System.out.println();
