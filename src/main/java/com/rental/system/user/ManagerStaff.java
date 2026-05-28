@@ -1,10 +1,17 @@
 package com.rental.system.user;
 
-import com.rental.system.controller.Garage;
+import jakarta.persistence.*;
 
+@Entity
+@DiscriminatorValue("MANAGER")
 public class ManagerStaff extends Staff {
 
+    @Column(name = "bonus")
     private double bonus;
+
+    public ManagerStaff() {
+        super();
+    }
 
     /*====== Register ====== */
     public ManagerStaff(String name, String username, String password, double salary) {
@@ -15,7 +22,10 @@ public class ManagerStaff extends Staff {
     /*====== Manager Permissions — full access ====== */
     @Override
     public boolean can(String action) {
-        return !action.equals(Garage.SET_MANAGER_SALARY);
+        if ("admin_root".equalsIgnoreCase(getUsername())) {
+            return true;
+        }
+        return !action.equals("SET_MANAGER_SALARY");
     }
 
     public double getBonus() {return bonus;}

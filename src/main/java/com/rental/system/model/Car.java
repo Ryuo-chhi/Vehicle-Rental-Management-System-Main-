@@ -1,18 +1,25 @@
 package com.rental.system.model;
 
+import jakarta.persistence.*;
 import java.util.Objects;
 
+@Entity
+@Table(name = "cars")
+@PrimaryKeyJoinColumn(name = "vehicle_id")
 public class Car extends Vehicle {
     private static int carID = 1;
 
+    @Column(name = "number_of_seats")
     private int numberOfSeats;
 
+    public Car() {
+        super();
+    }
 
     public Car(Vehicle vehicle, int numberOfSeats) {
         super("Car", vehicle.getPowerSource(), vehicle.getVehicleClass(), vehicle.getVehicleBrand(), vehicle.getVehicleModel(), vehicle.getRentalRatePerDay(), vehicle.getVehicleLicence(), vehicle.getLicencePlate());
         this.setNumberOfSeats(numberOfSeats);
         carID++;
-
     }
 
     public Car(String vehicleType,

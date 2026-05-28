@@ -1,27 +1,53 @@
 package com.rental.system.model;
 
 import com.rental.system.user.Staff;
-import com.rental.system.model.Customer;
-import com.rental.system.model.Payment;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "rents")
 public class Rent {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "rent_id")
     private int rentId;
+
+    @Column(name = "rent_days")
     private int rentDays;
+
+    @Column(name = "start_date")
     private String startDate;
+
+    @Column(name = "end_date")
     private String endDate;
+
+    @Column(name = "return_date")
     private String returnDate;
+
+    @Column(name = "status")
     private boolean status;
     
+    @ManyToOne
+    @JoinColumn(name = "vehicle_id")
     private Vehicle vehicle;
+
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
     private Customer customer;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "payment_id")
     private Payment payment;
+
+    @ManyToOne
+    @JoinColumn(name = "staff_id")
     private Staff staff;
 
     private static int countRentId = 0;
 
+    public Rent() {}
+
     // create
     public Rent(Vehicle vehicle, Customer customer, Staff staff, int rentDays, String startDate, String endDate) {
-        this.rentId = ++countRentId;
         this.setVehicle(vehicle);
         this.setCustomer(customer);
         this.setRentDays(rentDays);

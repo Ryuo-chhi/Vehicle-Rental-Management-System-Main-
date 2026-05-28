@@ -1,8 +1,18 @@
 package com.rental.system.user;
 
+import jakarta.persistence.*;
+
+@Entity
+@DiscriminatorValue("REGULAR")
 public class RegularStaff extends Staff {
 
+    @Column(name = "work_station")
     private String workStation;
+
+    public RegularStaff() {
+        super();
+    }
+
     /*====== Register ====== */
     public RegularStaff(String name,  String username, String password, double salary, String workStation) {
         super(name, username, password, salary); // parent (com.rental.system.user.Staff) runs first

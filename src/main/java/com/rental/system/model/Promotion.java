@@ -1,10 +1,25 @@
 package com.rental.system.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "promotions")
 public class Promotion {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "promo_id")
     private int promoId;
+
+    @Column(name = "code", unique = true, nullable = false)
     private String code;
+
+    @Column(name = "discount_percent")
     private double discountPercent;
+
+    @Column(name = "is_active")
     private boolean isActive;
+
+    public Promotion() {}
 
     public Promotion(String code, double discountPercent) {
         this.code = code;

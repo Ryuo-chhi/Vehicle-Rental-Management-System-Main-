@@ -1,90 +1,45 @@
 package com.rental.system;
 
-import com.rental.system.controller.Garage;
-import java.io.Console;
-import java.util.Scanner;
+import com.rental.system.service.CustomerService;
+import com.rental.system.service.OtherManagementService;
+import com.rental.system.service.StaffService;
+import com.rental.system.service.VehicleService;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
-class Main {
+@SpringBootApplication
+public class Main {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        Garage myGarage = new Garage(10);
-
-        System.out.println("\nWelcome to the Vehicle Rental Management System!\n");
-
-        System.out.println("Please login to continue...");
-        System.out.print("Enter username: ");
-        String username = scanner.nextLine();
-        String password = readPassword(scanner);
-
-        myGarage.staffLogin(username, password);
-        System.out.println(myGarage.getLastMessage());
-        
-        if (!myGarage.isStaffLoggedIn()) {
-            System.out.println("Login failed. Exiting...");
-            scanner.close();
-            return;
-        }
-
-        boolean quit = false;
-        while (!quit) {
-            try {
-            System.out.println("""
-                    ========================================
-                         VEHICLE RENTAL MANAGEMENT SYSTEM
-                    ========================================
-                    -- MAIN MENU --
-                      0.  Quit & Logout
-                    ----------------------------------------
-                    -- OPERATIONS --
-                      1.  Vehicle Management
-                      2.  Customer Management
-                      3.  Rent Management
-                      4.  Payment Management
-                    ----------------------------------------
-                    -- MANAGER --
-                      5.  Staff Management
-                      6.  Report Management
-                      7.  Other Management
-                    ========================================
-                    """);
-            int choice = Integer.parseInt(myGarage.getRequiredInput(scanner,"choice"));
-
-            switch (choice) {
-                case 0 -> {
-                    quit = true;
-                    myGarage.staffLogout();
-                    System.out.println("Exiting and logging out...");
-                }
-                case 1 -> myGarage.vehicleManagement(scanner);
-                case 2 -> myGarage.customerManagement(scanner);
-                case 3 -> myGarage.rentManagement(scanner);
-                case 4 -> myGarage.paymentManagement(scanner);
-                case 5 -> myGarage.staffManagement(scanner);
-                case 6 -> myGarage.reportManagement(scanner);
-                case 7 -> myGarage.otherManagement(scanner);
-                default -> System.out.println("Invalid choice!");
-            }
-            System.out.println();
-            } catch (Exception e) {
-                System.out.println("Invalid input! Please enter a valid number.");
-                if (e instanceof java.util.InputMismatchException) {
-                    scanner.nextLine();
-                }
-            }
-        }
-        scanner.close();
-
+        SpringApplication.run(Main.class, args);
     }
 
-    private static String readPassword(Scanner scanner) {
-        Console console = System.console();
-        if (console != null) {
-            char[] passwordChars = console.readPassword("Enter password: ");
-            return passwordChars == null ? "" : new String(passwordChars);
-        }
+    @Bean
+    public CommandLineRunner initData(VehicleService vehicleService,
+                                      CustomerService customerService,
+                                      StaffService staffService,
+                                      OtherManagementService otherManagementService) {
+        return args -> {
+            System.out.println("Initializing system settings...");
+            if (otherManagementService.getAllSettings().isEmpty()) {
+                otherManagementService.updateSetting("TAX_RATE", "10.0");
+                otherManagementService.updateSetting("LATE_PENALTY_MULTIPLIER", "1.5");
+                otherManagementService.updateSetting("MAX_RENTAL_DURATION", "30");
+            }
+            // Trigger refresh of holder configurations
+            otherManagementService.initSettings();
 
-        // IDE-integrated terminals often do not expose java.io.Console.
-        System.out.print("Enter password: ");
-        return scanner.nextLine();
+            System.out.println("Initializing default staff...");
+            staffService.generateDefaultStaff();
+
+            System.out.println("Initializing default customers...");
+            customerService.generateDefaultCustomers();
+
+            System.out.println("Initializing default vehicles...");
+            vehicleService.generateDefaultVehicles();
+
+            System.out.println("Initialization completed successfully!");
+        };
     }
 }

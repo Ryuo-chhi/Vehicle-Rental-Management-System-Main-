@@ -1,60 +1,114 @@
 package com.rental.system;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rental.system.controller.RentalController;
+import com.rental.system.controller.StaffController;
+import com.rental.system.model.Customer;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@SuppressWarnings("null")
 public class MainTest {
 
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Test
-    public void testMainClassExists() {
-        // Basic test to ensure the test structure is working
-        assertNotNull(Main.class);
+    public void testGetVehicles() throws Exception {
+        mockMvc.perform(get("/api/vehicles"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(greaterThan(0))))
+                .andExpect(jsonPath("$[0].vehicleBrand").value("Ford"));
     }
 
     @Test
-    public void testMaintenanceRecordModel() {
-        com.rental.system.model.MaintenanceRecord record = new com.rental.system.model.MaintenanceRecord(
-            1, "Oil change", 45.50, "05-06-2026"
-        );
-        assertEquals(1, record.getVehicleId());
-        assertEquals("Oil change", record.getDetails());
-        assertEquals(45.50, record.getCost());
-        assertEquals("05-06-2026", record.getStartDate());
-        assertEquals("TBD", record.getEndDate());
-        assertEquals("ONGOING", record.getStatus());
-
-        record.setStatus("COMPLETED");
-        record.setEndDate("06-06-2026");
-        assertEquals("COMPLETED", record.getStatus());
-        assertEquals("06-06-2026", record.getEndDate());
+    public void testGetCustomers() throws Exception {
+        mockMvc.perform(get("/api/customers"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(greaterThan(0))));
     }
 
     @Test
-    public void testPromotionModel() {
-        com.rental.system.model.Promotion promo = new com.rental.system.model.Promotion("SUMMER10", 10.0);
-        assertEquals("SUMMER10", promo.getCode());
-        assertEquals(10.0, promo.getDiscountPercent());
-        assertTrue(promo.isActive());
+    public void testStaffLoginSuccess() throws Exception {
+        StaffController.LoginRequest request = new StaffController.LoginRequest();
+        request.setUsername("admin_root");
+        request.setPassword("root123");
 
-        promo.setActive(false);
-        assertFalse(promo.isActive());
+        mockMvc.perform(post("/api/staffs/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Login success")));
     }
 
     @Test
-    public void testPaymentCalculation() {
-        com.rental.system.model.Payment payment = new com.rental.system.model.Payment(5, 50.0, 100.0);
-        payment.setDiscount(10.0); // 10% discount
-        payment.setExtraDays(2);
-        payment.setDamageFee(25.0);
+    public void testStaffLoginFailure() throws Exception {
+        StaffController.LoginRequest request = new StaffController.LoginRequest();
+        request.setUsername("admin_root");
+        request.setPassword("wrongpassword");
 
-        // Without DB settings connection, it falls back to 1.5x penalty and 0% tax.
-        // Base cost: 50 * 5 = 250
-        // Extra days: 50 * 2 * 1.5 = 150
-        // Subtotal: 250 + 150 = 400
-        // Discount: 400 * 0.10 = 40
-        // Before Tax: 400 - 40 + 25 = 385
-        // Tax: 0% of 385 = 0
-        // Final: 385 - deposit(100) = 285
-        assertEquals(285.0, payment.calculateTotal(), 0.001);
+        mockMvc.perform(post("/api/staffs/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("failed")));
+    }
+
+    @Test
+    public void testRentalTransactionFlow() throws Exception {
+        // 1. Create a customer
+        Customer customer = new Customer("Test Customer", "ID123456", "099888777");
+        String customerJson = mockMvc.perform(post("/api/customers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(customer)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Customer savedCustomer = objectMapper.readValue(customerJson, Customer.class);
+
+        // 2. Perform rental
+        RentalController.RentRequest rentRequest = new RentalController.RentRequest();
+        rentRequest.setVehicleId(1); // Ford Escape seeded on startup
+        rentRequest.setCustomerId(savedCustomer.getCustomerId());
+        rentRequest.setStaffId(1); // admin_root
+        rentRequest.setStaffUsername("admin_root");
+        rentRequest.setRentDays(5);
+        rentRequest.setStartDate("2026-06-05");
+        rentRequest.setEndDate("2026-06-10");
+        rentRequest.setDeposit(100.0);
+
+        mockMvc.perform(post("/api/rentals")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(rentRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(true))
+                .andExpect(jsonPath("$.rentDays").value(5));
+
+        // 3. Return vehicle
+        RentalController.ReturnRequest returnRequest = new RentalController.ReturnRequest();
+        returnRequest.setPayDate("2026-06-10");
+        returnRequest.setPaymentMethod("ABA");
+        returnRequest.setDiscount(10.0);
+        returnRequest.setDamageFee(25.0);
+
+        mockMvc.perform(post("/api/rentals/1/return")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(returnRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(false))
+                .andExpect(jsonPath("$.payment.status").value("PAID"));
     }
 }

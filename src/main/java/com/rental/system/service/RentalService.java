@@ -2,45 +2,56 @@ package com.rental.system.service;
 
 import com.rental.system.model.Rent;
 import com.rental.system.model.RentRecord;
-import com.rental.system.model.Vehicle;
-import com.rental.system.model.Payment;
-import com.rental.system.database.DatabaseMapper;
+import com.rental.system.repository.RentRepository;
+import com.rental.system.repository.VehicleRepository;
+import com.rental.system.repository.RentRecordRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+@Service
+@SuppressWarnings("null")
 public class RentalService {
-    private ArrayList<Rent> rents;
-    private ArrayList<RentRecord> rentalHistory;
+    private final RentRepository rentRepository;
+    private final VehicleRepository vehicleRepository;
+    private final RentRecordRepository rentRecordRepository;
 
-    public RentalService() {
-        this.rents = new ArrayList<>();
-        this.rentalHistory = new ArrayList<>();
+    @Autowired
+    public RentalService(RentRepository rentRepository,
+                         VehicleRepository vehicleRepository,
+                         RentRecordRepository rentRecordRepository) {
+        this.rentRepository = rentRepository;
+        this.vehicleRepository = vehicleRepository;
+        this.rentRecordRepository = rentRecordRepository;
     }
 
     // --- The Memory ---
     public ArrayList<Rent> getActiveRents() {
-        return rents;
+        return new ArrayList<>(rentRepository.findByStatus(true));
     }
 
     public void setRents(ArrayList<Rent> rents) {
-        this.rents = rents;
+        rentRepository.saveAll(rents);
     }
 
     public ArrayList<RentRecord> getRentalHistory() {
-        return rentalHistory;
+        return new ArrayList<>(rentRecordRepository.findAll());
     }
 
     public void setRentalHistory(ArrayList<RentRecord> history) {
-        this.rentalHistory = history;
+        rentRecordRepository.saveAll(history);
     }
 
     public int getActiveRentCount() {
-        return (int) rents.stream().filter(Rent::isStatus).count();
+        return (int) rentRepository.findByStatus(true).size();
     }
 
     public int getTotalRentCount() {
-        return rents.size();
+        return (int) rentRepository.count();
     }
 
     // --- The Brain (Pure Logic) ---
@@ -48,12 +59,10 @@ public class RentalService {
     public void processNewRent(Rent rent) {
         // Business Rule: Mark vehicle as unavailable
         rent.getVehicle().setAvailable(false);
-        DatabaseMapper.updateVehicle(rent.getVehicle());
+        vehicleRepository.save(rent.getVehicle());
 
-        // Save payment then rent
-        DatabaseMapper.saveNewPayment(rent.getPayment());
-        rents.add(rent);
-        DatabaseMapper.saveNewRent(rent);
+        // Save rent (cascade will save payment)
+        rentRepository.save(rent);
     }
 
     public void processReturn(Rent rent, String payDate, String paymentMethod) {
@@ -66,36 +75,28 @@ public class RentalService {
         rent.getVehicle().setAvailable(true);
 
         // 3. Sync to Database
-        DatabaseMapper.updatePayment(rent.getPayment());
-        DatabaseMapper.updateVehicle(rent.getVehicle());
-        DatabaseMapper.updateRent(rent);
+        vehicleRepository.save(rent.getVehicle());
+        rentRepository.save(rent);
 
         // 4. Add to history
-        rentalHistory.add(new RentRecord(rent));
+        rentRecordRepository.save(new RentRecord(rent));
     }
 
     public void removeRent(Rent rent) {
         if (rent.getVehicle() != null) {
             rent.getVehicle().setAvailable(true);
-            DatabaseMapper.updateVehicle(rent.getVehicle());
+            vehicleRepository.save(rent.getVehicle());
         }
-        if (rent.getPayment() != null) {
-            DatabaseMapper.deletePayment(rent.getPayment().getPaymentId());
-        }
-        DatabaseMapper.deleteRent(rent.getRentId());
-        rents.remove(rent);
+        rentRepository.delete(rent);
     }
 
     public Rent findById(int id) {
-        for (Rent r : rents) {
-            if (r.getRentId() == id) return r;
-        }
-        return null;
+        return rentRepository.findById(id).orElse(null);
     }
 
     public double calculateTotalRevenue() {
         double total = 0;
-        for (RentRecord record : rentalHistory) {
+        for (RentRecord record : rentRecordRepository.findAll()) {
             total += record.getTotalPaid();
         }
         return total;
@@ -104,9 +105,10 @@ public class RentalService {
     // --- Statistics Logic for Reports ---
 
     public Map.Entry<Integer, Integer> getTopVehicleId() {
-        if (rentalHistory.isEmpty()) return null;
+        List<RentRecord> history = rentRecordRepository.findAll();
+        if (history.isEmpty()) return null;
         HashMap<Integer, Integer> freq = new HashMap<>();
-        for (RentRecord r : rentalHistory) {
+        for (RentRecord r : history) {
             int vid = r.getVehicleId();
             freq.put(vid, freq.getOrDefault(vid, 0) + 1);
         }
@@ -114,9 +116,10 @@ public class RentalService {
     }
 
     public Map.Entry<Integer, Integer> getTopCustomerId() {
-        if (rentalHistory.isEmpty()) return null;
+        List<RentRecord> history = rentRecordRepository.findAll();
+        if (history.isEmpty()) return null;
         HashMap<Integer, Integer> freq = new HashMap<>();
-        for (RentRecord r : rentalHistory) {
+        for (RentRecord r : history) {
             int cid = r.getCustomerId();
             freq.put(cid, freq.getOrDefault(cid, 0) + 1);
         }

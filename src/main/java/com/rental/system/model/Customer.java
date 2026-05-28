@@ -1,21 +1,38 @@
 package com.rental.system.model;
 
+import jakarta.persistence.*;
 import java.util.HashSet;
 
+@Entity
+@Table(name = "customers")
 public class Customer {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "customer_id")
     private int customerId;
+
+    @Column(name = "customer_name", nullable = false)
     private String customerName;
+
+    @Column(name = "customer_id_num", nullable = false)
     private String customerIdNum;
+
+    @Column(name = "customer_phone", nullable = false)
     private String customerPhone;
+
+    @Column(name = "id_card_photo")
     private String IDCardPhoto; // String path to photo of ID card
+
+    @Column(name = "driver_license_photo")
     private String DriverLicensePhoto; // String path to photo of driver license
 
     private static int countCustomerId = 1;
 
+    public Customer() {}
+
     // register customer
     public Customer(String customerName, String customerIdNum, String customerPhone, String IDCardPhoto,
             String DriverLicensePhoto) {
-        this.customerId = countCustomerId++;
         this.setcustomerIdNum(customerIdNum);
         this.setCustomerName(customerName);
         this.setCustomerPhone(customerPhone, null );
@@ -25,7 +42,6 @@ public class Customer {
 
     // for using and testing
     public Customer(String customerName, String customerIdNum, String customerPhone) {
-        this.customerId = countCustomerId++;
         this.setcustomerIdNum(customerIdNum);
         this.setCustomerName(customerName);
         this.setCustomerPhone(customerPhone, null );

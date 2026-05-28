@@ -1,21 +1,48 @@
 package com.rental.system.model;
 
+import jakarta.persistence.*;
+import com.rental.system.config.SystemSettingsHolder;
+
+@Entity
+@Table(name = "payments")
 public class Payment {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "payment_id")
     private int paymentId;
+
+    @Column(name = "payment_method")
     private String paymentMethod; // e.g., credit card, cash, online transfer, etc.
+
+    @Column(name = "rent_days")
     private int rentDays;
+
+    @Column(name = "price")
     private double price;
+
+    @Column(name = "discount")
     private double discount;
+
+    @Column(name = "extra_days")
     private int extraDays;
+
+    @Column(name = "damage_fee")
     private double damageFee;
+
+    @Column(name = "pay_date")
     private String payDate;
+
+    @Column(name = "status")
     private String status; // PENDING or PAID
+
+    @Column(name = "deposit")
     private double deposit;
 
     static int countPaymentId = 1; // to ensure unique payment IDs
 
+    public Payment() {}
+
     public Payment(int rentDays, double price, double deposit) {
-        this.paymentId = countPaymentId++;
         this.setPaymentMethod("TBD");
         this.setPrice(price);
         this.setDiscount(0);
@@ -28,14 +55,8 @@ public class Payment {
     }
 
     public double calculateTotal() {
-        double penaltyMultiplier = 1.5;
-        double taxRate = 0.0;
-        try {
-            penaltyMultiplier = Double.parseDouble(com.rental.system.database.DatabaseMapper.getSetting("LATE_PENALTY_MULTIPLIER", "1.5"));
-            taxRate = Double.parseDouble(com.rental.system.database.DatabaseMapper.getSetting("TAX_RATE", "0.0"));
-        } catch (NumberFormatException e) {
-            // fallback
-        }
+        double penaltyMultiplier = SystemSettingsHolder.getPenaltyMultiplier();
+        double taxRate = SystemSettingsHolder.getTaxRate();
 
         // Base cost for the rental period
         double baseCost = price * this.rentDays;
@@ -67,12 +88,7 @@ public class Payment {
     }
 
     public double expectedTotal() {
-        double taxRate = 0.0;
-        try {
-            taxRate = Double.parseDouble(com.rental.system.database.DatabaseMapper.getSetting("TAX_RATE", "0.0"));
-        } catch (NumberFormatException e) {
-            // fallback
-        }
+        double taxRate = SystemSettingsHolder.getTaxRate();
         double base = price * this.rentDays;
         double subtotal = base - (base * (discount / 100.0));
         double withTax = subtotal * (1.0 + taxRate / 100.0);

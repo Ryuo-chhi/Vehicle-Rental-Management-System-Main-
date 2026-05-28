@@ -1,19 +1,40 @@
 package com.rental.system.user;
 
+import jakarta.persistence.*;
 import java.util.Objects;
 
+@Entity
+@Table(name = "staffs")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "staff_role", discriminatorType = DiscriminatorType.STRING)
 public abstract class Staff implements IStaff {
     /* ====== Fields (Encapsulation) ====== */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "staff_id")
     private int staffId;
+
+    @Column(name = "full_name", nullable = false)
     private String name;
+
+    @Column(name = "username", nullable = false, unique = true)
     private String username;
+
+    @Column(name = "password", nullable = false)
     private String password;
+
+    @Column(name = "status")
     private boolean status;
+
+    @Column(name = "is_active")
     private boolean active;
+
+    @Column(name = "salary")
     private double salary;
 
-
     private static int staffCount = 0;
+
+    public Staff() {}
 
     /*====== com.rental.system.user.Staff Permissions (must be defined by each role) ====== */
     @Override
@@ -21,7 +42,6 @@ public abstract class Staff implements IStaff {
 
     /*====== Register ====== */
     public Staff(String name, String username, String password, double salary) {
-        this.staffId = ++staffCount;
         this.setName(name);
         this.setUsername(username);
         this.setPassword(password);

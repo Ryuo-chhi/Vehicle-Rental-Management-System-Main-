@@ -1,23 +1,49 @@
 package com.rental.system.model;
 
-import com.rental.system.controller.Garage;
+import jakarta.persistence.*;
 import java.util.Objects;
 
+@Entity
+@Table(name = "vehicles")
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Vehicle implements IVehicle {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "vehicle_id")
     private int vehicleId;        // global sequential ID: 1, 2, 3, …
+
+    @Column(name = "vehicle_code", unique = true, nullable = false)
     private String vehicleCode;   // type-based code: Car-1, Car-2, …
+
+    @Column(name = "power_source")
     private String powerSource; // "gasoline", "diesel", "electric", "hybrid"
+
+    @Column(name = "vehicle_class")
     private String vehicleClass; // "sedan", "SUV", "truck", etc.
+
+    @Column(name = "vehicle_brand")
     private String vehicleBrand;
+
+    @Column(name = "vehicle_model")
     private String vehicleModel; // "Toyota Camry", "Ford F-150", etc.
+
+    @Column(name = "rental_rate_per_day")
     private double rentalRatePerDay;
+
+    @Column(name = "vehicle_licence")
     private String vehicleLicence;
+
+    @Column(name = "licence_plate")
     private String licencePlate;
+
+    @Column(name = "is_available")
     private boolean isAvailable;
 
+    public Vehicle() {
+        this.isAvailable = true;
+    }
 
     public Vehicle(String vehicleType, String powerSource, String vehicleClass, String vehicleBrand, String vehicleModel, double rentalRatePerDay, String vehicleLicence, String licencePlate) {
-        this.vehicleId = com.rental.system.service.VehicleService.getNextVehicleID() + 1; // assign current count + 1 as ID
         this.vehicleCode = vehicleType.equals("Moto") ? vehicleType + "-" + Moto.getMotoID() : vehicleType + "-" + Car.getCarID();
         this.setPowerSource(powerSource);
         this.setVehicleClass(vehicleClass);

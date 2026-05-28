@@ -1,11 +1,20 @@
 package com.rental.system.model;
 
+import jakarta.persistence.*;
 import java.util.Objects;
 
+@Entity
+@Table(name = "motos")
+@PrimaryKeyJoinColumn(name = "vehicle_id")
 public class Moto extends Vehicle {
     private static int motoID= 1;
 
+    @Column(name = "helmet_included")
     private boolean helmetIncluded;
+
+    public Moto() {
+        super();
+    }
 
     public Moto(Vehicle vehicle, boolean helmetIncluded) {
         super("Moto", vehicle.getPowerSource(), vehicle.getVehicleClass(), vehicle.getVehicleBrand(), vehicle.getVehicleModel(), vehicle.getRentalRatePerDay(), vehicle.getVehicleLicence(), vehicle.getLicencePlate());

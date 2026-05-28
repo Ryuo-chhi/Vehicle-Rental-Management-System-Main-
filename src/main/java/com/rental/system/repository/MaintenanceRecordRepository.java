@@ -1,0 +1,12 @@
+package com.rental.system.repository;
+
+import com.rental.system.model.MaintenanceRecord;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface MaintenanceRecordRepository extends JpaRepository<MaintenanceRecord, Integer> {
+    List<MaintenanceRecord> findByVehicleIdAndStatus(int vehicleId, String status);
+}
