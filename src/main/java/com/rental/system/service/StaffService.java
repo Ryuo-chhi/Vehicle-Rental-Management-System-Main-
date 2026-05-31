@@ -14,11 +14,13 @@ import java.util.Optional;
 @SuppressWarnings("null")
 public class StaffService {
     private final StaffRepository staffRepository;
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
     private Staff loggedInStaff;
 
     @Autowired
-    public StaffService(StaffRepository staffRepository) {
+    public StaffService(StaffRepository staffRepository, org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
         this.staffRepository = staffRepository;
+        this.passwordEncoder = passwordEncoder;
         this.loggedInStaff = null;
     }
 
@@ -47,10 +49,16 @@ public class StaffService {
     // --- The Brain (Pure Logic) ---
 
     public void registerNewStaff(Staff staff) {
+        if (staff.getPassword() != null) {
+            staff.setPassword(passwordEncoder.encode(staff.getPassword()));
+        }
         staffRepository.save(staff);
     }
 
     public void updateStaffInDB(Staff staff) {
+        if (staff.getPassword() != null && !staff.getPassword().startsWith("$2a$")) {
+            staff.setPassword(passwordEncoder.encode(staff.getPassword()));
+        }
         staffRepository.save(staff);
     }
 
@@ -106,18 +114,18 @@ public class StaffService {
     }
 
     public void addAdmin(String name, String username, String password) {
-        Staff admin = new ManagerStaff(name, username, password, 0);
+        Staff admin = new ManagerStaff(name, username, passwordEncoder.encode(password), 0);
         staffRepository.save(admin);
     }
 
     public void generateDefaultStaff() {
         ensureAdminExists();
         if (staffRepository.findByUsername("bob_manager").isEmpty()) {
-            Staff s2 = new ManagerStaff("Bob", "bob_manager", "manager123", 0);
+            Staff s2 = new ManagerStaff("Bob", "bob_manager", passwordEncoder.encode("manager123"), 0);
             staffRepository.save(s2);
         }
         if (staffRepository.findByUsername("chan_staff").isEmpty()) {
-            Staff s3 = new RegularStaff("Chan", "chan_staff", "staff123", 1500, "Station-Moto");
+            Staff s3 = new RegularStaff("Chan", "chan_staff", passwordEncoder.encode("staff123"), 1500, "Station-Moto");
             staffRepository.save(s3);
         }
     }

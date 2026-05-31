@@ -75,7 +75,7 @@ public abstract class Staff implements IStaff {
     }
     @Override
     public boolean isActive() { return active; }
-    protected String getPassword(){
+    public String getPassword(){
         return password;
     }
     public double getSalary() {
@@ -84,7 +84,11 @@ public abstract class Staff implements IStaff {
 
     /*====== For login check ======*/
     public boolean checkPassword(String input) {
-        return password != null && password.equals(input);
+        if (password == null) return false;
+        if (password.startsWith("$2a$") || password.startsWith("$2b$") || password.startsWith("$2y$")) {
+            return new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().matches(input, password);
+        }
+        return password.equals(input);
     }
 
     /*====== Setters (with simple validation) ====== */

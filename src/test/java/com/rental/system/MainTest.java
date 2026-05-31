@@ -26,9 +26,25 @@ public class MainTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    private String obtainAccessToken() throws Exception {
+        StaffController.LoginRequest request = new StaffController.LoginRequest();
+        request.setUsername("admin_root");
+        request.setPassword("root123");
+
+        String responseJson = mockMvc.perform(post("/api/staffs/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        return com.jayway.jsonpath.JsonPath.read(responseJson, "$.token");
+    }
+
     @Test
     public void testGetVehicles() throws Exception {
-        mockMvc.perform(get("/api/vehicles"))
+        String token = obtainAccessToken();
+        mockMvc.perform(get("/api/vehicles")
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(greaterThan(0))))
                 .andExpect(jsonPath("$[0].vehicleBrand").value("Ford"));
@@ -36,7 +52,9 @@ public class MainTest {
 
     @Test
     public void testGetCustomers() throws Exception {
-        mockMvc.perform(get("/api/customers"))
+        String token = obtainAccessToken();
+        mockMvc.perform(get("/api/customers")
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(greaterThan(0))));
     }
@@ -69,9 +87,12 @@ public class MainTest {
 
     @Test
     public void testRentalTransactionFlow() throws Exception {
+        String token = obtainAccessToken();
+
         // 1. Create a customer
         Customer customer = new Customer("Test Customer", "ID123456", "099888777");
         String customerJson = mockMvc.perform(post("/api/customers")
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(customer)))
                 .andExpect(status().isOk())
@@ -91,6 +112,7 @@ public class MainTest {
         rentRequest.setDeposit(100.0);
 
         mockMvc.perform(post("/api/rentals")
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(rentRequest)))
                 .andExpect(status().isOk())
@@ -105,6 +127,7 @@ public class MainTest {
         returnRequest.setDamageFee(25.0);
 
         mockMvc.perform(post("/api/rentals/1/return")
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(returnRequest)))
                 .andExpect(status().isOk())
