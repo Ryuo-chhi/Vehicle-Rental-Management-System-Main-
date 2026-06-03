@@ -106,10 +106,8 @@ public class StaffService {
     }
 
     public void ensureAdminExists() {
-        String adminUser = "admin_root";
-        Optional<Staff> opt = staffRepository.findByUsername(adminUser);
-        if (opt.isEmpty()) {
-            addAdmin("Admin", adminUser, "root123");
+        if (staffRepository.findByUsername("admin_root").isEmpty()) {
+            addAdmin("Admin", "admin_root", "root123");
         }
     }
 
@@ -119,14 +117,34 @@ public class StaffService {
     }
 
     public void generateDefaultStaff() {
-        ensureAdminExists();
-        if (staffRepository.findByUsername("bob_manager").isEmpty()) {
-            Staff s2 = new ManagerStaff("Bob", "bob_manager", passwordEncoder.encode("manager123"), 0);
-            staffRepository.save(s2);
-        }
-        if (staffRepository.findByUsername("chan_staff").isEmpty()) {
-            Staff s3 = new RegularStaff("Chan", "chan_staff", passwordEncoder.encode("staff123"), 1500, "Station-Moto");
-            staffRepository.save(s3);
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            java.io.InputStream is = getClass().getResourceAsStream("/staff-seeds.json");
+            if (is == null) {
+                System.out.println("Seed file staff-seeds.json not found in resources.");
+                return;
+            }
+            java.util.List<java.util.Map<String, Object>> seeds = mapper.readValue(is, new com.fasterxml.jackson.core.type.TypeReference<>() {});
+            for (java.util.Map<String, Object> seed : seeds) {
+                String username = (String) seed.get("username");
+                if (staffRepository.findByUsername(username).isEmpty()) {
+                    String role = (String) seed.get("role");
+                    String name = (String) seed.get("name");
+                    String password = (String) seed.get("password");
+                    double salary = ((Number) seed.getOrDefault("salary", 0.0)).doubleValue();
+
+                    Staff s;
+                    if ("MANAGER".equalsIgnoreCase(role)) {
+                        s = new ManagerStaff(name, username, passwordEncoder.encode(password), salary);
+                    } else {
+                        String workStation = (String) seed.getOrDefault("workStation", "");
+                        s = new RegularStaff(name, username, passwordEncoder.encode(password), salary, workStation);
+                    }
+                    staffRepository.save(s);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to load staff seeds: " + e.getMessage());
         }
     }
 }

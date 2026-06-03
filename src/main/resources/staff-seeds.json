@@ -1,0 +1,24 @@
+[
+  {
+    "role": "MANAGER",
+    "name": "Admin",
+    "username": "admin_root",
+    "password": "root123",
+    "salary": 0.0
+  },
+  {
+    "role": "MANAGER",
+    "name": "Bob",
+    "username": "bob_manager",
+    "password": "manager123",
+    "salary": 0.0
+  },
+  {
+    "role": "REGULAR",
+    "name": "Chan",
+    "username": "chan_staff",
+    "password": "staff123",
+    "salary": 1500.0,
+    "workStation": "Station-Moto"
+  }
+]
