@@ -25,7 +25,8 @@ public class StaffController {
     private final JwtTokenProvider tokenProvider;
 
     @Autowired
-    public StaffController(StaffService staffService, AuthenticationManager authenticationManager, JwtTokenProvider tokenProvider) {
+    public StaffController(StaffService staffService, AuthenticationManager authenticationManager,
+            JwtTokenProvider tokenProvider) {
         this.staffService = staffService;
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
@@ -42,7 +43,7 @@ public class StaffController {
         return ResponseEntity.ok(manager);
     }
 
-    @PostMapping("/regulars")
+    @PostMapping("/register")
     public ResponseEntity<Staff> registerRegular(@RequestBody RegularStaff regular) {
         staffService.registerNewStaff(regular);
         return ResponseEntity.ok(regular);
@@ -54,9 +55,7 @@ public class StaffController {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             request.getUsername(),
-                            request.getPassword()
-                    )
-            );
+                            request.getPassword()));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = tokenProvider.generateToken(authentication);
@@ -67,7 +66,7 @@ public class StaffController {
             staffService.updateStaffInDB(staff);
 
             String welcomeMessage = "Login success. Welcome " + staff.getUsername() + "!";
-            return ResponseEntity.ok(new LoginResponse(jwt, welcomeMessage, staff.getUsername()));
+            return ResponseEntity.ok(new LoginResponse(jwt, welcomeMessage, staff.getUsername(), staff.getRole()));
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body("Login failed: wrong password or username not found.");
         }
@@ -96,12 +95,9 @@ public class StaffController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteStaff(@PathVariable int id) {
-        Staff staff = staffService.getAllStaff().stream()
-                .filter(s -> s.getId() == id)
-                .findFirst()
-                .orElse(null);
-        if (staff != null) {
-            staffService.removeStaff(staff);
+        java.util.Optional<Staff> staffOpt = staffService.getStaffById(id);
+        if (staffOpt.isPresent()) {
+            staffService.removeStaff(staffOpt.get());
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();
@@ -111,28 +107,66 @@ public class StaffController {
         private String username;
         private String password;
 
-        public String getUsername() { return username; }
-        public void setUsername(String username) { this.username = username; }
-        public String getPassword() { return password; }
-        public void setPassword(String password) { this.password = password; }
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
     }
 
     public static class LoginResponse {
         private String token;
         private String message;
         private String username;
+        private String role;
 
-        public LoginResponse(String token, String message, String username) {
+        public LoginResponse(String token, String message, String username, String role) {
             this.token = token;
             this.message = message;
             this.username = username;
+            this.role = role;
         }
 
-        public String getToken() { return token; }
-        public void setToken(String token) { this.token = token; }
-        public String getMessage() { return message; }
-        public void setMessage(String message) { this.message = message; }
-        public String getUsername() { return username; }
-        public void setUsername(String username) { this.username = username; }
+        public String getToken() {
+            return token;
+        }
+
+        public void setToken(String token) {
+            this.token = token;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getRole() {
+            return role;
+        }
+
+        public void setRole(String role) {
+            this.role = role;
+        }
     }
 }

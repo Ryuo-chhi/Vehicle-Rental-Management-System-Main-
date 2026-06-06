@@ -1,23 +1,31 @@
 [
   {
     "role": "MANAGER",
-    "name": "Admin",
-    "username": "admin_root",
-    "password": "root123",
+    "name": "Root",
+    "username": "root_admin",
+    "password": "Root@123",
     "salary": 0.0
   },
   {
     "role": "MANAGER",
     "name": "Bob",
     "username": "bob_manager",
-    "password": "manager123",
-    "salary": 0.0
+    "password": "Bob@123",
+    "salary": 5000.0
   },
   {
     "role": "REGULAR",
     "name": "Chan",
     "username": "chan_staff",
-    "password": "staff123",
+    "password": "Chan@123",
+    "salary": 1500.0,
+    "workStation": "Station-Car"
+  },
+  {
+    "role": "REGULAR",
+    "name": "Davi",
+    "username": "davi_staff",
+    "password": "Davi@123",
     "salary": 1500.0,
     "workStation": "Station-Moto"
   }

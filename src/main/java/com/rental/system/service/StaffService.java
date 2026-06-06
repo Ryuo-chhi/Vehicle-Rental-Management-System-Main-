@@ -31,7 +31,6 @@ public class StaffService {
 
     public void setStaffs(HashSet<Staff> staffs) {
         staffRepository.saveAll(staffs);
-        ensureAdminExists();
     }
 
     public int getStaffCount() {
@@ -64,6 +63,10 @@ public class StaffService {
 
     public void removeStaff(Staff staff) {
         staffRepository.delete(staff);
+    }
+
+    public Optional<Staff> getStaffById(int id) {
+        return staffRepository.findById(id);
     }
 
     public Staff findByIdAndUsername(int id, String username) {
@@ -103,12 +106,6 @@ public class StaffService {
             staffRepository.save(loggedInStaff);
         }
         loggedInStaff = null;
-    }
-
-    public void ensureAdminExists() {
-        if (staffRepository.findByUsername("admin_root").isEmpty()) {
-            addAdmin("Admin", "admin_root", "root123");
-        }
     }
 
     public void addAdmin(String name, String username, String password) {

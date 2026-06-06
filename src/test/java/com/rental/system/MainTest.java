@@ -26,10 +26,11 @@ public class MainTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+
     private String obtainAccessToken() throws Exception {
         StaffController.LoginRequest request = new StaffController.LoginRequest();
-        request.setUsername("admin_root");
-        request.setPassword("root123");
+        request.setUsername("root_admin");
+        request.setPassword("Root@123");
 
         String responseJson = mockMvc.perform(post("/api/staffs/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -62,8 +63,8 @@ public class MainTest {
     @Test
     public void testStaffLoginSuccess() throws Exception {
         StaffController.LoginRequest request = new StaffController.LoginRequest();
-        request.setUsername("admin_root");
-        request.setPassword("root123");
+        request.setUsername("root_admin");
+        request.setPassword("Root@123");
 
         mockMvc.perform(post("/api/staffs/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -75,8 +76,8 @@ public class MainTest {
     @Test
     public void testStaffLoginFailure() throws Exception {
         StaffController.LoginRequest request = new StaffController.LoginRequest();
-        request.setUsername("admin_root");
-        request.setPassword("wrongpassword");
+        request.setUsername("root_admin");
+        request.setPassword("Root@123_wrong");
 
         mockMvc.perform(post("/api/staffs/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -105,7 +106,7 @@ public class MainTest {
         rentRequest.setVehicleId(1); // Ford Escape seeded on startup
         rentRequest.setCustomerId(savedCustomer.getCustomerId());
         rentRequest.setStaffId(1); // admin_root
-        rentRequest.setStaffUsername("admin_root");
+        rentRequest.setStaffUsername("root_admin");
         rentRequest.setRentDays(5);
         rentRequest.setStartDate("2026-06-05");
         rentRequest.setEndDate("2026-06-10");

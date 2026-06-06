@@ -3,6 +3,8 @@ package com.rental.system.user;
 import jakarta.persistence.*;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @Entity
 @Table(name = "staffs")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -20,6 +22,7 @@ public abstract class Staff implements IStaff {
     @Column(name = "username", nullable = false, unique = true)
     private String username;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "password", nullable = false)
     private String password;
 
@@ -78,6 +81,14 @@ public abstract class Staff implements IStaff {
     public String getPassword(){
         return password;
     }
+    @JsonProperty("role")
+    public String getRole() {
+        if (this instanceof ManagerStaff) return "MANAGER";
+        if (this instanceof RegularStaff) return "REGULAR";
+        if (this instanceof CustomerStaff) return "CUSTOMER";
+        return "UNKNOWN";
+    }
+
     public double getSalary() {
         return salary;
     }
