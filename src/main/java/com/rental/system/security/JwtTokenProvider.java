@@ -25,12 +25,26 @@ public class JwtTokenProvider {
     }
 
     public String generateToken(Authentication authentication) {
-        StaffPrincipal userPrincipal = (StaffPrincipal) authentication.getPrincipal();
+        Object principal = authentication.getPrincipal();
+        String username;
+        String role;
+
+        if (principal instanceof StaffPrincipal staffPrincipal) {
+            username = staffPrincipal.getUsername();
+            role = "STAFF";
+        } else if (principal instanceof CustomerPrincipal customerPrincipal) {
+            username = customerPrincipal.getUsername();
+            role = "CUSTOMER";
+        } else {
+            throw new IllegalArgumentException("Unknown principal type");
+        }
+
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION);
 
         return Jwts.builder()
-                .subject(userPrincipal.getUsername())
+                .subject(username)
+                .claim("user_type", role)
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(key)
@@ -45,6 +59,16 @@ public class JwtTokenProvider {
                 .getPayload();
 
         return claims.getSubject();
+    }
+
+    public String getRoleFromJWT(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        return claims.get("user_type", String.class);
     }
 
     public boolean validateToken(String authToken) {

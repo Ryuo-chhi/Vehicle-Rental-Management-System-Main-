@@ -26,6 +26,12 @@ public class Customer {
     @Column(name = "driver_license_photo")
     private String DriverLicensePhoto; // String path to photo of driver license
 
+    @Column(name = "email", unique = true)
+    private String email;
+
+    @Column(name = "password")
+    private String password;
+
     private static int countCustomerId = 1;
 
     public Customer() {}
@@ -65,6 +71,12 @@ public class Customer {
     }
     public String getDriverLicensePhoto() {
         return DriverLicensePhoto;
+    }
+    public String getEmail() {
+        return email;
+    }
+    public String getPassword() {
+        return password;
     }
 
     public static int getCountCustomerId() {
@@ -107,6 +119,12 @@ public class Customer {
     public void setDriverLicensePhoto(String driverLicensePhoto) {
         DriverLicensePhoto = driverLicensePhoto;
     }
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public boolean isPhoneExisted(String phone, HashSet<Customer> customers) {
         if (customers == null) {
@@ -124,14 +142,14 @@ public class Customer {
 
     @Override
     public String toString() {
-        return "Customer [id=" + customerId + ", name=\"" + customerName + "\", idCard=\"" + customerIdNum
+        return "Customer [id=" + customerId + ", name=\"" + customerName + "\", email=\"" + email + "\", idCard=\"" + customerIdNum
                 + "\", phone=\"" + customerPhone + "\", IDCardPhoto=\"" + IDCardPhoto + "\", DriverLicensePhoto=\""
                 + DriverLicensePhoto + "\"]";
     }
 
     // Simple version - no photo paths
     public String toStringSimple() {
-        return "Customer [id=" + customerId + ", name=\"" + customerName + "\", idCard=\"" + customerIdNum
+        return "Customer [id=" + customerId + ", name=\"" + customerName + "\", email=\"" + email + "\", idCard=\"" + customerIdNum
                 + "\", phone=\"" + customerPhone + "\"]";
     }
 

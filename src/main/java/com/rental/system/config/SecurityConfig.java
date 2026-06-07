@@ -2,6 +2,7 @@ package com.rental.system.config;
 
 import com.rental.system.security.JwtAuthenticationFilter;
 import com.rental.system.security.StaffUserDetailsService;
+import com.rental.system.security.CustomerUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,11 +28,14 @@ import java.util.Collections;
 public class SecurityConfig {
 
     private final StaffUserDetailsService staffUserDetailsService;
+    private final CustomerUserDetailsService customerUserDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     public SecurityConfig(StaffUserDetailsService staffUserDetailsService,
+            CustomerUserDetailsService customerUserDetailsService,
             JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.staffUserDetailsService = staffUserDetailsService;
+        this.customerUserDetailsService = customerUserDetailsService;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
@@ -49,6 +53,14 @@ public class SecurityConfig {
     }
 
     @Bean
+    public DaoAuthenticationProvider customerAuthenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(customerUserDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
+
+    @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
@@ -60,12 +72,13 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/staffs/login", "/api/staffs/register", "/api/staffs/register-customer").permitAll()
+                        .requestMatchers("/api/staffs/login", "/api/staffs/register").permitAll()
                         .requestMatchers("/api/vehicles", "/api/vehicles/**").permitAll()
-                        .requestMatchers("/api/customers").permitAll()
+                        .requestMatchers("/api/customers/register", "/api/customers/login", "/api/customers").permitAll()
                         .anyRequest().authenticated());
 
         http.authenticationProvider(authenticationProvider());
+        http.authenticationProvider(customerAuthenticationProvider());
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

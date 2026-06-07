@@ -3,7 +3,9 @@ package com.rental.system.controller;
 import com.rental.system.user.ManagerStaff;
 import com.rental.system.user.RegularStaff;
 import com.rental.system.user.Staff;
+import com.rental.system.model.Customer;
 import com.rental.system.service.StaffService;
+import com.rental.system.service.CustomerService;
 import com.rental.system.security.JwtTokenProvider;
 import com.rental.system.security.StaffPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +23,15 @@ import java.util.Set;
 @SuppressWarnings("null")
 public class StaffController {
     private final StaffService staffService;
+    private final CustomerService customerService;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
 
     @Autowired
-    public StaffController(StaffService staffService, AuthenticationManager authenticationManager,
+    public StaffController(StaffService staffService, CustomerService customerService, AuthenticationManager authenticationManager,
             JwtTokenProvider tokenProvider) {
         this.staffService = staffService;
+        this.customerService = customerService;
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
     }
@@ -47,6 +51,12 @@ public class StaffController {
     public ResponseEntity<Staff> registerRegular(@RequestBody RegularStaff regular) {
         staffService.registerNewStaff(regular);
         return ResponseEntity.ok(regular);
+    }
+
+    @PostMapping("/register-customer")
+    public ResponseEntity<Customer> registerCustomer(@RequestBody Customer customer) {
+        customerService.registerNewCustomer(customer);
+        return ResponseEntity.ok(customer);
     }
 
     @PostMapping("/login")

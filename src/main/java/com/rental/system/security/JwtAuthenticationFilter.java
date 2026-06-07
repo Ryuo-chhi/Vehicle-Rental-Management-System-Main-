@@ -20,12 +20,14 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider tokenProvider;
-    private final StaffUserDetailsService customUserDetailsService;
+    private final StaffUserDetailsService staffUserDetailsService;
+    private final CustomerUserDetailsService customerUserDetailsService;
 
     @Autowired
-    public JwtAuthenticationFilter(JwtTokenProvider tokenProvider, StaffUserDetailsService customUserDetailsService) {
+    public JwtAuthenticationFilter(JwtTokenProvider tokenProvider, StaffUserDetailsService staffUserDetailsService, CustomerUserDetailsService customerUserDetailsService) {
         this.tokenProvider = tokenProvider;
-        this.customUserDetailsService = customUserDetailsService;
+        this.staffUserDetailsService = staffUserDetailsService;
+        this.customerUserDetailsService = customerUserDetailsService;
     }
 
     @Override
@@ -36,8 +38,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
                 String username = tokenProvider.getUsernameFromJWT(jwt);
+                String role = tokenProvider.getRoleFromJWT(jwt);
 
-                UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+                UserDetails userDetails;
+                if ("CUSTOMER".equals(role)) {
+                    userDetails = customerUserDetailsService.loadUserByUsername(username);
+                } else {
+                    userDetails = staffUserDetailsService.loadUserByUsername(username);
+                }
+
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
