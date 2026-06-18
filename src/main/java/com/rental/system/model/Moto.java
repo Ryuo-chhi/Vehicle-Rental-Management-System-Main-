@@ -4,8 +4,7 @@ import jakarta.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "motos")
-@PrimaryKeyJoinColumn(name = "vehicle_id")
+@DiscriminatorValue("Moto")
 public class Moto extends Vehicle {
     private static int motoID= 1;
 
@@ -43,6 +42,10 @@ public class Moto extends Vehicle {
     }
 
     
+    public boolean isHelmetIncluded() {
+        return helmetIncluded;
+    }
+
     public void setHelmetIncluded(boolean helmetIncluded) {
         this.helmetIncluded = helmetIncluded;
     }

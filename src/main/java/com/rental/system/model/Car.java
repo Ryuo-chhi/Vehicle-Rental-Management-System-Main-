@@ -4,8 +4,7 @@ import jakarta.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "cars")
-@PrimaryKeyJoinColumn(name = "vehicle_id")
+@DiscriminatorValue("Car")
 public class Car extends Vehicle {
     private static int carID = 1;
 

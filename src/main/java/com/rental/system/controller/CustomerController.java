@@ -13,6 +13,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.rental.system.security.JwtTokenProvider;
 import com.rental.system.security.CustomerPrincipal;
 
+import jakarta.validation.Valid;
+
 import java.util.Set;
 
 @RestController
@@ -35,7 +37,7 @@ public class CustomerController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Customer> registerCustomer(@RequestBody Customer customer) {
+    public ResponseEntity<Customer> registerCustomer(@Valid @RequestBody Customer customer) {
         customerService.registerNewCustomer(customer);
         return ResponseEntity.ok(customer);
     }

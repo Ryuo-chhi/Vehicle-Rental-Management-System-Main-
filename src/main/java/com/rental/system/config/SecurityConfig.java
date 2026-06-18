@@ -6,6 +6,7 @@ import com.rental.system.security.CustomerUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -61,8 +62,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
+    public AuthenticationManager authenticationManager() {
+        return new ProviderManager(authenticationProvider(), customerAuthenticationProvider());
     }
 
     @Bean
@@ -72,9 +73,20 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/staffs/login", "/api/staffs/register").permitAll()
-                        .requestMatchers("/api/vehicles", "/api/vehicles/**").permitAll()
-                        .requestMatchers("/api/customers/register", "/api/customers/login", "/api/customers").permitAll()
+                        .requestMatchers(
+                            "/api/staffs/login", 
+                            "/api/staffs/register",
+                            "/api/vehicles", 
+                            "/api/vehicles/**",
+                            "/api/customers/register", 
+                            "/api/customers/login", 
+                            "/api/customers",
+                            "/swagger-ui.html",
+                            "/swagger-ui/**",
+                            "/v3/api-docs/**",
+                            "/v3/api-docs.yaml",
+                            "/images/**"
+                        ).permitAll()
                         .anyRequest().authenticated());
 
         http.authenticationProvider(authenticationProvider());

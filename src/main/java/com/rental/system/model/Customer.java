@@ -1,6 +1,11 @@
 package com.rental.system.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
 import java.util.HashSet;
 
 @Entity
@@ -11,25 +16,33 @@ public class Customer {
     @Column(name = "customer_id")
     private int customerId;
 
-    @Column(name = "customer_name", nullable = false)
+    @NotBlank(message = "Customer name is required")
+    @Column(name = "full_name", nullable = false)
     private String customerName;
 
-    @Column(name = "customer_id_num", nullable = false)
+    @NotBlank(message = "ID Card number is required")
+    @Column(name = "id_num", nullable = false)
     private String customerIdNum;
 
-    @Column(name = "customer_phone", nullable = false)
+    @NotBlank(message = "Phone number is required")
+    @Pattern(regexp = "^[0-9]{9,10}$", message = "Phone must be 9-10 digits")
+    @Column(name = "phone", nullable = false)
     private String customerPhone;
 
     @Column(name = "id_card_photo")
     private String IDCardPhoto; // String path to photo of ID card
 
-    @Column(name = "driver_license_photo")
+    @Column(name = "dl_photo")
     private String DriverLicensePhoto; // String path to photo of driver license
 
+    @NotBlank(message = "Email is required")
+    @Email(message = "Invalid email format")
     @Column(name = "email", unique = true)
     private String email;
 
-    @Column(name = "password")
+    @NotBlank(message = "Password is required")
+    @Size(min = 4, message = "Password must be at least 4 characters")
+    @Column(name = "password_hash")
     private String password;
 
     private static int countCustomerId = 1;

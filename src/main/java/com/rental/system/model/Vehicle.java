@@ -5,7 +5,8 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "vehicles")
-@Inheritance(strategy = InheritanceType.JOINED)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "vehicle_type", discriminatorType = DiscriminatorType.STRING)
 public abstract class Vehicle implements IVehicle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,16 +22,16 @@ public abstract class Vehicle implements IVehicle {
     @Column(name = "vehicle_class")
     private String vehicleClass; // "sedan", "SUV", "truck", etc.
 
-    @Column(name = "vehicle_brand")
+    @Column(name = "brand")
     private String vehicleBrand;
 
-    @Column(name = "vehicle_model")
+    @Column(name = "model")
     private String vehicleModel; // "Toyota Camry", "Ford F-150", etc.
 
-    @Column(name = "rental_rate_per_day")
+    @Column(name = "rate_per_day")
     private double rentalRatePerDay;
 
-    @Column(name = "vehicle_licence")
+    @Column(name = "licence")
     private String vehicleLicence;
 
     @Column(name = "licence_plate")
@@ -38,6 +39,9 @@ public abstract class Vehicle implements IVehicle {
 
     @Column(name = "is_available")
     private boolean isAvailable;
+
+    @Column(name = "image_url")
+    private String imageUrl; // Can be a URL or local file path like /images/car1.jpg
 
     public Vehicle() {
         this.isAvailable = true;
@@ -141,6 +145,13 @@ public abstract class Vehicle implements IVehicle {
         this.licencePlate = licencePlate;
     }
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 
     @Override
     public boolean equals(Object o) {
