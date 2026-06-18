@@ -120,10 +120,10 @@ This document outlines a detailed, step-by-step roadmap to upgrade the current c
 ---
 
 ## 🏁 Summary Checklist
-- [ ] Initialize Maven project structure and `pom.xml`.
-- [ ] Migrate entities to JPA and define Repositories.
-- [ ] Refactor `Garage.java` logic into Spring Services.
-- [ ] Implement REST Controllers for all core modules.
-- [ ] Secure the application with BCrypt and JWT.
-- [ ] Develop the React frontend and connect to the API.
-- [ ] Add comprehensive Unit/Integration tests and Swagger docs.
+- [x] Initialize Maven project structure and `pom.xml`.
+- [x] Migrate entities to JPA and define Repositories.
+- [x] Refactor `Garage.java` logic into Spring Services.
+- [x] Implement REST Controllers for all core modules.
+- [x] Secure the application with BCrypt and JWT.
+- [x] Develop the React frontend and connect to the API.
+- [x] Add comprehensive Unit/Integration tests and Swagger docs.

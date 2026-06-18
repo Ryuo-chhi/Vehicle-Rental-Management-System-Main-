@@ -362,9 +362,65 @@
 - Added a default Moto entry in `generateVehicleToGarage()` for seeded data.
 - Implemented full `addMoto()` input flow and Moto creation (was previously unsupported).
 - Minor cleanup to login feedback message and section comments.
-Moto.java
-- Fixed `getCountMotoId()` to return the actual count (subtracts the post-increment).
 
 ## Moto.java
 - Fixed `getCountMotoId()` to return the actual count (subtracts the post-increment).
+
+---
+
+### March 2026: OOP Structuring & Database Integration
+
+## Project Architecture & Organization
+- Structured packages: organized classes into `controller`, `model`, `user`, and `database` directories.
+- Refactored `Vehicle` and `Staff` into true abstract classes.
+
+## Lambda Filters
+- Implemented functional interfaces `VehicleFilter` and `StaffFilter` to support dynamic vehicle filtering.
+
+## MySQL JDBC & Remote Cloud Integration
+- Configured MySQL connection parameters linking the system to Aiven Cloud DB.
+- Implemented a background script to prevent Aiven database connections from sleeping.
+- Created `DatabaseMapper.java` mapping query results directly into memory objects.
+
+---
+
+### April 2026: Schema Realignment
+
+## Database Synced
+- Aligned table fields and names with model property variables (synced `price_per_day` with `price`, and `discount_pct` with `discount`).
+
+---
+
+### May 2026: Maven Migration & Spring Boot API Evolution
+
+## Maven Build Migration
+- Converted project build structure to Maven (`pom.xml`), automating dependency injection for Spring Boot, JPA, MySQL connector, and Lombok.
+- Refactored folder hierarchy to standard `src/main/java/com/rental/system` structure.
+
+## Service Monolith Decomposition
+- Extracted business logic, validation rules, and data operations out of `Garage.java` into separate components: `VehicleService`, `CustomerService`, `RentalService`, and `StaffService`.
+
+## Spring Boot REST Migration
+- Replaced console loops and input scanners with standard REST endpoints in Spring controllers (`VehicleController`, `CustomerController`, `RentalController`, `StaffController`).
+- Replaced JDBC mappings and `DatabaseMapper.java` with Spring Data JPA repository layers mapping direct SQL operations.
+
+## Security Setup
+- Configured Spring Security and Stateless Session tracking using JSON Web Tokens (JWT).
+- Implemented BCrypt hashing algorithms to encrypt passwords in database tables.
+
+---
+
+### June 2026: Security Hardening, Customer Roles, and OpenAPI Documentation
+
+## Dynamic Setup Loads
+- Implemented dynamic loading of default staff and customer credentials from JSON.
+
+## Authentication Refinement
+- Added customer security credentials (`CustomerPrincipal`), allowing customers to log in and look up their own history.
+- Structured endpoints validation, hid passwords in REST return responses, and configured custom permissions.
+
+## OpenAPI & Robust Handling
+- Configured OpenAPI/Swagger UI endpoints mapping auto-generated interactive documentation.
+- Created `GlobalExceptionHandler` intercepting model errors and returning unified, clean REST error responses.
+- Implemented DTO layers (`VehicleDTO` and `RentalDTO`) to decouple database model layers from visual client response layers.
 

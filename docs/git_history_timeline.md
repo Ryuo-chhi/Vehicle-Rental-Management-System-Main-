@@ -22,7 +22,8 @@ timeline
     Feb 2026 : Week 3 & 4 Refactoring : Custom Constructors & Photos : Staff Model & CLI Login Auth
     Mar 2026 : OOP Restructuring : JDBC & MySQL Integration : Cloud DB Sync & Keep-Alive Scripts
     Apr 2026 : DB Refactoring : Field Name Synced with Schema
-    May 2026 : Maven Migration : Package Restructuring : Decomposing Garage Monolith (Services)
+    May 2026 : Maven Migration : Package Restructuring : Decomposing Garage Monolith (Services) : Spring Boot REST API
+    June 2026 : Spring Security & JWT : Customer Auth & Dual Reg : OpenAPI & DTOs
 ```
 
 ### 🔹 January 2026: Project Bootstrapping & Core CRUD
@@ -73,10 +74,27 @@ timeline
 ### 🔹 April 2026: Schema Realignment
 *   **Apr 3, 2026**: **thangsaoly** refactored schema names in `RentRecord` and `DatabaseMapper` (`a49f3a5`) to align `price_per_day` with `price` and `discount_pct` with `discount`.
 
-### 🔹 May 2026: Maven Migration & Architecture Clean-up
+### 🔹 May 2026: Maven Migration, Service Decomposition, and REST Foundation
 *   **May 10 – 11, 2026**: **thangsaoly** documented the system with structured README instructions and proposed an upgrade plan (`0a5c566`, `39a9b90`).
-*   **May 13, 2026**: **thangsaoly** migrated the codebase to **Maven** (`645f06e`):
+*   **May 16, 2026**: **thangsaoly** migrated the codebase to **Maven** (`b1e61ae`):
     *   Adopted the standard Spring Boot folder structure (`src/main/java/com/rental/system/`).
     *   Automated JDBC and H2 dependencies through `pom.xml`.
-*   **May 14, 2026**: **thangsaoly** decoupled the monolithic `Garage` controller class (`baa1741`):
+*   **May 19, 2026**: **thangsaoly** decoupled the monolithic `Garage` controller class (`25ede8d`):
     *   Separated responsibilities into specific service components: `VehicleService`, `StaffService`, `RentalService`, and `CustomerService`.
+*   **May 22, 2026**: **thangsaoly** initialized project documentation, database schema config files, and core resources (`70a77aa`).
+*   **May 25, 2026**: **thangsaoly** implemented Option 7 (Other Management) features (`8a173d2`):
+    *   Introduced `MaintenanceRecord`, `Promotion` (Promo Codes), and dynamic `SystemSetting` entities, services, and repositories.
+*   **May 28, 2026**: **thangsaoly** migrated the application into a Spring Boot REST API (`307b6db`):
+    *   Replaced in-memory lists and JDBC mapping with Spring Data JPA repositories.
+    *   Introduced REST Controllers (`VehicleController`, `CustomerController`, `RentalController`, etc.) mapping standard HTTP methods.
+*   **May 31, 2026**: **thangsaoly** integrated Spring Security and stateless JWT authentication (`1cf87e4`).
+
+### 🔹 June 2026: Security Hardening, Customer Flows, and OpenAPI Documentation
+*   **June 3, 2026**: **thangsaoly** added dynamic loading of default staff credentials from JSON (`1e94073`).
+*   **June 6, 2026**: **thangsaoly** optimized deletion paths in controllers, secured sensitive staff outputs (hashed passwords), and corrected API routes (`7be3777`).
+*   **June 7, 2026**: **thangsaoly** implemented dual registration and customer authentication flows (`e05d66f`):
+    *   Added custom customer principal context and security pathways allowing customers to sign in.
+*   **June 18, 2026**: **thangsaoly** finalized API usability and robust error handling (`3b0630b`):
+    *   Added OpenAPI/Swagger documentation (`OpenApiConfig.java`) for easy UI-based endpoint testing.
+    *   Implemented global exception handling (`GlobalExceptionHandler.java`) to standardize JSON error payloads.
+    *   Integrated DTO mappings (`VehicleDTO`, `RentalDTO`) for clean presentation layers and added vehicle image assets.
