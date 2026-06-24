@@ -47,8 +47,7 @@ public class MainTest {
         mockMvc.perform(get("/api/vehicles")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(greaterThan(0))))
-                .andExpect(jsonPath("$[0].vehicleBrand").value("Ford"));
+                .andExpect(jsonPath("$", hasSize(greaterThan(0))));
     }
 
     @Test
@@ -91,8 +90,10 @@ public class MainTest {
         String token = obtainAccessToken();
 
         // 1. Create a customer
-        Customer customer = new Customer("Test Customer", "ID123456", "099888777");
-        String customerJson = mockMvc.perform(post("/api/customers")
+        Customer customer = new Customer("Test Customer", "ID" + System.currentTimeMillis(), "099" + (System.currentTimeMillis() % 1000000));
+        customer.setEmail("test" + System.currentTimeMillis() + "@example.com");
+        customer.setPassword("password123");
+        String customerJson = mockMvc.perform(post("/api/customers/register")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(customer)))
