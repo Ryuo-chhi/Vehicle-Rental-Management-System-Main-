@@ -4,7 +4,9 @@ import com.rental.system.user.Staff;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "rents")
+@Table(name = "rents", indexes = {
+    @Index(name = "idx_rent_status", columnList = "status")
+})
 public class Rent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
