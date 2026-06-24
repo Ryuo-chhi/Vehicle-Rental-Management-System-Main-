@@ -21,7 +21,7 @@ public class VehicleService {
 
     // --- The Memory ---
     public ArrayList<Vehicle> getAllVehicles() {
-        return new ArrayList<>(vehicleRepository.findAll());
+        return new ArrayList<>(vehicleRepository.findByIsDeletedFalse());
     }
 
     public void setVehicles(ArrayList<Vehicle> vehicles) {
@@ -34,7 +34,7 @@ public class VehicleService {
 
     public int getCarCount() {
         int count = 0;
-        for (Vehicle v : vehicleRepository.findAll()) {
+        for (Vehicle v : vehicleRepository.findByIsDeletedFalse()) {
             if (v instanceof Car) count++;
         }
         return count;
@@ -42,7 +42,7 @@ public class VehicleService {
 
     public int getMotoCount() {
         int count = 0;
-        for (Vehicle v : vehicleRepository.findAll()) {
+        for (Vehicle v : vehicleRepository.findByIsDeletedFalse()) {
             if (v instanceof Moto) count++;
         }
         return count;
@@ -55,7 +55,11 @@ public class VehicleService {
     }
 
     public void removeVehicle(Vehicle vehicle) {
-        vehicleRepository.delete(vehicle);
+        if (!vehicle.isAvailable()) {
+            throw new IllegalArgumentException("Cannot delete a vehicle that is currently rented.");
+        }
+        vehicle.setDeleted(true);
+        vehicleRepository.save(vehicle);
     }
 
     public void updateVehicleInDB(Vehicle vehicle) {

@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "vehicles")
+@Table(name = "vehicles", indexes = {
+    @Index(name = "idx_vehicle_available", columnList = "is_available")
+})
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "vehicle_type", discriminatorType = DiscriminatorType.STRING)
 public abstract class Vehicle implements IVehicle {
@@ -42,6 +44,15 @@ public abstract class Vehicle implements IVehicle {
 
     @Column(name = "image_url")
     private String imageUrl; // Can be a URL or local file path like /images/car1.jpg
+
+    /**
+     * SOFT DELETE FLAG: 
+     * We never physically delete vehicles to preserve foreign key constraints for historical rent records.
+     * When a vehicle is deleted from the UI, this flag is set to true. 
+     * Repositories should use findByIsDeletedFalse() to ignore deleted vehicles.
+     */
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "boolean default false")
+    private boolean isDeleted = false;
 
     public Vehicle() {
         this.isAvailable = true;
@@ -102,6 +113,10 @@ public abstract class Vehicle implements IVehicle {
         return isAvailable;
     }
 
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
     //setter
     public void setVehicleId(int vehicleId) {
         this.vehicleId = vehicleId;
@@ -133,6 +148,10 @@ public abstract class Vehicle implements IVehicle {
 
     public void setAvailable(boolean available) {
         isAvailable = available;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
     }
 
     public void setVehicleLicence(String vehicleLicence) {
