@@ -113,6 +113,47 @@ public class StaffController {
         return ResponseEntity.notFound().build();
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateStaff(@PathVariable int id, @RequestBody StaffUpdateRequest request) {
+        java.util.Optional<Staff> staffOpt = staffService.getStaffById(id);
+        if (staffOpt.isPresent()) {
+            Staff existing = staffOpt.get();
+            existing.setName(request.getName());
+            existing.setUsername(request.getUsername());
+            existing.setSalary(request.getSalary());
+            existing.setStatus(request.isStatus());
+            
+            if (existing instanceof RegularStaff regular) {
+                if (request.getWorkStation() != null) {
+                    regular.setWorkStation(request.getWorkStation());
+                }
+            }
+            // Not allowing password updates here for simplicity, similar to customer update
+            staffService.updateStaffInDB(existing);
+            return ResponseEntity.ok(existing);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    public static class StaffUpdateRequest {
+        private String name;
+        private String username;
+        private double salary;
+        private boolean status;
+        private String workStation;
+
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+        public String getUsername() { return username; }
+        public void setUsername(String username) { this.username = username; }
+        public double getSalary() { return salary; }
+        public void setSalary(double salary) { this.salary = salary; }
+        public boolean isStatus() { return status; }
+        public void setStatus(boolean status) { this.status = status; }
+        public String getWorkStation() { return workStation; }
+        public void setWorkStation(String workStation) { this.workStation = workStation; }
+    }
+
     public static class LoginRequest {
         private String username;
         private String password;

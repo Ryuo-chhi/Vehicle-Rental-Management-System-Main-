@@ -72,6 +72,21 @@ public class CustomerController {
         return ResponseEntity.notFound().build();
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Customer> updateCustomer(@PathVariable int id, @Valid @RequestBody Customer customerDetails) {
+        Customer existing = customerService.findById(id);
+        if (existing != null) {
+            existing.setCustomerName(customerDetails.getCustomerName());
+            existing.setcustomerIdNum(customerDetails.getcustomerIdNum());
+            existing.setCustomerPhone(customerDetails.getCustomerPhone(), null);
+            existing.setEmail(customerDetails.getEmail());
+            // Intentionally omit password update to avoid overriding with plain text / empty fields here
+            customerService.updateCustomerInDB(existing);
+            return ResponseEntity.ok(existing);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCustomer(@PathVariable int id) {
         Customer customer = customerService.findById(id);
