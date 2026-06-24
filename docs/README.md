@@ -9,6 +9,7 @@ This directory contains all project documentation organized by purpose and categ
 ### 📋 [planning/](./planning/)
 Project planning, roadmaps, and execution tracking.
 - **PlanToUpgrade.md** - Detailed roadmap for upgrading the console app to enterprise system
+- **CachingAndAnalyticsPlan.md** - Future roadmap detailing Redis integration and Recharts dashboards
 - **PROCESS.md** - Live execution progress tracking
 - **Implementation Plan.md** - Archived implementation plan for staff permissions
 - **Team Execution Guide.md** - Team collaboration strategies and work distribution
