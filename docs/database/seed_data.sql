@@ -115,7 +115,7 @@ INSERT INTO rents (rent_id, customer_id, vehicle_id, staff_id, payment_id, rent_
 -- Historical records represent past transactions that are finished (PAID).
 -- record_id is PK, rent_id is from the rents table.
 -- rent_id 1-20 are used for historical data (older rents).
-INSERT INTO rent_records (rent_id, vehicle_id, vehicle_code, vehicle_type, power_source, vehicle_class, brand, model, licence_plate, rate_per_day, customer_id, customer_name, id_num, phone, staff_id, staff_name, rent_days, start_date, end_date, return_date, payment_id, method, price, discount, extra_days, damage_fee, deposit, pay_date, pay_status, total_paid) VALUES
+INSERT INTO rent_records (rent_id, payment_method, price, discount, extra_days, damage_fee, deposit, pay_date, payment_status, total_paid, return_date) VALUES
     (1, 11, 'Moto-1', 'Moto', 'Gasoline', 'Standard', 'Honda', 'Dream', 'PP-1A 1234', 15.0, 11, 'William Pink', 'ID-10011', '012345688', 11, 'Alexander Hernandez', 3, '2026-03-01', '2026-03-04', '2026-03-04', 1, 'CASH', 15.0, 0, 0, 0, 50.0, '2026-03-04', 'PAID', 45.0),
     (3, 13, 'Moto-3', 'Moto', 'Gasoline', 'Sport', 'Yamaha', 'R15', 'PP-1A 3456', 25.0, 13, 'George Brown', 'ID-10013', '012345690', 13, 'Daniel Gonzalez', 2, '2026-03-05', '2026-03-07', '2026-03-08', 3, 'CASH', 25.0, 5, 1, 0, 50.0, '2026-03-08', 'PAID', 71.25),
     (2, 12, 'Moto-2', 'Moto', 'Gasoline', 'Scooter', 'Honda', 'Scoopy', 'PP-1A 2345', 12.0, 12, 'Olivia Grey', 'ID-10012', '012345689', 12, 'Evelyn Lopez', 5, '2026-03-02', '2026-03-07', '2026-03-07', 2, 'ABA', 12.0, 0, 0, 0, 60.0, '2026-03-07', 'PAID', 60.0),

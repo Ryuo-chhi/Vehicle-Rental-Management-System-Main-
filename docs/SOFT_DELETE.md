@@ -6,7 +6,7 @@ In this project, vehicles are **never physically deleted** from the database usi
 Soft deletion means we simply flip a boolean flag (`isDeleted = true`) on the `Vehicle` entity.
 
 ## Why do we use it?
-When a vehicle is rented, the `rents` and `completed_rents` tables create a **Foreign Key constraint** pointing to the `vehicles` table. If we physically delete a vehicle:
+When a vehicle is rented, the `rents` table creates a **Foreign Key constraint** pointing to the `vehicles` table. If we physically delete a vehicle:
 1. The database will crash (`DataIntegrityViolationException`) because it refuses to break the rental history.
 2. If we force the deletion (e.g., using `ON DELETE SET NULL`), we would permanently lose the historical data about which car was rented (its brand, model, license plate, etc.).
 

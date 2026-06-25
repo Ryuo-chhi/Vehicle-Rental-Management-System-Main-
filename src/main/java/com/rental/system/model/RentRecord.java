@@ -3,7 +3,7 @@ package com.rental.system.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "completed_rents")
+@Table(name = "rent_records")
 public class RentRecord {
 
     @Id
