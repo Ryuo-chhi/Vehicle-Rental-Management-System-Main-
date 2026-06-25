@@ -65,10 +65,21 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(org.springframework.dao.DataIntegrityViolationException ex, WebRequest request) {
+        String rootMsg = ex.getMostSpecificCause().getMessage();
+        String userMessage;
+
+        if (rootMsg != null && (rootMsg.contains("Duplicate entry") || rootMsg.contains("unique constraint") || rootMsg.contains("UNIQUE"))) {
+            userMessage = "A record with the same value already exists. Please use a different email or identifier.";
+        } else if (rootMsg != null && (rootMsg.contains("foreign key") || rootMsg.contains("FOREIGN KEY") || rootMsg.contains("Cannot delete"))) {
+            userMessage = "Cannot delete this record because it is currently in use or referenced by other records (e.g., active or past rentals).";
+        } else {
+            userMessage = "A data conflict occurred. Please check your input and try again.";
+        }
+
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.CONFLICT.value(),
                 "Conflict",
-                "Cannot delete this record because it is currently in use or referenced by other records (e.g., active or past rentals).",
+                userMessage,
                 request.getDescription(false).replace("uri=", "")
         );
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);

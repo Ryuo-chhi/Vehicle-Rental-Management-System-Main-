@@ -104,6 +104,25 @@ public class OtherManagementService {
         return maintenanceRecordRepository.findAll();
     }
 
+    public Optional<MaintenanceRecord> updateMaintenanceRecord(int id, MaintenanceRecord updatedRecord) {
+        return maintenanceRecordRepository.findById(id).map(existing -> {
+            existing.setDetails(updatedRecord.getDetails());
+            existing.setCost(updatedRecord.getCost());
+            existing.setStartDate(updatedRecord.getStartDate());
+            existing.setEndDate(updatedRecord.getEndDate());
+            existing.setStatus(updatedRecord.getStatus());
+            return maintenanceRecordRepository.save(existing);
+        });
+    }
+
+    public boolean deleteMaintenanceRecord(int id) {
+        if (maintenanceRecordRepository.existsById(id)) {
+            maintenanceRecordRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
     // Promotions
     public void savePromotion(Promotion promotion) {
         promotionRepository.save(promotion);
@@ -115,5 +134,22 @@ public class OtherManagementService {
 
     public List<Promotion> getAllPromotions() {
         return promotionRepository.findAll();
+    }
+
+    public Optional<Promotion> updatePromotion(int id, Promotion updatedPromotion) {
+        return promotionRepository.findById(id).map(existing -> {
+            existing.setCode(updatedPromotion.getCode());
+            existing.setDiscountPercent(updatedPromotion.getDiscountPercent());
+            existing.setActive(updatedPromotion.isActive());
+            return promotionRepository.save(existing);
+        });
+    }
+
+    public boolean deletePromotion(int id) {
+        if (promotionRepository.existsById(id)) {
+            promotionRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 }

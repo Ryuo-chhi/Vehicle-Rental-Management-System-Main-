@@ -50,6 +50,21 @@ public class MaintenanceRecordController {
         return ResponseEntity.badRequest().body("Vehicle is not currently in maintenance.");
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<MaintenanceRecord> updateMaintenanceRecord(@PathVariable int id, @RequestBody MaintenanceRecord record) {
+        return otherManagementService.updateMaintenanceRecord(id, record)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteMaintenanceRecord(@PathVariable int id) {
+        if (otherManagementService.deleteMaintenanceRecord(id)) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
     public static class MaintenanceSendRequest {
         private int vehicleId;
         private String details;
