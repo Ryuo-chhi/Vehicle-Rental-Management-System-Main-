@@ -76,7 +76,7 @@ public class StaffController {
             staffService.updateStaffInDB(staff);
 
             String welcomeMessage = "Login success. Welcome " + staff.getUsername() + "!";
-            return ResponseEntity.ok(new LoginResponse(jwt, welcomeMessage, staff.getUsername(), staff.getRole()));
+            return ResponseEntity.ok(new LoginResponse(jwt, welcomeMessage, staff.getUsername(), staff.getRole(), staff.getId()));
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body("Login failed: wrong password or username not found.");
         }
@@ -180,12 +180,14 @@ public class StaffController {
         private String message;
         private String username;
         private String role;
+        private int staffId;
 
-        public LoginResponse(String token, String message, String username, String role) {
+        public LoginResponse(String token, String message, String username, String role, int staffId) {
             this.token = token;
             this.message = message;
             this.username = username;
             this.role = role;
+            this.staffId = staffId;
         }
 
         public String getToken() {
