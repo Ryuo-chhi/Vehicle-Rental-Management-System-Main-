@@ -14,6 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.rental.system.security.StaffPrincipal;
+
 import java.util.List;
 
 @RestController
@@ -39,7 +43,15 @@ public class RentalController {
     public ResponseEntity<?> createRental(@RequestBody RentRequest request) {
         Vehicle vehicle = vehicleService.findById(request.getVehicleId());
         Customer customer = customerService.findById(request.getCustomerId());
-        Staff staff = staffService.findByIdAndUsername(request.getStaffId(), request.getStaffUsername());
+        
+        Staff staff = null;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof StaffPrincipal principal) {
+            staff = principal.getStaff();
+        } else {
+            // Fallback for missing auth context (shouldn't happen if secured properly)
+            staff = staffService.findByIdAndUsername(request.getStaffId(), request.getStaffUsername());
+        }
 
         if (vehicle == null) {
             return ResponseEntity.badRequest().body("Vehicle not found.");

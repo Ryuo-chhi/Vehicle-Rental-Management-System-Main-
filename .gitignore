@@ -1,5 +1,7 @@
 target/
 *.class
+logs
+*.log
 
 ### IntelliJ IDEA ###
 .idea/

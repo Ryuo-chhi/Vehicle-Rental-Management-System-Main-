@@ -84,7 +84,8 @@ public class Payment {
             total = 0.0;
         }
 
-        return total;
+        // Round up to nearest cent to prevent losing customer revenue
+        return Math.ceil(total * 100.0) / 100.0;
     }
 
     public double expectedTotal() {
@@ -93,7 +94,8 @@ public class Payment {
         double subtotal = base - (base * (discount / 100.0));
         double withTax = subtotal * (1.0 + taxRate / 100.0);
         double total = withTax - deposit;
-        return total < 0.0 ? 0.0 : total;
+        total = total < 0.0 ? 0.0 : total;
+        return Math.ceil(total * 100.0) / 100.0;
     }
 
 
