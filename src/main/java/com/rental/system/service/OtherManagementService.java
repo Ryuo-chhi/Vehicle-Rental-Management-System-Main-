@@ -112,6 +112,10 @@ public class OtherManagementService {
         return maintenanceRecordRepository.findAll();
     }
 
+    public List<MaintenanceRecord> getMaintenanceRecordsByVehicle(int vehicleId) {
+        return maintenanceRecordRepository.findByVehicleId(vehicleId);
+    }
+
     public Optional<MaintenanceRecord> updateMaintenanceRecord(int id, MaintenanceRecord updatedRecord) {
         return maintenanceRecordRepository.findById(id).map(existing -> {
             existing.setDetails(updatedRecord.getDetails());

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -36,6 +37,7 @@ public class CustomerController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('MANAGER', 'REGULAR')")
     public Set<Customer> getAllCustomers() {
         return customerService.getAllCustomers();
     }
@@ -77,6 +79,7 @@ public class CustomerController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('MANAGER', 'REGULAR')")
     public ResponseEntity<Customer> updateCustomer(@PathVariable int id, @Valid @RequestBody Customer customerDetails) {
         Customer existing = customerService.findById(id);
         if (existing != null) {
@@ -92,6 +95,7 @@ public class CustomerController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('MANAGER', 'REGULAR')")
     public ResponseEntity<Void> deleteCustomer(@PathVariable int id) {
         Customer customer = customerService.findById(id);
         if (customer != null) {

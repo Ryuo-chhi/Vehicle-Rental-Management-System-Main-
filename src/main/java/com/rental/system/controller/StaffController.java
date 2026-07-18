@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.rental.system.model.Customer;
 import com.rental.system.security.JwtTokenProvider;
@@ -50,6 +51,7 @@ public class StaffController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('MANAGER')")
     public Set<Staff> getAllStaff() {
         return staffService.getAllStaff();
     }
@@ -117,6 +119,7 @@ public class StaffController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<?> deleteStaff(@PathVariable int id) {
         java.util.Optional<Staff> staffOpt = staffService.getStaffById(id);
         if (staffOpt.isPresent()) {
@@ -127,6 +130,7 @@ public class StaffController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<?> updateStaff(@PathVariable int id, @RequestBody StaffUpdateRequest request) {
         java.util.Optional<Staff> staffOpt = staffService.getStaffById(id);
         if (staffOpt.isPresent()) {

@@ -23,8 +23,11 @@ import com.rental.system.security.CustomerUserDetailsService;
 import com.rental.system.security.JwtAuthenticationFilter;
 import com.rental.system.security.StaffUserDetailsService;
 
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @SuppressWarnings("null")
 public class SecurityConfig {
 

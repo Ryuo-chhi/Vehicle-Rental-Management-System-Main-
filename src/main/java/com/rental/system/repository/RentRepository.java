@@ -15,4 +15,7 @@ public interface RentRepository extends JpaRepository<Rent, Integer> {
 
     @EntityGraph(attributePaths = {"vehicle", "customer", "staff", "payment"})
     List<Rent> findAll();
+    
+    @EntityGraph(attributePaths = {"vehicle", "customer", "staff", "payment"})
+    List<Rent> findByCustomer_CustomerId(int customerId);
 }

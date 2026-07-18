@@ -2,14 +2,18 @@ package com.rental.system.controller;
 
 import com.rental.system.model.MaintenanceRecord;
 import com.rental.system.service.OtherManagementService;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/maintenance-records")
+@PreAuthorize("hasAnyRole('MANAGER', 'REGULAR')")
 public class MaintenanceRecordController {
     private final OtherManagementService otherManagementService;
 
@@ -21,6 +25,11 @@ public class MaintenanceRecordController {
     @GetMapping
     public List<MaintenanceRecord> getMaintenanceHistory() {
         return otherManagementService.getAllMaintenanceRecords();
+    }
+
+    @GetMapping("/vehicle/{vehicleId}")
+    public List<MaintenanceRecord> getMaintenanceByVehicle(@PathVariable int vehicleId) {
+        return otherManagementService.getMaintenanceRecordsByVehicle(vehicleId);
     }
 
     @PostMapping
@@ -65,32 +74,20 @@ public class MaintenanceRecordController {
         return ResponseEntity.notFound().build();
     }
 
+    @Data
+    @NoArgsConstructor
     public static class MaintenanceSendRequest {
         private int vehicleId;
         private String details;
         private double cost;
         private String startDate;
-
-        public int getVehicleId() { return vehicleId; }
-        public void setVehicleId(int vehicleId) { this.vehicleId = vehicleId; }
-        public String getDetails() { return details; }
-        public void setDetails(String details) { this.details = details; }
-        public double getCost() { return cost; }
-        public void setCost(double cost) { this.cost = cost; }
-        public String getStartDate() { return startDate; }
-        public void setStartDate(String startDate) { this.startDate = startDate; }
     }
 
+    @Data
+    @NoArgsConstructor
     public static class MaintenanceCompleteRequest {
         private int vehicleId;
         private String endDate;
         private double actualCost;
-
-        public int getVehicleId() { return vehicleId; }
-        public void setVehicleId(int vehicleId) { this.vehicleId = vehicleId; }
-        public String getEndDate() { return endDate; }
-        public void setEndDate(String endDate) { this.endDate = endDate; }
-        public double getActualCost() { return actualCost; }
-        public void setActualCost(double actualCost) { this.actualCost = actualCost; }
     }
 }

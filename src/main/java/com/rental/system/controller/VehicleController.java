@@ -6,6 +6,7 @@ import com.rental.system.model.Moto;
 import com.rental.system.service.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,12 +27,14 @@ public class VehicleController {
     }
 
     @PostMapping("/cars")
+    @PreAuthorize("hasAnyRole('MANAGER', 'REGULAR')")
     public ResponseEntity<Vehicle> registerCar(@RequestBody Car car) {
         vehicleService.registerNewVehicle(car);
         return ResponseEntity.ok(car);
     }
 
     @PutMapping("/cars/{id}")
+    @PreAuthorize("hasAnyRole('MANAGER', 'REGULAR')")
     public ResponseEntity<Vehicle> updateCar(@PathVariable int id, @RequestBody Car carDetails) {
         Vehicle existing = vehicleService.findById(id);
         if (existing instanceof Car) {
@@ -53,12 +56,14 @@ public class VehicleController {
     }
 
     @PostMapping("/motos")
+    @PreAuthorize("hasAnyRole('MANAGER', 'REGULAR')")
     public ResponseEntity<Vehicle> registerMoto(@RequestBody Moto moto) {
         vehicleService.registerNewVehicle(moto);
         return ResponseEntity.ok(moto);
     }
 
     @PutMapping("/motos/{id}")
+    @PreAuthorize("hasAnyRole('MANAGER', 'REGULAR')")
     public ResponseEntity<Vehicle> updateMoto(@PathVariable int id, @RequestBody Moto motoDetails) {
         Vehicle existing = vehicleService.findById(id);
         if (existing instanceof Moto) {
@@ -80,6 +85,7 @@ public class VehicleController {
     }
 
     @PostMapping("/upload")
+    @PreAuthorize("hasAnyRole('MANAGER', 'REGULAR')")
     public ResponseEntity<java.util.Map<String, String>> uploadVehicleImage(@RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body(java.util.Map.of("error", "File is empty"));
@@ -130,6 +136,7 @@ public class VehicleController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('MANAGER', 'REGULAR')")
     public ResponseEntity<Void> deleteVehicle(@PathVariable int id) {
         Vehicle vehicle = vehicleService.findById(id);
         if (vehicle != null) {

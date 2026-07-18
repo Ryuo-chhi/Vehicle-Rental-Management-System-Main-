@@ -94,6 +94,10 @@ public class RentalService {
         return rentRepository.findById(id).orElse(null);
     }
 
+    public List<Rent> findByCustomerId(int customerId) {
+        return rentRepository.findByCustomer_CustomerId(customerId);
+    }
+
     public double calculateTotalRevenue() {
         double total = 0;
         for (RentRecord record : rentRecordRepository.findAll()) {
