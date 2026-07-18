@@ -2,6 +2,9 @@ package com.rental.system.controller;
 
 import com.rental.system.model.Customer;
 import com.rental.system.service.CustomerService;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.rental.system.security.JwtTokenProvider;
 import com.rental.system.security.CustomerPrincipal;
@@ -58,7 +62,7 @@ public class CustomerController {
 
             String welcomeMessage = "Login success. Welcome " + customer.getCustomerName() + "!";
             return ResponseEntity.ok(new CustomerLoginResponse(jwt, welcomeMessage, customer));
-        } catch (Exception ex) {
+        } catch (AuthenticationException ex) {
             return ResponseEntity.badRequest().body("Login failed: wrong password or email not found.");
         }
     }
@@ -97,32 +101,18 @@ public class CustomerController {
         return ResponseEntity.notFound().build();
     }
 
+    @Data
+    @NoArgsConstructor
     public static class CustomerLoginRequest {
         private String email;
         private String password;
-
-        public String getEmail() { return email; }
-        public void setEmail(String email) { this.email = email; }
-        public String getPassword() { return password; }
-        public void setPassword(String password) { this.password = password; }
     }
 
+    @Data
+    @AllArgsConstructor
     public static class CustomerLoginResponse {
         private String token;
         private String message;
         private Customer customer;
-
-        public CustomerLoginResponse(String token, String message, Customer customer) {
-            this.token = token;
-            this.message = message;
-            this.customer = customer;
-        }
-
-        public String getToken() { return token; }
-        public void setToken(String token) { this.token = token; }
-        public String getMessage() { return message; }
-        public void setMessage(String message) { this.message = message; }
-        public Customer getCustomer() { return customer; }
-        public void setCustomer(Customer customer) { this.customer = customer; }
     }
 }

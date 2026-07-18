@@ -37,14 +37,22 @@ public class OtherManagementService {
 
     @PostConstruct
     public void initSettings() {
-        // Load settings from DB into SystemSettingsHolder
-        double taxRate = Double.parseDouble(getSettingValue("TAX_RATE", "0.0"));
-        double penalty = Double.parseDouble(getSettingValue("LATE_PENALTY_MULTIPLIER", "1.5"));
-        int duration = Integer.parseInt(getSettingValue("MAX_RENTAL_DURATION", "30"));
+        try {
+            // Load settings from DB into SystemSettingsHolder
+            double taxRate = Double.parseDouble(getSettingValue("TAX_RATE", "0.0"));
+            double penalty = Double.parseDouble(getSettingValue("LATE_PENALTY_MULTIPLIER", "1.5"));
+            int duration = Integer.parseInt(getSettingValue("MAX_RENTAL_DURATION", "30"));
 
-        SystemSettingsHolder.setTaxRate(taxRate);
-        SystemSettingsHolder.setPenaltyMultiplier(penalty);
-        SystemSettingsHolder.setMaxRentalDuration(duration);
+            SystemSettingsHolder.setTaxRate(taxRate);
+            SystemSettingsHolder.setPenaltyMultiplier(penalty);
+            SystemSettingsHolder.setMaxRentalDuration(duration);
+        } catch (Exception e) {
+            // Table might not exist yet (e.g., on H2 clean startup before CommandLineRunner builds schema)
+            System.err.println("Warning: Could not initialize system settings from DB on startup (tables may not exist yet). Setting defaults.");
+            SystemSettingsHolder.setTaxRate(0.0);
+            SystemSettingsHolder.setPenaltyMultiplier(1.5);
+            SystemSettingsHolder.setMaxRentalDuration(30);
+        }
     }
 
     private String getSettingValue(String key, String defaultValue) {

@@ -2,11 +2,16 @@ package com.rental.system.controller;
 
 import java.util.Set;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -85,7 +90,7 @@ public class StaffController {
 
             String welcomeMessage = "Login success. Welcome " + staff.getUsername() + "!";
             return ResponseEntity.ok(new LoginResponse(jwt, welcomeMessage, staff.getUsername(), staff.getRole(), staff.getId()));
-        } catch (Exception ex) {
+        } catch (AuthenticationException ex) {
             return ResponseEntity.badRequest().body("Login failed: wrong password or username not found.");
         }
     }
@@ -143,91 +148,30 @@ public class StaffController {
         return ResponseEntity.notFound().build();
     }
 
+    @Data
+    @NoArgsConstructor
     public static class StaffUpdateRequest {
         private String name;
         private String username;
         private double salary;
         private boolean status;
         private String workStation;
-
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-        public String getUsername() { return username; }
-        public void setUsername(String username) { this.username = username; }
-        public double getSalary() { return salary; }
-        public void setSalary(double salary) { this.salary = salary; }
-        public boolean isStatus() { return status; }
-        public void setStatus(boolean status) { this.status = status; }
-        public String getWorkStation() { return workStation; }
-        public void setWorkStation(String workStation) { this.workStation = workStation; }
     }
 
+    @Data
+    @NoArgsConstructor
     public static class LoginRequest {
         private String username;
         private String password;
-
-        public String getUsername() {
-            return username;
-        }
-
-        public void setUsername(String username) {
-            this.username = username;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
     }
 
+    @Data
+    @AllArgsConstructor
     public static class LoginResponse {
         private String token;
         private String message;
         private String username;
         private String role;
         private int staffId;
-
-        public LoginResponse(String token, String message, String username, String role, int staffId) {
-            this.token = token;
-            this.message = message;
-            this.username = username;
-            this.role = role;
-            this.staffId = staffId;
-        }
-
-        public String getToken() {
-            return token;
-        }
-
-        public void setToken(String token) {
-            this.token = token;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
-        }
-
-        public String getUsername() {
-            return username;
-        }
-
-        public void setUsername(String username) {
-            this.username = username;
-        }
-
-        public String getRole() {
-            return role;
-        }
-
-        public void setRole(String role) {
-            this.role = role;
-        }
     }
 }

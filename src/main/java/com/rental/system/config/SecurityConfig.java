@@ -1,14 +1,13 @@
 package com.rental.system.config;
 
-import com.rental.system.security.JwtAuthenticationFilter;
-import com.rental.system.security.StaffUserDetailsService;
-import com.rental.system.security.CustomerUserDetailsService;
+import java.util.Arrays;
+import java.util.Collections;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -20,8 +19,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
-import java.util.Collections;
+import com.rental.system.security.CustomerUserDetailsService;
+import com.rental.system.security.JwtAuthenticationFilter;
+import com.rental.system.security.StaffUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
@@ -47,16 +47,14 @@ public class SecurityConfig {
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(staffUserDetailsService);
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(staffUserDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
 
     @Bean
     public DaoAuthenticationProvider customerAuthenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(customerUserDetailsService);
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(customerUserDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
