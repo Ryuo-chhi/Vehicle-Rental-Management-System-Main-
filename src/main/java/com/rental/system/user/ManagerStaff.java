@@ -19,12 +19,9 @@ public class ManagerStaff extends Staff {
         this.bonus = 0;
     }
 
-    /*====== Manager Permissions — full access ====== */
+    /*====== Manager Permissions — full access except modifying manager salary ====== */
     @Override
     public boolean can(String action) {
-        if ("admin_root".equalsIgnoreCase(getUsername())) {
-            return true;
-        }
         return !action.equals("SET_MANAGER_SALARY");
     }
 

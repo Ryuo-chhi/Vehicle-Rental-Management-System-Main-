@@ -1,8 +1,8 @@
 [
   {
-    "role": "MANAGER",
+    "role": "ROOT",
     "name": "Root",
-    "username": "root_admin",
+    "username": "admin_root",
     "password": "Root@123",
     "salary": 0.0
   },

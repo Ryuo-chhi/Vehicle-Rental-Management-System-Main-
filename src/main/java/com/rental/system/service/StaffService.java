@@ -5,6 +5,7 @@ import com.rental.system.user.RegularStaff;
 import com.rental.system.user.Staff;
 import com.rental.system.repository.StaffRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -16,6 +17,12 @@ public class StaffService {
     private final StaffRepository staffRepository;
     private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
     private Staff loggedInStaff;
+
+    @Value("${app.root.username:admin_root}")
+    private String rootUsername;
+
+    @Value("${app.root.password:#{null}}")
+    private String rootPassword;
 
     @Autowired
     public StaffService(StaffRepository staffRepository, org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
@@ -82,6 +89,25 @@ public class StaffService {
             return "Login failed: missing username/password.";
         }
 
+        // VIRTUAL ROOT USER (Anonymous Class - Bypasses Database entirely)
+        if (username.trim().equals(rootUsername)) {
+            if (rootPassword == null || rootPassword.isBlank()) {
+                throw new IllegalStateException("CRITICAL SECURITY ERROR: Root password missing!");
+            }
+            if (password.equals(rootPassword)) {
+                Staff root = new Staff("System Root", rootUsername, "", 0.0) {
+                    @Override
+                    public boolean can(String action) { return true; }
+                };
+                root.setStaffId(-1);
+                root.setActive(true);
+                root.setStatus(true);
+                loggedInStaff = root;
+                return "Login success. Welcome " + rootUsername + "!";
+            }
+            return "Login failed: wrong password.";
+        }
+
         Optional<Staff> opt = staffRepository.findByUsername(username.trim());
         if (opt.isPresent()) {
             Staff s = opt.get();
@@ -109,11 +135,17 @@ public class StaffService {
     }
 
     public void addAdmin(String name, String username, String password) {
-        Staff admin = new ManagerStaff(name, username, passwordEncoder.encode(password), 0);
+        Staff admin = new com.rental.system.user.ManagerStaff(name, username, passwordEncoder.encode(password), 0);
         staffRepository.save(admin);
     }
 
     public void generateDefaultStaff() {
+        // SECURITY: Fail fast. Do not start the application if root credentials are missing.
+        if (rootPassword == null || rootPassword.isBlank()) {
+            throw new IllegalStateException("CRITICAL SECURITY ERROR: Root password (app.root.password) MUST be configured via environment variables. System startup halted.");
+        }
+        System.out.println("System initialized with purely virtual anonymous Root account: " + rootUsername);
+
         try {
             com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
             java.io.InputStream is = getClass().getResourceAsStream("/staff-seeds.json");
@@ -131,11 +163,14 @@ public class StaffService {
                     double salary = ((Number) seed.getOrDefault("salary", 0.0)).doubleValue();
 
                     Staff s;
-                    if ("MANAGER".equalsIgnoreCase(role)) {
-                        s = new ManagerStaff(name, username, passwordEncoder.encode(password), salary);
+                    if ("ROOT".equalsIgnoreCase(role)) {
+                        // Skip ROOT generation here since it's already guaranteed above
+                        continue;
+                    } else if ("MANAGER".equalsIgnoreCase(role)) {
+                        s = new com.rental.system.user.ManagerStaff(name, username, passwordEncoder.encode(password), salary);
                     } else {
                         String workStation = (String) seed.getOrDefault("workStation", "");
-                        s = new RegularStaff(name, username, passwordEncoder.encode(password), salary, workStation);
+                        s = new com.rental.system.user.RegularStaff(name, username, passwordEncoder.encode(password), salary, workStation);
                     }
                     staffRepository.save(s);
                 }

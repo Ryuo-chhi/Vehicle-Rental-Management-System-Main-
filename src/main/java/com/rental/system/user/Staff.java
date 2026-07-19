@@ -83,6 +83,7 @@ public abstract class Staff implements IStaff {
     }
     @JsonProperty("role")
     public String getRole() {
+        if (this.getClass().isAnonymousClass()) return "ROOT";
         if (this instanceof ManagerStaff) return "MANAGER";
         if (this instanceof RegularStaff) return "REGULAR";
         if (this instanceof CustomerStaff) return "CUSTOMER";
