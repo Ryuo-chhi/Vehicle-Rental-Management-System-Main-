@@ -62,6 +62,11 @@ public class StaffService {
     }
 
     public void updateStaffInDB(Staff staff) {
+        // VIRTUAL ROOT CHECK: Do not attempt to save in-memory virtual accounts to JPA
+        if (staff.getClass().isAnonymousClass()) {
+            return;
+        }
+
         if (staff.getPassword() != null && !staff.getPassword().startsWith("$2a$")) {
             staff.setPassword(passwordEncoder.encode(staff.getPassword()));
         }

@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @SuppressWarnings("null")
 public class StaffPrincipal implements UserDetails {
@@ -22,6 +23,14 @@ public class StaffPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Virtual ROOT bypasses all method-level security rules
+        if ("ROOT".equals(staff.getRole())) {
+            return List.of(
+                    new SimpleGrantedAuthority("ROLE_ROOT"),
+                    new SimpleGrantedAuthority("ROLE_MANAGER"),
+                    new SimpleGrantedAuthority("ROLE_REGULAR"),
+                    new SimpleGrantedAuthority("ROLE_CUSTOMER"));
+        }
         String role = staff.getClass().getSimpleName().replace("Staff", "").toUpperCase();
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role));
     }

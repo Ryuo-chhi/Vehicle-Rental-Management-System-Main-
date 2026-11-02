@@ -90,6 +90,13 @@ public abstract class Staff implements IStaff {
         return "UNKNOWN";
     }
 
+    /** Backend-authoritative: true for any role that can access the staff portal. */
+    @JsonProperty("isStaff")
+    public boolean isStaff() {
+        String role = getRole();
+        return !"CUSTOMER".equals(role) && !"UNKNOWN".equals(role);
+    }
+
     public double getSalary() {
         return salary;
     }
